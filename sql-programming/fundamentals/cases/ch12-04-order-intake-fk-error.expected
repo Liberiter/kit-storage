@@ -1,0 +1,3 @@
+ERROR:  insert or update on table "order_items" violates foreign key constraint "order_items_book_id_fkey"
+DETAIL:  Key (book_id)=(99999) is not present in table "books".
+[exit 3]

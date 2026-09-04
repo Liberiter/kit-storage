@@ -1,0 +1,16 @@
+              Table "public.order_items"
+   Column   |  Type   | Collation | Nullable | Default 
+------------+---------+-----------+----------+---------
+ order_id   | integer |           | not null | 
+ book_id    | integer |           | not null | 
+ quantity   | integer |           | not null | 
+ unit_price | integer |           | not null | 
+Indexes:
+    "order_items_pkey" PRIMARY KEY, btree (order_id, book_id)
+Check constraints:
+    "order_items_quantity_check" CHECK (quantity > 0)
+    "order_items_unit_price_check" CHECK (unit_price > 0)
+Foreign-key constraints:
+    "order_items_book_id_fkey" FOREIGN KEY (book_id) REFERENCES books(book_id)
+    "order_items_order_id_fkey" FOREIGN KEY (order_id) REFERENCES orders(order_id)
+[exit 0]

@@ -1,0 +1,10 @@
+                                       List of tables
+ Schema |    Name     | Type  |  Owner   | Persistence | Access method | Size  | Description 
+--------+-------------+-------+----------+-------------+---------------+-------+-------------
+ public | books       | table | postgres | permanent   | heap          | 64 kB | 
+ public | customers   | table | postgres | permanent   | heap          | 48 kB | 
+ public | order_items | table | postgres | permanent   | heap          | 80 kB | 
+ public | orders      | table | postgres | permanent   | heap          | 72 kB | 
+ public | reviews     | table | postgres | permanent   | heap          | 72 kB | 
+(5 rows)
+[exit 0]

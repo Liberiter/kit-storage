@@ -1,0 +1,4 @@
+ERROR:  invalid input syntax for type date: ""
+LINE 1: ... order_id, shipped_date FROM orders WHERE shipped_date = '';
+                                                                    ^
+[exit 3]

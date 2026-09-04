@@ -1,0 +1,4 @@
+ERROR:  UNION types integer and text cannot be matched
+LINE 4: SELECT name
+               ^
+[exit 3]

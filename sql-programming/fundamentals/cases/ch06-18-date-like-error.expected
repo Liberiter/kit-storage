@@ -1,0 +1,5 @@
+ERROR:  operator does not exist: date ~~ unknown
+LINE 1: ...e, published_date FROM books WHERE published_date LIKE '2025...
+                                                             ^
+HINT:  No operator matches the given name and argument types. You might need to add explicit type casts.
+[exit 3]

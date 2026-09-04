@@ -1,0 +1,5 @@
+ERROR:  operator does not exist: text * integer
+LINE 1: SELECT title * 2 AS 결과 FROM books LIMIT 1;
+                     ^
+HINT:  No operator matches the given name and argument types. You might need to add explicit type casts.
+[exit 3]

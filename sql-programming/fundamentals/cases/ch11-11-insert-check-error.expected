@@ -1,0 +1,3 @@
+ERROR:  new row for relation "books" violates check constraint "books_price_check"
+DETAIL:  Failing row contains (321, 빛나는 계절, 한지우, 에세이, 0, 232, 2026-08-20, 10).
+[exit 3]

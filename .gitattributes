@@ -1,0 +1,6 @@
+# 셸 스크립트·SQL은 Windows에서 clone해도 LF를 유지한다 (bash가 CRLF를 읽지 못한다)
+* text=auto
+*.sh text eol=lf
+*.sql text eol=lf
+*.expected text eol=lf
+*.py text eol=lf

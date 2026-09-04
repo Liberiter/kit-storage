@@ -1,0 +1,4 @@
+ERROR:  syntax error at or near "UNION"
+LINE 6: UNION
+        ^
+[exit 3]

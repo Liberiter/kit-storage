@@ -1,0 +1,4 @@
+ review_id | rating | order_id 
+-----------+--------+----------
+(0 rows)
+[exit 0]

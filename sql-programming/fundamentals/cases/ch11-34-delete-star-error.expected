@@ -1,0 +1,4 @@
+ERROR:  syntax error at or near "*"
+LINE 1: DELETE * FROM books WHERE title = '없는 책';
+               ^
+[exit 3]

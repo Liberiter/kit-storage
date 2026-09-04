@@ -1,0 +1,16 @@
+                claim                 |             value              
+--------------------------------------+--------------------------------
+ customers의 기본키 열                | customer_id
+ books의 기본키 열                    | book_id
+ orders의 기본키 열                   | order_id
+ order_items의 기본키 열              | order_id, book_id
+ reviews의 기본키 열                  | review_id
+ orders의 외래키 열                   | customer_id
+ order_items의 외래키 열              | book_id, order_id
+ reviews의 외래키 열                  | book_id, customer_id, order_id
+ reviews의 외래키 중 널을 허용하는 열 | order_id
+ books를 가리키는 테이블              | order_items, reviews
+ customers를 가리키는 테이블          | orders, reviews
+ orders를 가리키는 테이블             | order_items, reviews
+(12 rows)
+[exit 0]

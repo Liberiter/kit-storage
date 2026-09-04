@@ -1,0 +1,3 @@
+ERROR:  update or delete on table "orders" violates foreign key constraint "order_items_order_id_fkey" on table "order_items"
+DETAIL:  Key (order_id)=(4) is still referenced from table "order_items".
+[exit 3]

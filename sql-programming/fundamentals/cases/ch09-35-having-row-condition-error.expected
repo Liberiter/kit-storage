@@ -1,0 +1,4 @@
+ERROR:  column "books.price" must appear in the GROUP BY clause or be used in an aggregate function
+LINE 4: HAVING books.price >= 30000
+               ^
+[exit 3]

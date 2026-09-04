@@ -1,0 +1,7 @@
+ customer_id |  name  |           email           | city | orders 
+-------------+--------+---------------------------+------+--------
+           4 | 최연우 | yeonwoo.choi@bookmail.kr  | 부산 |      6
+          12 | 최연우 | yeonwoo.choi2@bookmail.kr | 서울 |      6
+         111 | 최연우 | yeonwoo.choi3@bookmail.kr | 대전 |      5
+(3 rows)
+[exit 0]

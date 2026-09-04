@@ -1,0 +1,4 @@
+ERROR:  column "제목" does not exist
+LINE 1: SELECT 제목 FROM books LIMIT 3;
+               ^
+[exit 3]

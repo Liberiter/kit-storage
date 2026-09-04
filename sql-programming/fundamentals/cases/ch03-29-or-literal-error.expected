@@ -1,0 +1,4 @@
+ERROR:  invalid input syntax for type boolean: "요리"
+LINE 1: ...itle, category FROM books WHERE category = '여행' OR '요리';
+                                                                ^
+[exit 3]

@@ -1,0 +1,4 @@
+ERROR:  column "title" does not exist
+LINE 1: SELECT title;
+               ^
+[exit 3]

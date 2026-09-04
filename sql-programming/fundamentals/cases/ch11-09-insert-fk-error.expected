@@ -1,0 +1,3 @@
+ERROR:  insert or update on table "orders" violates foreign key constraint "orders_customer_id_fkey"
+DETAIL:  Key (customer_id)=(9999) is not present in table "customers".
+[exit 3]

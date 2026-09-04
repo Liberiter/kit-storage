@@ -1,0 +1,12 @@
+ 순서 |    열 이름     |  타입   | NULL 허용 
+------+----------------+---------+-----------
+    1 | book_id        | integer | NO
+    2 | title          | text    | NO
+    3 | author         | text    | NO
+    4 | category       | text    | NO
+    5 | price          | integer | NO
+    6 | page_count     | integer | NO
+    7 | published_date | date    | NO
+    8 | stock          | integer | NO
+(8 rows)
+[exit 0]

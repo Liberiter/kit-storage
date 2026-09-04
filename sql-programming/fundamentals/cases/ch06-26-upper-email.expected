@@ -1,0 +1,7 @@
+ customer_id |          email          |      대문자 이메일      
+-------------+-------------------------+-------------------------
+           1 | juwon.yoon@bookmail.kr  | JUWON.YOON@BOOKMAIL.KR
+           2 | minjun.yoon@bookmail.kr | MINJUN.YOON@BOOKMAIL.KR
+           3 | juwon.lim@bookmail.kr   | JUWON.LIM@BOOKMAIL.KR
+(3 rows)
+[exit 0]

@@ -1,0 +1,4 @@
+ERROR:  syntax error at or near "LIMIT"
+LINE 4: LIMIT 3;
+        ^
+[exit 3]

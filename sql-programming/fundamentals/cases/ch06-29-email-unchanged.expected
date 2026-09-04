@@ -1,0 +1,7 @@
+ customer_id |          email          
+-------------+-------------------------
+           1 | juwon.yoon@bookmail.kr
+           2 | minjun.yoon@bookmail.kr
+           3 | juwon.lim@bookmail.kr
+(3 rows)
+[exit 0]

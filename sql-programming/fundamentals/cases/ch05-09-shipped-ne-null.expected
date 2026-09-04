@@ -1,0 +1,4 @@
+ order_id | status | shipped_date 
+----------+--------+--------------
+(0 rows)
+[exit 0]

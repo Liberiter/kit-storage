@@ -1,0 +1,4 @@
+ERROR:  syntax error at or near "'제목'"
+LINE 1: SELECT title AS '제목' FROM books LIMIT 3;
+                        ^
+[exit 3]

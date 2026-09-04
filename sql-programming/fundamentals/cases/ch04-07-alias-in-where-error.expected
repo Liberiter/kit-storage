@@ -1,0 +1,4 @@
+ERROR:  column "정가" does not exist
+LINE 1: ...ECT title AS 제목, price AS 정가 FROM books WHERE 정가 <= 85...
+                                                             ^
+[exit 3]

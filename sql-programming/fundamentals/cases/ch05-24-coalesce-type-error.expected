@@ -1,0 +1,4 @@
+ERROR:  invalid input syntax for type date: "준비 중"
+LINE 1: SELECT order_id, COALESCE(shipped_date, '준비 중') AS 발송일
+                                                ^
+[exit 3]

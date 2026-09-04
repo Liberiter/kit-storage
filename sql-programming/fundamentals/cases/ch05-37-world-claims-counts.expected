@@ -1,0 +1,39 @@
+                 claim                  | value 
+----------------------------------------+-------
+ orders 전체 행 수                      |   620
+ shipped_date가 NULL인 주문 수          |   144
+ shipped_date가 NULL이 아닌 주문 수     |   476
+ shipped_date = NULL 조건이 찾은 행 수  |     0
+ shipped_date <> NULL 조건이 찾은 행 수 |     0
+ 상태가 배송준비인 주문 수              |    83
+ 상태가 배송중인 주문 수                |    77
+ 상태가 배송완료인 주문 수              |   399
+ 상태가 취소인 주문 수                  |    61
+ 발송일이 없고 취소도 아닌 주문 수      |    83
+ 고객 4의 주문 수                       |     6
+ 고객 4의 주문 중 발송일이 있는 것      |     2
+ 고객 4의 주문 중 발송일이 없는 것      |     4
+ 가장 작은 order_id                     |     1
+ customers 전체 행 수                   |   150
+ birth_date가 NULL인 고객 수            |    41
+ birth_date가 NULL이 아닌 고객 수       |   109
+ reviews 전체 행 수                     |   520
+ comment가 NULL인 리뷰 수               |   189
+ comment가 NULL이 아닌 리뷰 수          |   331
+ comment = 빈 문자열 조건이 찾은 행 수  |     0
+ comment = NULL 조건이 찾은 행 수       |     0
+ order_id가 NULL인 리뷰 수              |   220
+ order_id가 NULL이 아닌 리뷰 수         |   300
+ order_id가 0인 리뷰 수                 |     0
+ 코멘트가 없고 별점이 5점인 리뷰 수     |    64
+ 별점이 5점인 리뷰 수                   |   160
+ 별점이 1점인 리뷰 수                   |    23
+ 별점이 4점 이상인 리뷰 수              |   331
+ 2026년 리뷰 중 별점 3점 이하인 것      |   122
+ books 전체 행 수                       |   320
+ books의 열 수                          |     8
+ books의 NOT NULL 열 수                 |     8
+ 여행 분야 도서 수                      |    36
+ 여행 분야가 아닌 도서 수               |   284
+(35 rows)
+[exit 0]

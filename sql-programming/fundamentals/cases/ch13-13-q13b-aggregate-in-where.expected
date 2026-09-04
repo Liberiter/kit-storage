@@ -1,0 +1,4 @@
+ERROR:  aggregate functions are not allowed in WHERE
+LINE 5: WHERE count(*) >= 5
+              ^
+[exit 3]

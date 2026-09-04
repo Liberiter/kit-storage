@@ -1,0 +1,4 @@
+ERROR:  each UNION query must have the same number of columns
+LINE 4: SELECT customer_id, name
+               ^
+[exit 3]

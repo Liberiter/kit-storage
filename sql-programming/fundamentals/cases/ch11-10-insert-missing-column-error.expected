@@ -1,0 +1,3 @@
+ERROR:  null value in column "published_date" of relation "books" violates not-null constraint
+DETAIL:  Failing row contains (321, 빛나는 계절, 한지우, 에세이, 17000, 232, null, null).
+[exit 3]

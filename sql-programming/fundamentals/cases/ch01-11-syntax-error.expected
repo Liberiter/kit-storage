@@ -1,0 +1,4 @@
+ERROR:  syntax error at or near "SELCT"
+LINE 1: SELCT 1 + 1;
+        ^
+[exit 3]

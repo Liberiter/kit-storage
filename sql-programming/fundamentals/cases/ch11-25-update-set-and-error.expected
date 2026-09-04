@@ -1,0 +1,4 @@
+ERROR:  argument of AND must be type boolean, not type integer
+LINE 1: UPDATE books SET price = 17500 AND stock = 25 WHERE book_id ...
+                                 ^
+[exit 3]

@@ -1,0 +1,4 @@
+ERROR:  aggregate functions are not allowed in WHERE
+LINE 7: WHERE count(*) >= 20
+              ^
+[exit 3]

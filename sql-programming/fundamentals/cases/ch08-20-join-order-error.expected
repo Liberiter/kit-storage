@@ -1,0 +1,4 @@
+ERROR:  missing FROM-clause entry for table "order_items"
+LINE 3: INNER JOIN books ON order_items.book_id = books.book_id
+                            ^
+[exit 3]

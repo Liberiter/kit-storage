@@ -1,0 +1,5 @@
+ERROR:  column "titel" does not exist
+LINE 1: SELECT titel, author FROM books LIMIT 5;
+               ^
+HINT:  Perhaps you meant to reference the column "books.title".
+[exit 3]

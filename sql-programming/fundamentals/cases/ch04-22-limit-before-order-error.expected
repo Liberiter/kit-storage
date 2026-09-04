@@ -1,0 +1,4 @@
+ERROR:  syntax error at or near "ORDER"
+LINE 1: SELECT title FROM books LIMIT 5 ORDER BY price;
+                                        ^
+[exit 3]

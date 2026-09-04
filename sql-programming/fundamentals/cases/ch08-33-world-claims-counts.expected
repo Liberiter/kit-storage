@@ -1,0 +1,44 @@
+                              claim                              | value 
+-----------------------------------------------------------------+-------
+ customers 행 수                                                 |   150
+ orders 행 수                                                    |   620
+ books 행 수                                                     |   320
+ order_items 행 수                                               |  1243
+ reviews 행 수                                                   |   520
+ 주문이 하나도 없는 고객 수                                      |    29
+ 고객 7번의 주문 수                                              |     0
+ customers INNER JOIN orders 행 수                               |   620
+ customers LEFT JOIN orders 행 수                                |   649
+ orders LEFT JOIN customers 행 수                                |   620
+ orders.status가 널인 조인 행 수                                 |    29
+ orders.shipped_date가 널인 조인 행 수                           |   173
+ 부산 고객 중 주문이 없는 사람 수                                |     3
+ 서울 고객 중 주문이 없는 사람 수                                |     4
+ 리뷰가 하나도 없는 책 수                                        |    76
+ 주문 5번의 항목 수                                              |     2
+ orders-order_items-books 세 테이블 조인 행 수                   |  1243
+ customers부터 books까지 네 테이블 조인 행 수                    |  1243
+ 네 테이블을 전부 LEFT JOIN으로 이었을 때의 행 수                |  1272
+ 부산 손님이 산 책 (네 테이블) 행 수                             |   134
+ 대구 손님이 산 책 (네 테이블) 행 수                             |   125
+ 별점 5점 리뷰 (세 테이블) 행 수                                 |   160
+ reviews-books-customers 세 테이블 조인 행 수                    |   520
+ order_id와 book_id를 잘못 이은 조인의 행 수                     |  1243
+ exercise 1 — 한 번도 주문에 담기지 않은 책 수                   |    18
+ exercise 2 — 별점 1~2점 리뷰 (세 테이블) 행 수                  |    77
+ exercise 3 — 과학 분야 책을 산 손님 (네 테이블) 행 수           |   119
+ exercise 4 — 리뷰가 없는 과학 분야 책 수                        |     6
+ problem 2 — 어린이 분야 책을 산 손님 (네 테이블) 행 수          |   138
+ problem 3 — 상태가 취소인 주문 수                               |    61
+ problem 1 채점 포인트 — 주문 없는 고객 중 가입일이 겹치는 날 수 |     0
+ 복습 exercise 채점 포인트 — 별점 5점 리뷰 수                    |   160
+ 8.1 흔한 실수 — 취소 조건을 WHERE에 건 질의의 행 수 (고객 1~8)  |     3
+ 8.1 흔한 실수 — 취소 조건을 ON에 건 질의의 행 수 (고객 1~8)     |     9
+ 8.2 문제 상황 — 주문 5번을 낸 고객이 부산의 오채원인 경우의 수  |     1
+ orders.status가 널인 행 수 (널을 허용하지 않는 열이다)          |     0
+ reviews.comment가 널인 행 수 (널을 허용하는 열이다)             |   189
+ customers와 books를 직접 잇는 외래키 수                         |     0
+ exercise 3 채점 포인트 — 과학 책이 둘 이상 담긴 주문 수         |     5
+ problem 2 채점 포인트 — 어린이 책이 둘 이상 담긴 주문 수        |     9
+(40 rows)
+[exit 0]

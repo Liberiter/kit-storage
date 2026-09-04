@@ -1,0 +1,4 @@
+ERROR:  subquery has too many columns
+LINE 3: WHERE book_id IN (SELECT book_id, rating FROM reviews);
+                      ^
+[exit 3]

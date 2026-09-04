@@ -1,0 +1,4 @@
+ERROR:  syntax error at or near "WHERE"
+LINE 1: SELECT title, price FROM books ORDER BY price WHERE price <=...
+                                                      ^
+[exit 3]

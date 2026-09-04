@@ -1,0 +1,4 @@
+ERROR:  column "주문수" does not exist
+LINE 8: HAVING 주문수 >= 20
+               ^
+[exit 3]

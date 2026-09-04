@@ -1,0 +1,9 @@
+   테이블    | 행수 
+-------------+------
+ books       |  320
+ customers   |  150
+ order_items | 1243
+ orders      |  620
+ reviews     |  520
+(5 rows)
+[exit 0]

@@ -1,0 +1,35 @@
+                                 claim                                 | value 
+-----------------------------------------------------------------------+-------
+ order_items 행 수                                                     |  1243
+ books 행 수                                                           |   320
+ orders 행 수                                                          |   620
+ customers 행 수                                                       |   150
+ reviews 행 수                                                         |   520
+ 이름이 겹치는 고객 그룹 수                                            |    31
+ 이름이 최연우인 고객 수                                               |     3
+ 책숲의 외래키 제약 수                                                 |     6
+ 구매 인증 리뷰 수 (order_id 있음)                                     |   300
+ 일반 리뷰 수 (order_id 널)                                            |   220
+ order_items INNER JOIN books 행 수                                    |  1243
+ reviews INNER JOIN orders 행 수                                       |   300
+ reviews INNER JOIN books 행 수                                        |   520
+ 여행 분야 주문 항목 수                                                |   148
+ 요리 분야 주문 항목 수                                                |   187
+ 부산 고객 수                                                          |    16
+ 부산 고객의 주문 수                                                   |    66
+ 도서 29번이 담긴 주문 항목 수                                         |     4
+ exercise 1 — 별점 5점 리뷰 수                                         |   160
+ exercise 2 — 요리 2권 이상 항목 수                                    |    81
+ exercise 3 — 서울 고객의 2026년 주문 수                               |    44
+ 복습 exercise — 제목에 여행이 든 책의 4점 이상 리뷰 수                |    42
+ problem 1 — 별점 1~2점 리뷰 수                                        |    77
+ problem 2 — 재고보다 많이 주문된 항목 수                              |   172
+ problem 3 — 구매 인증이 없는 리뷰 수                                  |   220
+ 복습 exercise 채점 포인트 — 제목이 정확히 여행인 책 수                |     0
+ problem 3 채점 포인트 — order_id = NULL로 걸렀을 때의 행 수           |     0
+ exercise 3 채점 포인트 — 서울·2026년 주문 중 같은 날짜가 겹치는 날 수 |     2
+ problem 1 채점 포인트 — 상위 다섯 줄 중 리뷰 30·51·100번의 수         |     3
+ problem 1 채점 포인트 — 리뷰 30·51·100번의 review_date 가짓수         |     1
+ problem 2 채점 포인트 — 재고 부족 항목이 둘 이상인 주문 수            |     9
+(31 rows)
+[exit 0]

@@ -1,0 +1,5 @@
+ERROR:  operator does not exist: date >= integer
+LINE 3: WHERE published_date >= 2025-01-01 LIMIT 5;
+                             ^
+HINT:  No operator matches the given name and argument types. You might need to add explicit type casts.
+[exit 3]

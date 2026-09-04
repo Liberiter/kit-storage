@@ -1,0 +1,4 @@
+ERROR:  column "여행" does not exist
+LINE 1: SELECT title FROM books WHERE category = 여행 LIMIT 5;
+                                                 ^
+[exit 3]

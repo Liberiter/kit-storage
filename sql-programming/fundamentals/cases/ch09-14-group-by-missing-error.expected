@@ -1,0 +1,4 @@
+ERROR:  column "books.category" must appear in the GROUP BY clause or be used in an aggregate function
+LINE 1: SELECT category AS 분야, count(*) AS 권수 FROM books;
+               ^
+[exit 3]
