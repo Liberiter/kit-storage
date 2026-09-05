@@ -37,11 +37,11 @@ fi
 if [ "$KIT_MODE" = native ]; then
   command -v "$KIT_PSQL" >/dev/null 2>&1 \
     || fail "psql 명령 없음 ($KIT_PSQL)" \
-            "environment.md 「학습자 로컬 환경 요구사항」의 대안 경로대로 PostgreSQL 18을 설치하고 psql이 PATH에 있는지 확인하세요 (설치했는데 안 잡히면 KIT_PSQL=/설치경로/psql 로 지정)"
+            "0장 0.7절(대안 경로)대로 PostgreSQL 18을 설치하고 psql이 PATH에 있는지 확인하세요 (설치했는데 안 잡히면 KIT_PSQL=/설치경로/psql 로 지정)"
 else
   command -v docker >/dev/null 2>&1 \
     || fail "docker 명령 없음 (기본 경로로 실행 중)" \
-            "environment.md 「학습자 로컬 환경 요구사항」의 기본 경로대로 런타임을 설치하세요 (Windows: Docker Desktop / macOS: OrbStack / Linux: Docker Engine). 대안 경로(네이티브 설치)로 준비하셨다면 KIT_MODE=native ./setup.sh 를 한 번 실행하세요 — 그 뒤로는 ./reset.sh 를 그대로 쓰시면 됩니다"
+            "0장 0.1절대로 런타임을 설치하세요 (Windows: Docker Desktop / macOS: OrbStack / Linux: Docker Engine). 대안 경로(네이티브 설치)로 준비하셨다면 KIT_MODE=native ./setup.sh 를 한 번 실행하세요 — 그 뒤로는 ./reset.sh 를 그대로 쓰시면 됩니다"
   docker ps --format '{{.Names}}' | grep -qx "$KIT_CONTAINER" \
     || fail "컨테이너($KIT_CONTAINER) 미실행 (기본 경로로 실행 중)" \
             "./setup.sh 를 먼저 실행하세요. 대안 경로(네이티브 설치)로 준비하셨다면 KIT_MODE=native ./setup.sh 를 한 번 실행하세요 — 그 뒤로는 ./reset.sh 를 그대로 쓰시면 됩니다"

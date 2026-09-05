@@ -29,7 +29,7 @@ if [ "$KIT_MODE" = native ]; then
 
   if ! command -v "$KIT_PSQL" >/dev/null 2>&1; then
     echo "오류: psql 명령을 찾을 수 없습니다 ($KIT_PSQL)." >&2
-    echo "  다음: environment.md 「학습자 로컬 환경 요구사항」의 대안 경로대로 PostgreSQL 18을 설치하세요" >&2
+    echo "  다음: 0장 0.7절(대안 경로)대로 PostgreSQL 18을 설치하세요" >&2
     echo "        (macOS: Homebrew 또는 Postgres.app / Windows: EDB 인스톨러 / Linux: 배포판 패키지 또는 PGDG)." >&2
     echo "        설치했는데 잡히지 않으면 KIT_PSQL=/설치경로/psql 로 지정하세요." >&2
     exit 1
@@ -47,9 +47,9 @@ if [ "$KIT_MODE" = native ]; then
 
   ver=$(kit_psql -d "$admin_db" -tAc "SHOW server_version;")
   case "$ver" in
-    18.*) echo "PostgreSQL $ver 확인 (environment.md: 메이저 18)" ;;
+    18.*) echo "PostgreSQL $ver 확인 (이 코스의 기준: 메이저 18)" ;;
     *)
-      echo "오류: 서버 버전 $ver — environment.md가 확정한 메이저 18이 아닙니다." >&2
+      echo "오류: 서버 버전 $ver — 이 코스가 쓰는 메이저 18이 아닙니다." >&2
       echo "  다음: PostgreSQL 18을 설치하고 PGPORT 등으로 접속을 그쪽으로 돌린 뒤 다시 실행하세요." >&2
       exit 1 ;;
   esac
@@ -106,8 +106,8 @@ EOF
 fi
 
 if ! command -v docker >/dev/null 2>&1; then
-  echo "오류: docker 명령을 찾을 수 없습니다. 런타임을 먼저 설치하세요 (environment.md 참고)." >&2
-  echo "  다음: 런타임을 쓸 수 없는 환경이면 environment.md의 대안 경로(네이티브 설치) 뒤" >&2
+  echo "오류: docker 명령을 찾을 수 없습니다. 런타임을 먼저 설치하세요 (0장 0.1절)." >&2
+  echo "  다음: 런타임을 쓸 수 없는 환경이면 0장 0.7절의 대안 경로(네이티브 설치) 뒤" >&2
   echo "        KIT_MODE=native ./setup.sh 로 실행하세요." >&2
   exit 1
 fi
@@ -141,8 +141,8 @@ echo
 # 메이저 버전 확인 (environment.md: PostgreSQL 18)
 ver=$(kit_psql -tAc "SHOW server_version;")
 case "$ver" in
-  18.*) echo "PostgreSQL $ver 확인 (environment.md: 메이저 18)" ;;
-  *) echo "오류: 서버 버전 $ver — environment.md가 확정한 메이저 18이 아닙니다." >&2; exit 1 ;;
+  18.*) echo "PostgreSQL $ver 확인 (이 코스의 기준: 메이저 18)" ;;
+  *) echo "오류: 서버 버전 $ver — 이 코스가 쓰는 메이저 18이 아닙니다." >&2; exit 1 ;;
 esac
 
 # 데이터베이스 생성 (없으면)

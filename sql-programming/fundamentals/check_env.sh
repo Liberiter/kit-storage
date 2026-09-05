@@ -26,11 +26,11 @@ fail() { # $1=원인, $2=다음에 할 일
 if [ "$KIT_MODE" = native ]; then
   command -v "$KIT_PSQL" >/dev/null 2>&1 \
     || fail "psql 명령 없음 ($KIT_PSQL)" \
-            "environment.md 「학습자 로컬 환경 요구사항」의 대안 경로대로 PostgreSQL 18을 설치하고 psql이 PATH에 있는지 확인하세요 (설치했는데 안 잡히면 KIT_PSQL=/설치경로/psql 로 지정)"
+            "0장 0.7절(대안 경로)대로 PostgreSQL 18을 설치하고 psql이 PATH에 있는지 확인하세요 (설치했는데 안 잡히면 KIT_PSQL=/설치경로/psql 로 지정)"
 else
   command -v docker >/dev/null 2>&1 \
     || fail "docker 명령 없음" \
-            "environment.md 「학습자 로컬 환경 요구사항」의 기본 경로대로 런타임을 설치하세요 (Windows: Docker Desktop / macOS: OrbStack / Linux: Docker Engine). 런타임을 못 쓰는 환경이면 같은 문서의 대안 경로(네이티브 설치) 뒤 KIT_MODE=native ./check_env.sh 로 실행하세요"
+            "0장 0.1절대로 런타임을 설치하세요 (Windows: Docker Desktop / macOS: OrbStack / Linux: Docker Engine). 런타임을 못 쓰는 환경이면 0장 0.7절의 대안 경로(네이티브 설치) 뒤 KIT_MODE=native ./check_env.sh 로 실행하세요"
   docker ps --format '{{.Names}}' | grep -qx "$KIT_CONTAINER" \
     || fail "컨테이너($KIT_CONTAINER) 미실행" \
             "./setup.sh 를 먼저 실행하세요"
@@ -52,10 +52,10 @@ case "$ver" in
   *)
     if [ "$KIT_MODE" = native ]; then
       fail "서버 버전 $ver (기대: 18.x)" \
-           "environment.md가 확정한 메이저는 18입니다. 대안 경로 안내대로 PostgreSQL 18을 설치해 접속 정보를 그쪽으로 돌리세요 (여러 버전을 함께 쓴다면 PGPORT로 18 쪽 포트를 지정)"
+           "이 코스가 쓰는 메이저는 18입니다. 대안 경로 안내대로 PostgreSQL 18을 설치해 접속 정보를 그쪽으로 돌리세요 (여러 버전을 함께 쓴다면 PGPORT로 18 쪽 포트를 지정)"
     else
       fail "서버 버전 $ver (기대: 18.x)" \
-           "environment.md가 확정한 메이저는 18입니다. docker rm -f $KIT_CONTAINER 로 컨테이너를 지운 뒤 ./setup.sh 를 실행하면 postgres:18 이미지로 다시 만듭니다"
+           "이 코스가 쓰는 메이저는 18입니다. docker rm -f $KIT_CONTAINER 로 컨테이너를 지운 뒤 ./setup.sh 를 실행하면 postgres:18 이미지로 다시 만듭니다"
     fi
     ;;
 esac
@@ -90,7 +90,7 @@ fi
 # world 속성 (2) — 데이터 (world_check.sql의 W1~W13).
 if ! out=$(kit_psql -d "$DB" -X -q -v ON_ERROR_STOP=1 < world_check.sql 2>&1); then
   echo "$out" >&2
-  echo "  (위 메시지의 W로 시작하는 번호는 world_check.sql의 검사 번호입니다 — kit README 「요구 매트릭스」의 '검증' 열에서 무엇을 보는 검사인지 찾을 수 있습니다.)" >&2
+  echo "  (위 메시지의 W로 시작하는 번호는 world_check.sql의 검사 번호입니다 — world_check.sql에서 그 번호의 주석을 찾으면 무엇을 보는 검사인지 알 수 있습니다.)" >&2
   if [ "$KIT_MODE" = native ]; then
     fail "world 속성 검증 실패 — world(책숲)의 데이터가 초기 상태와 다릅니다" \
          "./reset.sh 로 world를 초기 상태로 되돌린 뒤 다시 실행하세요. 그래도 실패하면 dropdb $DB 로 데이터베이스를 지운 뒤 ./setup.sh 를 실행하세요 — setup.sh가 정렬 규칙을 고정해 다시 만들고 world를 seed.sql에서 적재합니다 (여기서 createdb로 직접 만들면 로케일이 서버 기본값이 되어 setup.sh가 막습니다)"

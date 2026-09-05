@@ -1,6 +1,6 @@
 -- world 속성 검증 — curriculum §1·§5의 world 요구를 기계적으로 확인한다.
 -- 실패 시 RAISE EXCEPTION (러너·red team의 기계 검사 대상).
--- 각 검사 번호는 README의 요구 매트릭스 "검증" 열과 대응한다.
+-- 각 검사 번호는 HARNESS.md의 요구 매트릭스 "검증" 열과 대응한다.
 
 DO $$
 DECLARE n bigint; m bigint;
