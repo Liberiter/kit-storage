@@ -30,7 +30,7 @@ if [ "$KIT_MODE" = native ]; then
   if ! command -v "$KIT_PSQL" >/dev/null 2>&1; then
     echo "오류: psql 명령을 찾을 수 없습니다 ($KIT_PSQL)." >&2
     echo "  다음: 0장 0.7절(대안 경로)대로 PostgreSQL 18을 설치하세요" >&2
-    echo "        (macOS: Homebrew 또는 Postgres.app / Windows: EDB 인스톨러 / Linux: 배포판 패키지 또는 PGDG)." >&2
+    echo "        (macOS: Homebrew 또는 Postgres.app / Windows: WSL2 안에서 Linux와 같이 / Linux: 배포판 패키지 또는 PGDG)." >&2
     echo "        설치했는데 잡히지 않으면 KIT_PSQL=/설치경로/psql 로 지정하세요." >&2
     exit 1
   fi
@@ -39,7 +39,7 @@ if [ "$KIT_MODE" = native ]; then
   admin_db="${KIT_ADMIN_DB:-postgres}"
   if ! kit_psql -d "$admin_db" -tAc "SELECT 1" >/dev/null 2>&1; then
     echo "오류: PostgreSQL 서버에 접속하지 못했습니다 (데이터베이스 $admin_db)." >&2
-    echo "  다음: 서버가 실행 중인지 확인하고(예: macOS Homebrew는 brew services start postgresql@18)," >&2
+    echo "  다음: 서버가 실행 중인지 확인하고(예: macOS Homebrew는 brew services start postgresql@18, Linux·WSL2는 sudo systemctl start postgresql — 이때 PGHOST=localhost도 지정)," >&2
     echo "        접속 정보를 PGHOST·PGPORT·PGUSER·PGPASSWORD로 맞춘 뒤 다시 실행하세요." >&2
     echo "        관리용 데이터베이스 이름이 postgres가 아니면 KIT_ADMIN_DB로 지정하세요." >&2
     exit 1

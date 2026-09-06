@@ -39,7 +39,7 @@ fi
 if ! kit_psql -d "$DB" -tAc "SELECT 1" >/dev/null 2>&1; then
   if [ "$KIT_MODE" = native ]; then
     fail "psql 접속 불가 (데이터베이스 $DB)" \
-         "PostgreSQL 서버가 떠 있는지, 접속 정보(PGHOST·PGPORT·PGUSER·PGPASSWORD)와 $DB 데이터베이스가 맞는지 확인한 뒤 ./setup.sh 를 실행하세요 — setup.sh가 대안 경로에서 무엇을 점검하는지 안내합니다"
+         "PostgreSQL 서버가 떠 있는지(Linux·WSL2는 sudo systemctl start postgresql), 접속 정보(PGHOST·PGPORT·PGUSER·PGPASSWORD — Linux·WSL2는 PGHOST=localhost까지)와 $DB 데이터베이스가 맞는지 확인한 뒤 ./setup.sh 를 실행하세요 — setup.sh가 대안 경로에서 무엇을 점검하는지 안내합니다"
   else
     fail "psql 접속 불가 (컨테이너 $KIT_CONTAINER, 데이터베이스 $DB)" \
          "docker logs $KIT_CONTAINER 로 서버 상태를 본 뒤 ./setup.sh 를 다시 실행하세요"
