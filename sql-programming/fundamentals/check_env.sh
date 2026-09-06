@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
-# 환경 검증 = 코스 entry check의 판정 기준 (curriculum §4).
+# 환경 검증 = 코스 entry check(입장 점검)의 판정 기준 (0장 0.5절).
 # 접속 → 버전 → world 속성(정렬 규칙 + world_check.sql) 순으로 확인한다.
 # 실패하면 원인과 함께 **다음에 무엇을 하면 되는지**를 한 줄로 알린다.
 #
-# 판정 근거는 curriculum §4 E3의 셋뿐이다 — (a) psql 접속, (b) 서버 메이저
+# 판정 근거는 entry check의 셋뿐이다 — (a) psql 접속, (b) 서버 메이저
 # 버전, (c) world 속성 검증. 정렬 규칙 확인은 (c)에 속한다: 설치 방식이나
 # 컨테이너 존재 여부가 아니라 **접속한 데이터베이스의 성질**만 보므로 두
-# 경로에서 같은 검사가 같은 기대값으로 돈다 (E2).
+# 경로에서 같은 검사가 같은 기대값으로 돈다.
 #
-# 두 경로를 모두 통과시킨다 (environment.md 「학습자 로컬 환경 요구사항」):
+# 두 경로를 모두 통과시킨다 (0장 0.1절 기본 경로·0.7절 대안 경로):
 #   기본 경로  ./check_env.sh                (KIT_MODE=docker, 기본값)
 #   대안 경로  KIT_MODE=native ./check_env.sh (호스트에 설치한 psql로 접속)
 set -euo pipefail

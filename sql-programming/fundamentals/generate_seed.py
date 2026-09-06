@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """seed.sql 생성기 — 결정적(고정 시드) 생성. 결과물 seed.sql은 커밋한다.
 
-curriculum §1·§5의 world 요구를 데이터 분포로 보장한다:
+챕터들이 world에 요구하는 성질을 데이터 분포로 보장한다:
 - 자식 없는 부모(주문 없는 고객, 주문·리뷰 없는 책), NULL 분포,
   중복 값·동점 정렬 값, 그룹 크기 편차, LIKE 대상 패턴 등.
 재생성: python3 generate_seed.py > seed.sql

@@ -42,7 +42,7 @@ customers ──< orders ──< order_items >── books ──< reviews >─�
 
 ```bash
 ./setup.sh       # 컨테이너 기동 + world 적재 + 검증 (처음/재시작)
-                 #   성공하면 구축에 쓴 경로를 .kit-mode 에 적는다 (아래 「구축 경로 기억」)
+                 #   성공하면 구축에 쓴 경로를 .kit-mode 에 적습니다 (아래 「구축 경로 기억」)
 ./check_env.sh   # 환경 검증 = entry check(입장 점검) 판정
 ./reset.sh       # world를 초기 상태로 복원
 ./verify.sh <케이스 디렉토리>            # 예제·문제 자동 검증 (기본 ./cases)
@@ -57,7 +57,7 @@ customers ──< orders ──< order_items >── books ──< reviews >─�
 
 | | 기본 경로 (`KIT_MODE=docker`) | 대안 경로 (`KIT_MODE=native`) |
 |---|---|---|
-| 전제 | Docker 호환 런타임 | 학습자가 설치한 PostgreSQL 18 + psql |
+| 전제 | Docker 호환 런타임 | 여러분이 설치한 PostgreSQL 18 + psql |
 | psql 호출 | `docker exec -i <컨테이너> psql -U postgres …` | 호스트의 `psql …` |
 | 접속 정보 | 컨테이너 이름(`KIT_CONTAINER`) | psql이 원래 읽는 `PGHOST`·`PGPORT`·`PGUSER`·`PGPASSWORD` |
 | `./setup.sh` | 컨테이너 생성·기동(`LANG=C.UTF-8`) → DB 생성 → 적재 → 검증 | 컨테이너 없음. psql·서버 접속·버전 18·`bookstore` DB를 점검(없으면 **정렬 규칙을 고정해** 생성)한 뒤 적재 → 검증 |
@@ -74,9 +74,9 @@ WSL2 셸 안에 있으므로 접속 설정도 Linux와 같습니다 (0장 0.7절
 대안 경로 실행 예:
 
 ```bash
-KIT_MODE=native ./setup.sh       # 서버 점검 + world 적재 (구축 경로를 기억한다)
+KIT_MODE=native ./setup.sh       # 서버 점검 + world 적재 (구축 경로를 기억합니다)
 
-# 이후에는 KIT_MODE 없이 그대로 — setup.sh가 적어 둔 .kit-mode 를 따른다
+# 이후에는 KIT_MODE 없이 그대로 — setup.sh가 적어 둔 .kit-mode 를 따릅니다
 ./check_env.sh                   # 같은 entry check 판정
 ./reset.sh                       # 챕터 본문이 맨 명령으로 부르는 자리
 ./verify.sh ./cases
@@ -112,7 +112,7 @@ Linux·WSL2(PGDG 패키지)에서는 관리자 `postgres`에 비밀번호가 없
    쓴 경로(`docker` 또는 `native`) 한 줄을 적어 둔 파일입니다. 경로를 바꿔
    다시 구축하면(`KIT_MODE=native ./setup.sh`) 그때 갱신됩니다.
 3. **상태 파일이 없으면 `docker`** — 아직 `./setup.sh`를 돌리지 않았거나 파일을
-   지운 경우입니다. 이 코스의 기본 경로이므로 기본 경로 학습자에게는
+   지운 경우입니다. 이 코스의 기본 경로이므로 기본 경로를 쓰시는 분에게는
    달라지는 것이 없습니다. 대안 경로로 준비했는데 이 상태라면
    `KIT_MODE=native ./setup.sh`를 한 번 실행하면 됩니다 — 그때까지는
    `./reset.sh`·`./check_env.sh`가 기본 경로로 돌다가 **원인과 다음 행동을
@@ -123,7 +123,7 @@ Linux·WSL2(PGDG 패키지)에서는 관리자 `postgres`에 비밀번호가 없
    같습니다: `KIT_MODE=native ./setup.sh`를 한 번 실행합니다.
 
 파일 내용이 `docker`/`native`가 아니면 스크립트가 종료 코드 2로 막고 파일을
-지우라고 안내합니다. 이 파일은 **학습자의 로컬 상태이지 산출물이 아니므로**
+지우라고 안내합니다. 이 파일은 **여러분 컴퓨터의 상태 파일이므로**
 저장소의 `.gitignore`가 추적에서 뺍니다.
 
 #### 대안 경로의 알려진 차이 — `ch01-04-list-databases`
@@ -134,12 +134,12 @@ Linux·WSL2(PGDG 패키지)에서는 관리자 `postgres`에 비밀번호가 없
 이 케이스는 `\l`, 즉 **클러스터 전체의 상태**를 찍습니다. 기대 출력이 담고
 있는 것은 world가 아니라 서버 인스턴스의 사실입니다 — 어떤
 데이터베이스들이 있는지 (`postgres`·`template0`·`template1`), 그것들의
-로케일 제공자와 Collate·Ctype이 무엇인지. 대안 경로에서는 이 셋이 **학습자
-서버의 로케일**을 따르고, 학습자가 전에 만들어 둔 다른 데이터베이스도 함께
+로케일 제공자와 Collate·Ctype이 무엇인지. 대안 경로에서는 이 셋이 **여러분
+서버의 로케일**을 따르고, 여러분이 전에 만들어 둔 다른 데이터베이스도 함께
 찍힙니다. world를 아무리 정확히 맞춰도 일치시킬 수 없습니다 — `bookstore`의
 정렬 규칙을 고정한 뒤에도 그렇습니다.
 
-**대안 경로 학습자는 1장 1.2절 «왜 그럴까요»의 `\l` 출력이 자기 화면과
+**대안 경로를 쓰시는 분은 1장 1.2절 «왜 그럴까요»의 `\l` 출력이 자기 화면과
 다르게 보입니다.** 읽는 법은 그대로입니다: 그 자리가 가르치는 것은 "`\l`은
 서버에 있는 데이터베이스의 목록을 보여 주고, 그중 `bookstore`가 우리가 쓸
 것"이라는 사실이며, 목록의 줄 수와 Collate 열의 값이 서버마다 다른 것은
@@ -173,7 +173,7 @@ world 속성 검증 실패에는 `world_check.sql`의 예외 메시지가 그대
 변경하므로 실습 전후에 `./reset.sh`를 실행합니다 (챕터 본문에 안내).
 
 `./reset.sh`는 `schema.sql` + `seed.sql`을 다시 적재하므로 **두 경로에서
-같게 동작합니다.** 대안 경로 학습자가 챕터 본문의 맨 `./reset.sh` 안내를
+같게 동작합니다.** 대안 경로를 쓰시는 분이 챕터 본문의 맨 `./reset.sh` 안내를
 그대로 따를 수 있는 조건은 하나입니다 — **`KIT_MODE=native ./setup.sh`로
 구축했을 것**. 그 실행이 구축 경로를 `.kit-mode`에 적어 두고, 이후
 `KIT_MODE` 없이 부른 `./reset.sh`가 그것을 따릅니다 (위 「구축 경로 기억」).
@@ -185,7 +185,7 @@ world 속성 검증 실패에는 `world_check.sql`의 예외 메시지가 그대
 실습에 들어가는 일은 없습니다.
 
 다만 챕터 본문의 psql **접속** 명령은 기본 경로의
-`docker exec -it …` 형태로만 적혀 있습니다. 대안 경로 학습자는 그 자리를
+`docker exec -it …` 형태로만 적혀 있습니다. 대안 경로를 쓰시는 분은 그 자리를
 `psql -d bookstore`로 바꿔 읽습니다 (위 「두 경로」의 접속 표). 본문의
 **출력** 가운데 대안 경로에서 달리 보이는 것은 1장 1.2절의 `\l` 하나뿐입니다
 (위 「대안 경로의 알려진 차이」).

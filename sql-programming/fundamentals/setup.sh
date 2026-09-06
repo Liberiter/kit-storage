@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # 학습 환경 구축: postgres:18 컨테이너 기동 + world(책숲) 적재 + 검증.
-# 전제: Docker 호환 런타임 (environment.md — Windows: Docker Desktop,
+# 전제: Docker 호환 런타임 (0장 0.1절 — Windows: Docker Desktop,
 #       macOS: OrbStack, Linux: Docker Engine). 그 외 수작업 불필요.
 #
-# 대안 경로(environment.md — 네이티브 설치)는 KIT_MODE=native ./setup.sh.
+# 대안 경로(0장 0.7절 — 네이티브 설치)는 KIT_MODE=native ./setup.sh.
 # 이 경로에서는 컨테이너를 만들 것이 없으므로, 대신 학습자가 설치한 서버가
 # 코스에 쓸 수 있는 상태인지 점검하고, world를 담을 데이터베이스를 기본 경로와
 # **같은 정렬 규칙**으로 만든 뒤 world를 적재한다 (아래 CREATE DATABASE 주석).
@@ -138,7 +138,7 @@ done
 echo
 [ "${ready:-0}" = 1 ] || { echo "오류: 60초 내에 서버가 준비되지 않았습니다." >&2; exit 1; }
 
-# 메이저 버전 확인 (environment.md: PostgreSQL 18)
+# 메이저 버전 확인 (이 코스의 기준: PostgreSQL 18)
 ver=$(kit_psql -tAc "SHOW server_version;")
 case "$ver" in
   18.*) echo "PostgreSQL $ver 확인 (이 코스의 기준: 메이저 18)" ;;
