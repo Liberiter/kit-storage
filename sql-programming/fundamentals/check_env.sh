@@ -31,6 +31,11 @@ else
   command -v docker >/dev/null 2>&1 \
     || fail "docker 명령 없음" \
             "0장 0.1절대로 런타임을 설치하세요 (Windows: Docker Desktop / macOS: OrbStack / Linux: Docker Engine). 런타임을 못 쓰는 환경이면 0장 0.7절의 대안 경로(네이티브 설치) 뒤 KIT_MODE=native ./check_env.sh 로 실행하세요"
+  # 런타임 프로그램이 꺼져 있으면 docker ps 도 실패하므로, 컨테이너 검사보다 먼저
+  # 데몬 접속을 확인해 원인이 「컨테이너 미실행」으로 잘못 나오지 않게 한다.
+  docker info >/dev/null 2>&1 \
+    || fail "런타임 미실행 — docker 명령은 있지만 런타임 프로그램이 응답하지 않습니다" \
+            "Windows는 Docker Desktop을 실행하고 Settings > Resources > WSL Integration에서 Ubuntu가 켜져 있는지 확인하세요 / macOS는 OrbStack을 실행하세요 / Linux는 sudo systemctl start docker 로 Docker 서비스를 시작하세요 (0장 0.1절). 그 뒤 ./setup.sh 를 다시 실행하세요"
   docker ps --format '{{.Names}}' | grep -qx "$KIT_CONTAINER" \
     || fail "컨테이너($KIT_CONTAINER) 미실행" \
             "./setup.sh 를 먼저 실행하세요"

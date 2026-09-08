@@ -112,6 +112,17 @@ if ! command -v docker >/dev/null 2>&1; then
   exit 1
 fi
 
+# docker 명령이 있어도 런타임 프로그램이 꺼져 있으면 아래 docker run 이 말없이
+# 실패한다 (Windows에서는 Docker Desktop이 꺼졌거나 WSL Integration이 꺼진 채로
+# 남은 docker 가 안내문만 내고 실패한다). 컨테이너를 만지기 전에 데몬 접속을
+# 확인해 원인을 특정한다.
+if ! docker info >/dev/null 2>&1; then
+  echo "오류: 런타임이 실행 중이 아닙니다 — docker 명령은 있지만 런타임 프로그램이 응답하지 않습니다 (0장 0.1절)." >&2
+  echo "  다음: Windows는 Docker Desktop을 실행하고 Settings > Resources > WSL Integration에서 Ubuntu가 켜져 있는지 확인하세요 / macOS는 OrbStack을 실행하세요 / Linux는 sudo systemctl start docker 로 Docker 서비스를 시작하세요 (0장 0.1절)." >&2
+  echo "        그 뒤 ./setup.sh 를 다시 실행하세요." >&2
+  exit 1
+fi
+
 if docker ps -a --format '{{.Names}}' | grep -qx "$CONTAINER"; then
   if ! docker ps --format '{{.Names}}' | grep -qx "$CONTAINER"; then
     echo "기존 컨테이너 시작: $CONTAINER"

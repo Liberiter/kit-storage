@@ -116,9 +116,10 @@ Linux·WSL2(PGDG 패키지)에서는 관리자 `postgres`에 비밀번호가 없
    달라지는 것이 없습니다. 대안 경로로 준비했는데 이 상태라면
    `KIT_MODE=native ./setup.sh`를 한 번 실행하면 됩니다 — 그때까지는
    `./reset.sh`·`./check_env.sh`가 기본 경로로 돌다가 **원인과 다음 행동을
-   내고 종료 코드 1로 실패합니다** (조용히 넘어가지 않습니다). 원인 줄은 둘
+   내고 종료 코드 1로 실패합니다** (조용히 넘어가지 않습니다). 원인 줄은 셋
    중 하나입니다 — 컴퓨터에 `docker` 명령 자체가 없으면 `docker 명령 없음`,
-   `docker`는 있는데 컨테이너가 없으면
+   `docker`는 있는데 런타임 프로그램(Docker Desktop·OrbStack·Docker 서비스)이
+   꺼져 있으면 `런타임 미실행 …`, 런타임은 떠 있는데 컨테이너가 없으면
    `컨테이너(ll-sql-fundamentals) 미실행`. 어느 쪽이든 다음 행동은
    같습니다: `KIT_MODE=native ./setup.sh`를 한 번 실행합니다.
 
@@ -154,6 +155,7 @@ Linux·WSL2(PGDG 패키지)에서는 관리자 `postgres`에 비밀번호가 없
 | 분기 | 다음에 할 일 |
 |---|---|
 | `docker` 명령 없음 (기본 경로) | 0장 0.1절대로 런타임 설치. 런타임을 못 쓰면 0장 0.7절의 대안 경로 설치 후 `KIT_MODE=native ./check_env.sh` |
+| 런타임 미실행 (기본 경로) — `docker` 명령은 있지만 런타임 프로그램이 응답하지 않음 | 런타임 프로그램을 켭니다 — Windows는 Docker Desktop을 실행하고 Settings > Resources > WSL Integration에서 Ubuntu가 켜져 있는지 확인 / macOS는 OrbStack 실행 / Linux는 `sudo systemctl start docker` (0장 0.1절). 그 뒤 `./setup.sh` |
 | `psql` 명령 없음 (대안 경로) | 0장 0.7절대로 PostgreSQL 18 설치. PATH에 없으면 `KIT_PSQL=/설치경로/psql` |
 | 컨테이너 미실행 (기본 경로) | `./setup.sh` |
 | psql 접속 불가 | 기본 경로: `docker logs <컨테이너>` 확인 후 `./setup.sh` 재실행 / 대안 경로: 서버 기동과 접속 정보·DB 이름 확인 후 `./setup.sh` |
@@ -179,10 +181,17 @@ world 속성 검증 실패에는 `world_check.sql`의 예외 메시지가 그대
 `KIT_MODE` 없이 부른 `./reset.sh`가 그것을 따릅니다 (위 「구축 경로 기억」).
 조건이 깨지는 경우(상태 파일을 지웠거나, 대안 경로로 구축한 적 없이
 `./reset.sh`만 부르는 경우)에는 기본 경로로 돌지만 **조용히 실패하지는
-않습니다** — `./reset.sh`가 원인(`docker 명령 없음` 또는
-`컨테이너(…) 미실행`)과 다음 행동 (`KIT_MODE=native ./setup.sh`를 한 번
-실행)을 내고 종료 코드 1로 끝납니다. 그래서 되돌리기가 되지 않은 채로 다음
-실습에 들어가는 일은 없습니다.
+않습니다** — `./reset.sh`가 원인(`docker 명령 없음`, `런타임 미실행 …`,
+`컨테이너(…) 미실행` 셋 중 하나)과 다음 행동 (`KIT_MODE=native ./setup.sh`를
+한 번 실행)을 내고 종료 코드 1로 끝납니다. 그래서 되돌리기가 되지 않은 채로
+다음 실습에 들어가는 일은 없습니다.
+
+기본 경로에서도 같은 세 분기가 있습니다. 컴퓨터를 껐다 켠 뒤처럼 런타임
+프로그램(Docker Desktop·OrbStack·Docker 서비스)이 꺼진 채로 `./reset.sh`를
+부르면 원인은 `런타임 미실행 …`이고, 다음 행동은 런타임 프로그램을 켠 뒤
+`./setup.sh`입니다 — `./setup.sh`가 컨테이너를 다시 띄우고 world도 초기
+상태로 되돌리므로 `./reset.sh`를 따로 부를 필요가 없습니다 (위 「entry check
+실패 안내」 표의 같은 행).
 
 다만 챕터 본문의 psql **접속** 명령은 기본 경로의
 `docker exec -it …` 형태로만 적혀 있습니다. 대안 경로를 쓰시는 분은 그 자리를
