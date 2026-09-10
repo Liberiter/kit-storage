@@ -1,0 +1,18 @@
+      table_name       |  rows  
+-----------------------+--------
+ antipatterns.products |     16
+ book_meta             |    320
+ book_supply           |    196
+ books                 |    320
+ categories            |     12
+ customers             |    150
+ legacy.sales_ledger   |    207
+ order_items           |   1243
+ orders                |    620
+ page_views            | 199220
+ reviews               |    520
+ staff                 |     24
+ stock_movements       |   1535
+ supplier_feed         |     85
+(14 rows)
+[exit 0]

@@ -1,0 +1,6 @@
+ customer_id | order_date |  status  | shipped_date | book_id | quantity | unit_price | stock_after | orders_on_day 
+-------------+------------+----------+--------------+---------+----------+------------+-------------+---------------
+           3 | 2026-09-01 | 배송준비 |              |       7 |        2 |      24000 |          58 |             1
+(1 row)
+
+[exit 0]

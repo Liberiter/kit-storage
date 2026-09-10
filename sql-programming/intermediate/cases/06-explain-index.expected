@@ -1,0 +1,24 @@
+                    QUERY PLAN                     
+---------------------------------------------------
+ Finalize Aggregate
+   ->  Gather
+         Workers Planned: 2
+         ->  Partial Aggregate
+               ->  Parallel Seq Scan on page_views
+                     Filter: (book_id = 12)
+(6 rows)
+
+                       QUERY PLAN                        
+---------------------------------------------------------
+ Aggregate
+   ->  Bitmap Heap Scan on page_views
+         Recheck Cond: (book_id = 12)
+         ->  Bitmap Index Scan on page_views_book_id_idx
+               Index Cond: (book_id = 12)
+(5 rows)
+
+ count 
+-------
+  4248
+(1 row)
+[exit 0]

@@ -1,0 +1,3 @@
+ERROR:  new row for relation "book_supply" violates check constraint "book_supply_supplier_price_check"
+DETAIL:  Failing row contains (9, -1500, 12, 2026-09-01 06:31:00+00).
+[exit 3]
