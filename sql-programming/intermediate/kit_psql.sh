@@ -403,7 +403,9 @@ kit_psqlrc_warn() { # 언제나 0 을 반환한다 — 알림일 뿐 판정이 �
   tmp=$(mktemp "${TMPDIR:-/tmp}/ll-kit-psqlrc.XXXXXX" 2>/dev/null || true)
   actual=""
   if [ -n "$tmp" ]; then
-    "$KIT_PSQL" -d "$KIT_DB" -qAt -c "\\copy ($KIT_SESSION_PROBE_SQL_BARE) TO '$tmp'" >/dev/null 2>&1 || true
+    # stdin 은 /dev/null — psqlrc 에 \prompt 가 있으면 psql 이 터미널 입력을 기다리며 말없이 멈춘다. 입력이 닫혀 있으면 \prompt 는
+    # 「error: \prompt: could not read value for variable」을 내고 변수를 설정하지 않은 채 다음 줄로 진행하며 프로브는 값을 낸다 (그 오류 줄은 아래 2>&1 에 가려 화면에 나오지 않는다; 이 프로브는 psqlrc 를 읽는 유일한 비대화형 호출이다).
+    "$KIT_PSQL" -d "$KIT_DB" -qAt -c "\\copy ($KIT_SESSION_PROBE_SQL_BARE) TO '$tmp'" </dev/null >/dev/null 2>&1 || true
     actual=$(tr -d '\n' < "$tmp" 2>/dev/null || true)
     rm -f "$tmp"
   fi
