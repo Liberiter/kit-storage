@@ -30,7 +30,7 @@ fail() { # $1=원인, $2=다음에 할 일, $3=종료 코드(기본 1)
 lock_owner="$(kit_lock_owner)"
 if [ -n "$lock_owner" ] && [ "$lock_owner" != "${KIT_LOCK_HELD:-}" ]; then
   fail "검증 러너(PID $lock_owner)가 같은 world($(kit_lock_target))를 쓰는 중입니다 — 지금 되돌리면 그 실행의 결과가 깨지고 world가 손상될 수 있습니다" \
-       "그 실행이 끝난 뒤 다시 실행하세요 (이 터미널에서 돌린 게 아니라면 다른 터미널이나 다른 체크아웃의 ./verify.sh·./entry_check.sh·./concurrency.sh 입니다)" 2
+       "그 실행이 끝난 뒤 다시 실행하세요 (이 터미널에서 돌린 게 아니라면 다른 터미널이나 다른 폴더에 받아 둔 kit의 ./verify.sh·./entry_check.sh·./concurrency.sh 입니다)" 2
 fi
 
 # 경로별 사전 점검 — 여기서 걸리면 psql을 부르기 전에 원인을 특정할 수 있다.
