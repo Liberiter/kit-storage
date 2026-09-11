@@ -38,6 +38,13 @@ shopt -s nullglob
 files=("$DIR"/*.sql)
 [ ${#files[@]} -gt 0 ] || { echo "오류: $DIR 에 .sql 케이스가 없습니다" >&2; exit 2; }
 
+# 런타임·컨테이너(또는 psql)가 없거나 서버에 접속되지 않으면 케이스마다 FAIL 을 쏟는 대신
+# 여기서 한 번에 멈춘다 — 다른 스크립트와 같은 원인·다음 행동 문구 (kit_psql.sh
+# 「실행 전 점검」). 종료 코드는 **2** (실행 오류) — 1 은 「실패 케이스 있음」이므로
+# 환경 부재를 1 로 내면 케이스 실패로 읽힌다.
+kit_runtime_check "검증 러너" 2
+kit_connect_check "검증 러너" 2
+
 kit_lock_acquire   # 다른 러너가 돌고 있으면 여기서 2로 끝난다
 
 run_case() { # $1=sql파일 → stdout: 실행 출력 + "[exit N]"

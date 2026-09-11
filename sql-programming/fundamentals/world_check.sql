@@ -1,6 +1,6 @@
--- world 속성 검증 — 이 코스의 챕터들이 world에 요구하는 성질을 기계적으로 확인한다.
--- 실패 시 RAISE EXCEPTION (러너·검증의 기계 검사 대상).
--- 각 검사 번호는 HARNESS.md의 요구 매트릭스 "검증" 열과 대응한다.
+-- world 속성 검증 — 이 코스의 예제가 world에 요구하는 성질을 기계적으로 확인한다.
+-- 실패 시 RAISE EXCEPTION 으로 멈춘다. 이 파일을 실행하는 것은 ./check_env.sh 다.
+-- 검사 번호(W1~W13)마다 그 검사 바로 위에 무엇을 보는지 적은 주석이 있다.
 
 DO $$
 DECLARE n bigint; m bigint;

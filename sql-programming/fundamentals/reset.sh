@@ -30,27 +30,13 @@ fail() { # $1=원인, $2=다음에 할 일, $3=종료 코드(기본 1)
 lock_owner="$(kit_lock_owner)"
 if [ -n "$lock_owner" ] && [ "$lock_owner" != "${KIT_LOCK_HELD:-}" ]; then
   fail "검증 러너(PID $lock_owner)가 같은 world($(kit_lock_target))를 쓰는 중입니다 — 지금 되돌리면 그 실행의 결과가 깨지고 world가 손상될 수 있습니다" \
-       "그 실행이 끝난 뒤 다시 실행하세요 (이 터미널에서 돌린 게 아니라면 다른 터미널이나 다른 체크아웃의 ./verify.sh 입니다)" 2
+       "그 실행이 끝난 뒤 다시 실행하세요 (이 터미널에서 돌린 게 아니라면 다른 터미널이나 다른 폴더에 받아 둔 kit의 ./verify.sh 입니다)" 2
 fi
 
 # 경로별 사전 점검 — 여기서 걸리면 psql을 부르기 전에 원인을 특정할 수 있다.
-if [ "$KIT_MODE" = native ]; then
-  command -v "$KIT_PSQL" >/dev/null 2>&1 \
-    || fail "psql 명령 없음 ($KIT_PSQL)" \
-            "0장 0.7절(대안 경로)대로 PostgreSQL 18을 설치하고 psql이 PATH에 있는지 확인하세요 (설치했는데 안 잡히면 KIT_PSQL=/설치경로/psql 로 지정)"
-else
-  command -v docker >/dev/null 2>&1 \
-    || fail "docker 명령 없음 (기본 경로로 실행 중)" \
-            "0장 0.1절대로 런타임을 설치하세요 (Windows: Docker Desktop / macOS: OrbStack / Linux: Docker Engine). 대안 경로(네이티브 설치)로 준비하셨다면 KIT_MODE=native ./setup.sh 를 한 번 실행하세요 — 그 뒤로는 ./reset.sh 를 그대로 쓰시면 됩니다"
-  # 런타임 프로그램이 꺼져 있으면 docker ps 도 실패하므로, 컨테이너 검사보다 먼저
-  # 데몬 접속을 확인해 원인이 「컨테이너 미실행」으로 잘못 나오지 않게 한다.
-  docker info >/dev/null 2>&1 \
-    || fail "런타임 미실행 — docker 명령은 있지만 런타임 프로그램이 응답하지 않습니다 (기본 경로로 실행 중)" \
-            "Windows는 Docker Desktop을 실행하고 Settings > Resources > WSL Integration에서 Ubuntu가 켜져 있는지 확인하세요 / macOS는 OrbStack을 실행하세요 / Linux는 sudo systemctl start docker 로 Docker 서비스를 시작하세요 (0장 0.1절). 그 뒤 ./setup.sh 를 다시 실행하세요 — 컨테이너를 다시 띄우고 world도 초기 상태로 되돌립니다. 대안 경로(네이티브 설치)로 준비하셨다면 KIT_MODE=native ./setup.sh 를 한 번 실행하세요 — 그 뒤로는 ./reset.sh 를 그대로 쓰시면 됩니다"
-  docker ps --format '{{.Names}}' | grep -qx "$KIT_CONTAINER" \
-    || fail "컨테이너($KIT_CONTAINER) 미실행 (기본 경로로 실행 중)" \
-            "./setup.sh 를 먼저 실행하세요. 대안 경로(네이티브 설치)로 준비하셨다면 KIT_MODE=native ./setup.sh 를 한 번 실행하세요 — 그 뒤로는 ./reset.sh 를 그대로 쓰시면 됩니다"
-fi
+# 공용 함수라 check_env.sh·verify.sh와 같은 분기·같은 문구다 (kit_psql.sh 「실행 전 점검」).
+# 종료 코드는 1 — 위 잠금 거절만 2다.
+kit_runtime_check "reset" 1
 
 # 아래 세 단계는 성공 시 조용하지만, 실패하면 psql의 출력을 그대로 보여 준다.
 run_step() { # $1=단계 이름, 나머지=kit_psql 인자. 표준 입력은 그대로 이어진다.

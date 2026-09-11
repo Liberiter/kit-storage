@@ -45,9 +45,10 @@
 # 즉 실행 환경 선택의 문제다. 상태 파일은 학습자의 로컬 상태이지 kit의 내용물이
 # 아니므로 저장소의 `.gitignore`가 추적에서 뺀다.
 #
-# 이 파일은 world의 **정렬 규칙(collation)** 판정 기준도 함께 정의한다
-# (KIT_SORT_EXPECTED·kit_sort_probe). setup.sh와 check_env.sh가 같은 기준을
-# 써야 하므로 한 자리에 둔다.
+# 이 파일은 world의 **정렬 규칙(collation)** 판정 기준(KIT_SORT_EXPECTED·
+# kit_sort_probe)과, 여러 스크립트가 공유하는 **실행 전 점검**
+# (kit_runtime_check·kit_connect_check)도 함께 정의한다. setup.sh·reset.sh·
+# check_env.sh·verify.sh가 같은 기준과 같은 문구를 써야 하므로 한 자리에 둔다.
 
 # 상태 파일은 이 파일(kit_psql.sh)이 있는 디렉토리에 둔다 — 어디서 부르든 같다.
 KIT_STATE_FILE="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)/.kit-mode"
@@ -84,11 +85,17 @@ case "$KIT_MODE" in
   *) echo "오류: KIT_MODE=$KIT_MODE — docker 또는 native 여야 합니다." >&2; exit 2 ;;
 esac
 
+# 비대화형 호출은 언제나 -X(= --no-psqlrc)다. 대안 경로에서 여러분의 ~/.psqlrc 에
+# `\timing on`·`\x auto`·`SET …` 같은 줄이 있으면, -X 없는 호출은 그 출력
+# (「Timing is on.」「SET」 등)이 질의 결과에 섞여 버전 확인 같은 판정을 거짓 원인으로
+# 깨뜨린다. 그래서 kit 스크립트는 psqlrc 를 읽지 않는다 — 바꿔 말해 **kit 의 점검은
+# 여러분의 ~/.psqlrc 를 보지 못한다**(README 「두 경로」에도 적어 두었다). 이 kit 에는
+# 대화형 psql 호출이 없으므로 예외로 둘 함수가 없다.
 kit_psql() { # 인자는 psql 옵션. 표준 입력은 그대로 이어진다.
   if [ "$KIT_MODE" = native ]; then
-    "$KIT_PSQL" "$@"
+    "$KIT_PSQL" -X "$@"
   else
-    docker exec -i "$KIT_CONTAINER" psql -U postgres "$@"
+    docker exec -i "$KIT_CONTAINER" psql -X -U postgres "$@"
   fi
 }
 
@@ -99,6 +106,67 @@ kit_connect_hint() {
   else
     echo "docker exec -it $KIT_CONTAINER psql -U postgres -d $KIT_DB"
   fi
+}
+
+# ## 실행 전 점검 — 모든 스크립트가 같은 분기·같은 문구로 멈춘다
+#
+# kit_runtime_check <레이블> [종료 코드] [경로 표시] : psql을 부르기 전에 경로별로
+# 「무엇이 없는가」를 특정한다. 실패하면 「<레이블> 실패: 원인」 한 줄과 「다음: 할 일」
+# 한 줄을 내고 종료 코드(기본 1)로 끝낸다. 검증 러너 verify.sh는 2를 넘긴다 — 러너의
+# 종료 코드는 1 = 실패 케이스 있음, 2 = 실행 오류이고, 런타임·컨테이너·서버의 부재는
+# 실행 오류다. 컨테이너를 만드는 setup.sh는 자기 분기를 따로 갖는다 (컨테이너가 없는
+# 것이 그쪽에서는 정상이다).
+#
+# 기본 경로의 세 분기(docker 명령 없음 / 런타임 미실행 / 컨테이너 미실행)는 모두
+# 대안 경로로 준비한 분을 위한 한 문장을 덧붙인다 — 상태 파일이 없어 기본 경로로
+# 돌고 있을 뿐일 수 있기 때문이다.
+KIT_NATIVE_HINT="대안 경로(네이티브 설치)로 준비하셨다면 KIT_MODE=native ./setup.sh 를 한 번 실행하세요 — 그 뒤로는 KIT_MODE 없이 그대로 쓰시면 됩니다 (아직 준비하지 않았고 런타임을 쓸 수 없는 환경이면 0장 0.7절)"
+
+# 세 번째 인자는 기본 경로 분기의 원인 줄 끝에 붙는 **경로 표시**다. 기본값은
+# 「 (기본 경로로 실행 중)」이고, 부르는 쪽이 빈 문자열을 주면 붙지 않는다.
+# 두 값이 필요한 이유: 0장 0.6절의 실패 안내 표가 check_env.sh의 원인 줄은 이 표시
+# **없이**, reset.sh의 원인 줄은 이 표시와 **함께** 그대로 인용하고 있다.
+kit_runtime_check() { # $1=레이블 (예: "reset", "entry check"), $2=종료 코드 (기본 1), $3=경로 표시
+  local label="$1" rc="${2:-1}" note="${3- (기본 경로로 실행 중)}"
+  if [ "$KIT_MODE" = native ]; then
+    command -v "$KIT_PSQL" >/dev/null 2>&1 || {
+      echo "$label 실패: psql 명령 없음 ($KIT_PSQL)" >&2
+      echo "  다음: 0장 0.7절(대안 경로)대로 PostgreSQL 18을 설치하고 psql이 PATH에 있는지 확인하세요 (설치했는데 안 잡히면 KIT_PSQL=/설치경로/psql 로 지정)" >&2
+      exit "$rc"; }
+  else
+    command -v docker >/dev/null 2>&1 || {
+      echo "$label 실패: docker 명령 없음$note" >&2
+      echo "  다음: 0장 0.1절대로 런타임을 설치하세요 (Windows: Docker Desktop / macOS: OrbStack / Linux: Docker Engine). $KIT_NATIVE_HINT" >&2
+      exit "$rc"; }
+    # 런타임 프로그램이 꺼져 있으면 docker ps 도 실패하므로, 컨테이너 검사보다 먼저
+    # 데몬 접속을 확인해 원인이 「컨테이너 미실행」으로 잘못 나오지 않게 한다.
+    docker info >/dev/null 2>&1 || {
+      echo "$label 실패: 런타임 미실행 — docker 명령은 있지만 런타임 프로그램이 응답하지 않습니다$note" >&2
+      echo "  다음: Windows는 Docker Desktop을 실행하고 Settings > Resources > WSL Integration에서 Ubuntu가 켜져 있는지 확인하세요 / macOS는 OrbStack을 실행하세요 / Linux는 sudo systemctl start docker 로 Docker 서비스를 시작하세요 (0장 0.1절). 그 뒤 ./setup.sh 를 다시 실행하세요 — 컨테이너를 다시 띄우고 world도 초기 상태로 되돌립니다. $KIT_NATIVE_HINT" >&2
+      exit "$rc"; }
+    docker ps --format '{{.Names}}' | grep -qx "$KIT_CONTAINER" || {
+      echo "$label 실패: 컨테이너($KIT_CONTAINER) 미실행$note" >&2
+      echo "  다음: ./setup.sh 를 먼저 실행하세요. $KIT_NATIVE_HINT" >&2
+      exit "$rc"; }
+  fi
+}
+
+# kit_connect_check <레이블> [종료 코드] : 실행 전 점검의 마지막 단계 — 데이터베이스에
+# 실제로 접속되는지를 한 번 확인한다. kit_runtime_check는 「명령·런타임·컨테이너가
+# 있는가」까지만 보므로, 대안 경로에서 서버가 내려가 있으면(또는 접속 정보가 틀리면)
+# 여기서 잡힌다. check_env.sh와 verify.sh가 같은 문구로 멈춘다 — 러너가 케이스마다
+# FAIL을 쏟는 대신 한 번에 원인을 말하기 위해서다.
+kit_connect_check() { # $1=레이블, $2=종료 코드 (기본 1)
+  local label="$1" rc="${2:-1}"
+  kit_psql -d "$KIT_DB" -tAc "SELECT 1" >/dev/null 2>&1 && return 0
+  if [ "$KIT_MODE" = native ]; then
+    echo "$label 실패: psql 접속 불가 (데이터베이스 $KIT_DB)" >&2
+    echo "  다음: PostgreSQL 서버가 떠 있는지(macOS Homebrew는 brew services start postgresql@18, Linux·WSL2는 sudo systemctl start postgresql), 접속 정보(PGHOST·PGPORT·PGUSER·PGPASSWORD — Linux·WSL2는 PGHOST=localhost까지)와 $KIT_DB 데이터베이스가 맞는지 확인한 뒤 ./setup.sh 를 실행하세요 — setup.sh가 대안 경로에서 무엇을 점검하는지 안내합니다" >&2
+  else
+    echo "$label 실패: psql 접속 불가 (컨테이너 $KIT_CONTAINER, 데이터베이스 $KIT_DB)" >&2
+    echo "  다음: docker logs $KIT_CONTAINER 로 서버 상태를 본 뒤 ./setup.sh 를 다시 실행하세요" >&2
+  fi
+  exit "$rc"
 }
 
 # ## 러너 동시 실행 보호 — 거절 (규약은 HARNESS.md 「검증 러너 규약」)
