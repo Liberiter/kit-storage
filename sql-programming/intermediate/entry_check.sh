@@ -4,6 +4,8 @@
 #   1단계  환경 확인 (./check_env.sh): 접속·버전·world 속성.
 #   2단계  네 문항 채점: entry/q1.sql ~ entry/q4.sql 에 여러분이 적은 SQL 을 world 위에서
 #          실행해 기대 결과와 대조한다. 문항은 각 파일의 머리 주석에 있다.
+#          이 파일들은 ./setup.sh 가 만들어 두며, 한 번 만든 뒤로는 다시 구축해도 덮이지
+#          않는다 — 여러분이 적어 두신 답이 그대로 남는다.
 #            q1  단일 테이블 조회   q2  조인   q3  집계   q4  변경 + 트랜잭션
 #          q4 는 world 를 바꾸므로 실행 전후에 ./reset.sh 로 되돌린다.
 #
@@ -58,7 +60,11 @@ pass=0; fail=0; failed=()
 for q in q1 q2 q3 q4; do
   ans="$ANSWERS/$q.sql"; exp="entry/expected/$q.expected"
   if [ ! -f "$ans" ]; then
-    echo "FAIL $q — 답 파일이 없습니다: $ans"; fail=$((fail+1)); failed+=("$q"); continue
+    echo "FAIL $q — 답 파일이 없습니다: $ans"
+    if [ "$ANSWERS" = entry ]; then
+      echo "  다음: ./setup.sh 를 한 번 실행하시면 문항 파일을 다시 만들어 드립니다 (이미 있는 파일은 그대로 둡니다)."
+    fi
+    fail=$((fail+1)); failed+=("$q"); continue
   fi
   if ! has_sql "$ans"; then
     echo "FAIL $q — 아직 답을 적지 않았습니다 ($ans 의 주석 아래에 SQL 을 적어 주세요)"

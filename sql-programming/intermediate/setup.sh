@@ -19,6 +19,10 @@
 # 대안 경로의 데이터베이스는 libc 문자 분류(LC_CTYPE)도 C 로 만든다 — 이것은 만들 때만
 # 정할 수 있어, 다른 값으로 이미 만들어진 데이터베이스는 지우고 다시 만들라고 안내한다.
 #
+# 입장 점검의 답을 적는 파일(entry/q1.sql ~ q4.sql)은 배포에 들어 있지 않다. 이 스크립트가
+# entry/templates/ 의 문항 파일을 복사해 만들고, **이미 있으면 손대지 않는다** — 재구축이
+# 여러분이 적어 두신 답을 지우면 안 되기 때문이다. 되돌리기(reset.sh)도 이 파일들을 보지 않는다.
+#
 # 구축에 성공하면 **어느 경로로 구축했는지를 상태 파일에 적는다**
 # (kit_state_save — 정의와 이유는 kit_psql.sh 「구축 경로 기억」). 환경 변수 KIT_MODE는
 # 언제나 상태 파일을 이기므로 KIT_MODE=native ./setup.sh 로 경로를 바꿔 구축하면
@@ -31,6 +35,29 @@ IMAGE="postgres:18"
 DB="$KIT_DB"
 CONTAINER="$KIT_CONTAINER"
 PORT="$KIT_PORT"
+
+# 답을 적는 파일을 먼저 마련한다 — 아래 구축이 어디선가 막히더라도 문항은 읽을 수 있고,
+# 이미 적어 두신 답은 어느 경우에도 그대로 남는다.
+entry_answers_prepare() { # entry/templates/qN.sql → entry/qN.sql (없을 때만)
+  local created="" kept="" q src dst
+  for q in q1 q2 q3 q4; do
+    src="entry/templates/$q.sql"; dst="entry/$q.sql"
+    if [ -f "$dst" ]; then kept="${kept:+$kept }$dst"; continue; fi
+    if [ ! -f "$src" ]; then
+      echo "오류: 입장 점검 문항 파일의 원본이 없습니다: $src" >&2
+      echo "  다음: 0장 0.3절대로 kit 폴더를 통째로 다시 받은 뒤 ./setup.sh 를 실행하세요." >&2
+      exit 1
+    fi
+    cp "$src" "$dst" 2>/dev/null || {
+      echo "오류: 입장 점검 문항 파일을 만들지 못했습니다: $dst" >&2
+      echo "  다음: kit 폴더에 파일을 쓸 수 있는 권한이 있는지 확인한 뒤 ./setup.sh 를 다시 실행하세요." >&2
+      exit 1; }
+    created="${created:+$created }$dst"
+  done
+  [ -z "$created" ] || echo "입장 점검 답안 파일 생성: $created (문항은 각 파일의 머리 주석에 있습니다)"
+  [ -z "$kept" ] || echo "입장 점검 답안 파일 유지: $kept (이미 적어 두신 내용은 그대로 둡니다)"
+}
+entry_answers_prepare
 
 if [ "$KIT_MODE" = native ]; then
   echo "대안 경로(KIT_MODE=native): 컨테이너를 만들지 않고, 설치하신 PostgreSQL에 접속합니다."
