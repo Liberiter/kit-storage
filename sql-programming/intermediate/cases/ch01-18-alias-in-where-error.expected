@@ -1,0 +1,4 @@
+ERROR:  column "가격대" does not exist
+LINE 9: WHERE 가격대 = '1만원 미만'
+              ^
+[exit 3]

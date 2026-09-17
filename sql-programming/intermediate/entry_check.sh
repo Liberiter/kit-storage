@@ -21,6 +21,18 @@
 # 비교 방식: psql 의 기본 표 출력을 글자 그대로 대조한다. 그래서 문항이 정한 **열 이름·
 # 열 차례·정렬 차례**를 지켜야 한다 — 값이 같아도 열 이름이 다르면 다르게 읽는다.
 # 이것은 fundamentals exit assessment 의 자동 검증 문항과 같은 방식이다.
+# 이 스크립트는 프로세스 치환(bash 전용)을 쓰므로, 그것이 안 되는 셸에서는 채점을
+# 한 건도 하지 않고 거절한다. `sh entry_check.sh`로 부르면 구문 오류를 내면서도 네
+# 문항을 다 틀린 것처럼 보여, 채점이 아예 돌지 않은 것을 앞 코스로 돌아가라는 안내로
+# 읽게 된다. 0건 실행은 성공도 전량 실패도 아니므로 종료 코드 2(실행 오류)로 가른다.
+# `$BASH_VERSION`으로는 가를 수 없다: macOS의 `sh`는 POSIX 모드의 bash라 변수가
+# 설정되어 있는데도 프로세스 치환이 꺼져 있다.
+if ! (eval ': <(:)') 2>/dev/null; then
+  echo "오류: 이 스크립트는 프로세스 치환을 지원하는 bash가 필요합니다 — 지금 셸에서는 꺼져 있어 채점을 시작하지 않았습니다." >&2
+  echo "  다음: ./entry_check.sh 또는 bash entry_check.sh 로 실행하세요 (sh entry_check.sh 는 POSIX 모드라 동작하지 않습니다)." >&2
+  exit 2
+fi
+
 set -uo pipefail
 cd "$(dirname "$0")"
 . ./kit_psql.sh
