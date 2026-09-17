@@ -66,7 +66,7 @@ customers ──< orders ──< order_items >── books ──< reviews >─�
 | 경로 지정 | 기본값이므로 지정하지 않아도 됩니다 | **`KIT_MODE=native ./setup.sh` 한 번**. 그 실행이 경로를 `.kit-mode`에 기억하므로 이후 명령에는 붙이지 않아도 됩니다 (아래 「구축 경로 기억」) |
 | 정렬 규칙(collation) | 컨테이너 initdb를 `LANG=C.UTF-8`로 못 박아 얻습니다 | `CREATE DATABASE … TEMPLATE template0 LOCALE_PROVIDER builtin BUILTIN_LOCALE 'C.UTF-8'`으로 못 박습니다 |
 | `./reset.sh` `./check_env.sh` | 동일 | 동일 |
-| `./verify.sh` | 케이스 460건 전량 통과 | **여러분 서버 자신의 사실을 비추는 케이스 몇 건이 다릅니다** — 실측 두 가지: 관리자 역할이 `postgres`인 서버에서 458 PASS / 2 FAIL, 역할이 계정 이름인 서버(Postgres.app 기본)에서 456 PASS / 4 FAIL (아래 「대안 경로의 알려진 차이」) |
+| `./verify.sh` | `cases/`의 케이스 전량 통과 | **여러분 서버 자신의 사실을 비추는 케이스 몇 건이 다릅니다** — 관리자 역할이 `postgres`인 서버에서는 **2건**, 역할이 계정 이름인 서버(Postgres.app 기본)에서는 **4건**이 FAIL로 나오고 나머지는 전량 PASS입니다 (아래 「대안 경로의 알려진 차이」) |
 
 대안 경로의 Windows는 **WSL2 배포판(Ubuntu) 안에 Linux와 같은 방법(PGDG
 저장소)으로 PostgreSQL 18을 설치**하는 것입니다 — Windows 호스트에 설치한
@@ -192,11 +192,16 @@ world는 두 경로에서 같습니다. 대안 경로에서 달라지는 것은 
 
 | 대안 경로 서버의 구성 | 러너 결과 | FAIL 케이스 |
 |---|---|---|
-| 관리자 역할 이름이 `postgres` (Linux·WSL2 패키지의 기본이며, 0장 0.7절이 접속 정보의 예로 드는 구성) | 458 PASS / 2 FAIL | `ch00-01-show-server-version`·`ch01-04-list-databases` |
-| 관리자 역할 이름이 **계정 이름** (Postgres.app·Homebrew의 기본, `PGUSER`를 비워 두는 구성) | 456 PASS / 4 FAIL | 위 둘 + `ch01-01-dt`·`ch01-10-dt-plus` (`Owner` 열) |
+| 관리자 역할 이름이 `postgres` (Linux·WSL2 패키지의 기본이며, 0장 0.7절이 접속 정보의 예로 드는 구성) | **2건 FAIL**, 나머지 전량 PASS | `ch00-01-show-server-version`·`ch01-04-list-databases` |
+| 관리자 역할 이름이 **계정 이름** (Postgres.app·Homebrew의 기본, `PGUSER`를 비워 두는 구성) | **4건 FAIL**, 나머지 전량 PASS | 위 둘 + `ch01-01-dt`·`ch01-10-dt-plus` (`Owner` 열) |
 
-둘 다 로케일 `en_US.UTF-8`인 PostgreSQL 18 서버에서 잰 것입니다. 서버 로케일이
-다르면 `\l`의 `Collate`·`Ctype` 열이 또 달라집니다.
+둘 다 로케일 `en_US.UTF-8`인 PostgreSQL 18 서버에서 잰 것입니다(2026-09-10·
+2026-09-11 실측). 서버 로케일이 다르면 `\l`의 `Collate`·`Ctype` 열이 또
+달라집니다.
+
+FAIL이 **몇 건인지**만 적고 PASS 개수는 적지 않았습니다. 위 케이스 이름은 서버의
+성질에서 오는 것이라 그대로이지만, `cases/`의 전체 케이스 수는 장이 늘 때마다
+커지기 때문입니다 — 화면의 마지막 줄에 나오는 수와 위 건수를 견주어 읽으세요.
 
 ### entry check 실패 안내
 

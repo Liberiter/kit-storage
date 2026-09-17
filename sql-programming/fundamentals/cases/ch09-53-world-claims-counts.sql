@@ -5,6 +5,8 @@
 --  · 9.1 따라 하기 5단계·왜 그럴까요: comment가 널인 리뷰 189건,
 --    shipped_date가 널인 주문 144건
 --  · 9.2 문제 상황: 분야는 여덟 가지라 질의를 여덟 번 되풀이해야 한다
+--  · 복습 exercise (2장) 채점 포인트: count(category)는 320이다
+--    (category에 널이 없다)
 --  · 9.1 따라 하기 4단계: 주문 5번의 항목은 두 줄이다 (8장 8.2 문제 상황)
 --  · 9.3 개념의 절 차례 그림: customers INNER JOIN orders 620행
 --  · 9.2 따라 하기 4단계·흔한 실수: customers LEFT JOIN orders 649행,
@@ -111,4 +113,6 @@ UNION ALL SELECT '리뷰가 한 건뿐이고 그 별점이 5점인 책 수',
                               HAVING count(*) = 1 AND min(rating) = 5) t)
 UNION ALL SELECT '과학 분야 평균 가격의 소수점 아래 자릿수',
        (SELECT length(split_part(CAST(avg(price) AS text), '.', 2))
-          FROM books WHERE category = '과학');
+          FROM books WHERE category = '과학')
+UNION ALL SELECT 'category가 널이 아닌 책 수',
+       (SELECT count(category) FROM books);
