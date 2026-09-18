@@ -1,0 +1,34 @@
+[project]
+name = "baramjae-world"
+version = "1.0.0"
+description = "바람재 관측망 — 파이썬 입문 코스의 실습 환경"
+requires-python = ">=3.14,<3.15"
+dependencies = []
+
+[dependency-groups]
+dev = ["mypy>=2.3,<3", "pytest>=9.1,<10", "ruff>=0.16,<0.17"]
+
+[tool.uv]
+required-version = ">=0.12"
+
+[tool.ruff]
+target-version = "py314"
+line-length = 88
+# 일부러 고장 낸 파일이 모인 자리입니다. 폴더 전체를 훑을 때는 건너뛰고,
+# 파일 이름을 직접 적어 부르면 그때는 검사합니다.
+extend-exclude = ["broken", "cases"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W"]
+
+[tool.pytest]
+testpaths = ["work", "exit"]
+pythonpath = ["examples"]
+# 테스트를 모을 때 건너뛰는 자리입니다. 여기까지 모으면 pytest 가 파일 이름이
+# 겹쳤다며 수집을 멈출 수 있습니다.
+norecursedirs = ["templates", ".*", "build", "dist", "node_modules"]
+
+[tool.mypy]
+python_version = "3.14"
+files = ["examples"]
+exclude = "^broken/"

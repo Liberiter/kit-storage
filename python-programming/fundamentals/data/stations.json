@@ -1,0 +1,88 @@
+{
+  "tree": {
+    "name": "바람재 관측망",
+    "children": [
+      {
+        "name": "산마루 권역",
+        "children": [
+          {
+            "name": "윗재",
+            "children": [],
+            "stations": [
+              "BJ",
+              "SD"
+            ]
+          },
+          {
+            "name": "너미골",
+            "children": [],
+            "stations": [
+              "NM",
+              "GS"
+            ]
+          }
+        ],
+        "stations": []
+      },
+      {
+        "name": "들녘 권역",
+        "children": [
+          {
+            "name": "하곡",
+            "children": [],
+            "stations": [
+              "HG"
+            ]
+          },
+          {
+            "name": "물레",
+            "children": [],
+            "stations": [
+              "MR"
+            ]
+          }
+        ],
+        "stations": []
+      }
+    ],
+    "stations": []
+  },
+  "stations": {
+    "BJ": {
+      "name": "바람재",
+      "elevation": 612,
+      "kind": "유인",
+      "observer": "한서린"
+    },
+    "SD": {
+      "name": "솔등",
+      "elevation": 447,
+      "kind": "자동",
+      "interval_min": 10
+    },
+    "NM": {
+      "name": "너미",
+      "elevation": 158,
+      "kind": "자동",
+      "interval_min": 10
+    },
+    "HG": {
+      "name": "하곡",
+      "elevation": 93,
+      "kind": "유인",
+      "observer": "문도윤"
+    },
+    "MR": {
+      "name": "물레",
+      "elevation": 238,
+      "kind": "자동",
+      "interval_min": 5
+    },
+    "GS": {
+      "name": "갈숲",
+      "elevation": 355,
+      "kind": "자동",
+      "interval_min": 10
+    }
+  }
+}

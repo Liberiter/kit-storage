@@ -1,0 +1,5 @@
+  File "broken/syntax_error.py", line 4
+    print("관측소:", station
+         ^
+SyntaxError: '(' was never closed
+[exit 1]

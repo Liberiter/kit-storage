@@ -1,0 +1,5 @@
+broken/untidy_report.py:5:5: F841 Local variable `unused` is assigned to but never used
+broken/untidy_report.py:11:57: E501 Line too long (120 > 88)
+Found 2 errors.
+No fixes available (1 hidden fix can be enabled with the `--unsafe-fixes` option).
+[exit 1]
