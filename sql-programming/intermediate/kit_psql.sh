@@ -43,8 +43,8 @@
 # 되돌리지 못한다. 상태 파일을 두면 `KIT_MODE=native ./setup.sh`를 **한 번**
 # 실행한 뒤로 본문의 맨 명령을 그대로 쓸 수 있다.
 #
-# 상태 파일은 여러분 컴퓨터의 로컬 상태이지 kit의 내용물이 아니므로 저장소의
-# `.gitignore`가 추적에서 뺀다.
+# 상태 파일은 그 컴퓨터의 로컬 상태이지 kit의 내용물이 아니다 — 받은 kit 폴더에는
+# 들어 있지 않고 ./setup.sh 가 구축에 성공할 때 생긴다.
 #
 # 이 파일은 world의 **정렬 규칙(collation)** 판정 기준(KIT_SORT_EXPECTED·
 # kit_sort_probe), **세션 시간대·메시지 언어** 기준(KIT_SESSION_EXPECTED·
@@ -193,7 +193,7 @@ kit_connect_check() { # $1=레이블, $2=종료 코드 (기본 1)
 # 식별한다. 기본 경로는 localhost:$KIT_PORT, 대안 경로는 PGHOST:PGPORT이므로 호스트
 # psql로 같은 컨테이너에 붙는 대안 경로 러너도 같은 잠금을 본다. 앞 코스 kit의
 # 잠금(포트 54321, bookstore)과는 키가 다르므로 두 코스의 러너는 서로 막지 않는다.
-# 잠금은 /tmp에 두므로 저장소에 남지 않는다 — 실행 중에만 있는 것이다.
+# 잠금은 /tmp에 두므로 kit 폴더에 남지 않는다 — 실행 중에만 있는 것이다.
 #
 # 잠금이 보지 못하는 경우: 다른 머신·다른 사용자에서 온 접속, 같은 서버를 다른
 # 호스트 표기(정규화하는 localhost·127.0.0.1·::1 외의 별칭)로 가리키는 접속,
@@ -243,7 +243,7 @@ kit_lock_acquire() { # verify.sh·entry_check.sh·concurrency.sh가 부른다. �
   if ! mkdir "$dir" 2>/dev/null; then
     owner="$(kit_lock_owner)"
     if [ -n "$owner" ]; then
-      echo "오류: 다른 검증 러너(PID $owner)가 같은 world($(kit_lock_target))를 쓰고 있습니다 — 겹쳐 돌리면 결과가 비결정적이 됩니다 (거짓 PASS 위험)." >&2
+      echo "오류: 같은 world($(kit_lock_target))를 쓰는 다른 실행(PID $owner)이 있습니다 — 겹쳐 돌리면 두 실행이 서로의 데이터를 되돌려, 맞지 않는 결과가 통과로 나올 수 있습니다." >&2
       echo "  다음: 그 실행이 끝난 뒤 다시 실행하세요. 같이 돌려야 하면 KIT_CONTAINER=<새 이름> KIT_PORT=<새 포트> ./setup.sh 로 전용 컨테이너를 세운 뒤 같은 변수로 다시 부르세요." >&2
       exit 2
     fi
@@ -326,12 +326,53 @@ kit_session_fix() { # $1=데이터베이스 이름 → 그 DB의 기본 세션 �
 }
 
 # world의 **libc 문자 분류(LC_CTYPE)** — 세션 설정이 아니라 데이터베이스를 만들 때 정해지는
-# 성질이라 ALTER 로 고칠 수 없다. 정렬·대소문자·정규식은 builtin 제공자(C.UTF-8)가 맡아
-# libc 와 무관하지만, record 출력(`ROW(…)::text`, `SELECT t FROM t`)이 값을 인용할지는 libc
-# isspace() 로 판정한다. macOS libc 는 en_US.UTF-8 같은 UTF-8 로케일에서 한글 UTF-8 바이트
-# 0xA0·0x85 를 공백으로 읽어 `("신아린")` 처럼 인용한다 — 컨테이너(C.UTF-8)는 `(신아린)`.
-# 그래서 대안 경로의 CREATE DATABASE 는 LC_CTYPE 'C' LC_COLLATE 'C' 로 만들고, check_env.sh 는
-# pg_database.datctype 이 C 계열(C·POSIX·C.UTF-8/C.utf8)인지 본다(모두 바이트 ≥128 을 공백으로 읽지 않는다).
+# 성질이라 ALTER 로 고칠 수 없다.
+#
+# 이 축은 **값을 글자 단위로 어떻게 읽을지**를 정한다. 서버가 그 영향을 받는 자리는 넓고
+# **여기 적은 것이 전부라고 단정하지 않는다** — 확인된 것만 적는다.
+#
+# **무엇이 무엇을 맡는가.** 대소문자 변환(upper·lower)·정규식의 문자 클래스([[:alpha:]] 등)·
+# 대소문자를 무시하는 비교(ILIKE·~*)를 맡는 것은 그 데이터베이스의 **제공자와 그 로케일**이다
+# — libc 제공자면 LC_CTYPE 가 그 역할까지 하고, builtin 제공자면 BUILTIN_LOCALE 가 한다.
+# **LC_CTYPE 에만 매인 것**으로 지금까지 확인된 것은 행 전체를 한 값으로 찍는 출력
+# (`ROW(…)::text`, `SELECT t FROM 테이블 t`)의 인용 판정(libc isspace())과 \l 이 내는 Ctype 열의
+# 값이다. 배열(`ARRAY[…]::text`)과 jsonb 출력은 갈리지 않는다(아래 실측).
+#
+# 그래서 두 경로는 LC_CTYPE «값»이 갈리는데도 앞 셋의 거동이 같다 — 기본 경로의 bookstore_ops 는
+# 컨테이너의 createdb 가 template1 을 물려받아 **libc 제공자에 로케일 C.UTF-8** 이고, 대안 경로는
+# **builtin 제공자에 BUILTIN_LOCALE C.UTF-8** 이라 양쪽 다 로케일이 C.UTF-8 이기 때문이다.
+# 컨테이너(postgres:18) 실측 (2026-09-19):
+#   bookstore_ops       | libc    | ctype C.UTF-8 | upper(é)=É  '김'~alpha=t  ILIKE=t  ~*=t
+#   대안 경로 절 그대로 | builtin | ctype C       | upper(é)=É  '김'~alpha=t  ILIKE=t  ~*=t
+#   libc + ctype C      | libc    | ctype C       | upper(é)=é  '김'~alpha=f  ILIKE=f  ~*=f
+# 셋째 줄이 **두 경로 어느 쪽도 아니다** — 직접 만든 데이터베이스가 그 구성일 수 있고,
+# kit_ctype_ok 는 C 를 C 계열로 받으므로 알림을 내지 않는다. 거꾸로 제공자를 builtin C.UTF-8 로
+# 고정하고 LC_CTYPE 만 en_US.UTF-8 로 갈면 앞 셋은 그대로이고 record 인용만 갈린다(같은 날 실측).
+#
+# record 인용 쪽 실측 (2026-09-19, macOS 26 + PostgreSQL 18.6 (Homebrew)):
+#   - 갈리는 바이트는 0xA0 이다. macOS libc 는 UTF-8 로케일(en_US.UTF-8 등)에서 isspace(0xA0) 을
+#     참으로 보고 C 에서는 거짓으로 본다. **0x85 는 어느 쪽에서도 공백이 아니다**
+#     (`갅` = EA B0 85 → 양쪽 모두 `(갅)`).
+#   - 그래서 갈리는 것으로 확인된 값은 **UTF-8 바이트에 0xA0 이 든 글자를 담은 것**이다. 한글
+#     음절 11172자 가운데 301자가 그렇다(`신` = EC 8B A0, `고` = EA B3 A0 …) — LC_CTYPE 이
+#     en_US.UTF-8 이면 `ROW('신아린')::text` 가 `("신아린")` 이고 C 계열에서는 `(신아린)` 다.
+#     0xA0 이 없는 값은 이 프로브에서 양쪽이 같았다 — `윤주원`(EC 9C A4 EC A3 BC EC 9B 90)은
+#     어느 쪽에서도 `(윤주원)` 이다. C 계열에서도 늘 인용되는 글자들(공백·`"`·`(`·`)`·`,`·`\`)은
+#     이 축과 무관하게 인용된다.
+#
+# **이 코스의 «출력»에서 이 축에 걸리는 자리는 지금까지 0건이다.** 근거는 world 의 문자가
+# 무엇인가가 아니라 — 한글이 바로 그 반례다 — **이 코스가 그 자리들을 아직 쓰지 않는다**는
+# 것이다. 2026-09-19 기준으로 cases 185건과 지금까지 쓰인 본문 전수에서:
+#   - 정규식(~ · ~* · SIMILAR TO · [[: )과 대소문자를 무시하는 비교(ILIKE) — 0건.
+#   - 대소문자 변환(upper( · lower() — 0건.
+#   - 행 전체를 한 값으로 찍는 질의(ROW( · SELECT t FROM 테이블 t)와 \l — 0건.
+# 장이 늘면 이 수는 달라질 수 있다 — 그때 이 자리를 다시 센다.
+#
+# 그래서 대안 경로의 CREATE DATABASE 는 **새로 만들 때** LC_CTYPE 'C' LC_COLLATE 'C' 로 못 박는다
+# — 서버 기본 로케일을 물려받아 C 계열 밖으로 나가는 것을 막는 것이지 두 경로의 «값»을 같게
+# 만드는 것은 아니다(기본 경로는 C.UTF-8, 대안 경로는 C 다). 그리고 **이미 만들어져 있는
+# 데이터베이스는 setup.sh·check_env.sh 가 막지 않고 알림만 낸다.** kit_ctype_probe·kit_ctype_ok 는
+# 그 알림의 판정에 쓴다 — pg_database.datctype 이 C 계열(C·POSIX·C.UTF-8/C.utf8)인지 본다.
 KIT_CTYPE_PROBE_SQL_PREFIX="SELECT datctype FROM pg_database WHERE datname = "
 
 kit_ctype_probe() { # $1=데이터베이스 이름 → stdout: 그 DB의 datctype 한 줄

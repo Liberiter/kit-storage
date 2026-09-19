@@ -1,0 +1,6 @@
+ERROR:  relation "org" does not exist
+LINE 8:     INNER JOIN org ON staff.manager_id = org.staff_id
+                       ^
+DETAIL:  There is a WITH item named "org", but it cannot be referenced from this part of the query.
+HINT:  Use WITH RECURSIVE, or re-order the WITH items to remove forward references.
+[exit 3]

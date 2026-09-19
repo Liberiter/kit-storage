@@ -12,11 +12,14 @@ world "책숲 운영 데이터"(온라인 서점 책숲의 운영 기록)와 학
 18, Docker 컨테이너, psql 주력)을 따르며, 0장이 안내하는 **두 경로를 모두 지원합니다**
 — 기본 경로(Docker, 0장 0.1절)와 대안 경로(직접 설치, 0장 0.7절). 스크립트가 경로를 가려
 psql을 부르고(공용 함수는 `kit_psql.sh`에 있습니다), 같은 `./check_env.sh`·`./entry_check.sh`가
-두 경로 모두를 판정합니다. world는 두 경로에서 같습니다 — 데이터도, **정렬 규칙도, 문자 분류도, 세션
+두 경로 모두를 판정합니다. world는 두 경로에서 같습니다 — 데이터도, **정렬 규칙도, 세션
 시간대(UTC)·오류 메시지 언어(영어)·날짜 표기(`ISO, MDY`)·`to_char`가 읽는 로케일(통화·숫자·
 날짜 이름)도** (`./setup.sh`가 데이터베이스 설정으로 못 박고 `./check_env.sh`가 확인합니다 — 단
 여러분의 psqlrc가 세션 설정을 바꾸는 경우는 점검 결과에 넣지 않고 알림으로 알립니다, 아래
-「실패 안내」). 남은 차이는 아래 「대안 경로의 알려진 차이」에 있습니다.
+「실패 안내」). 문자 분류(LC_CTYPE)는 **값이 두 경로에서 다릅니다**(기본 경로 `C.UTF-8`, 대안
+경로 `C`). 그래도 **이 코스의 출력은 두 경로에서 같습니다** — 이 코스의 예제와 문제가 그
+설정에 걸리는 자리를 지금까지 한 군데도 쓰지 않기 때문입니다. 남은 차이는 아래 「대안 경로의
+알려진 차이」에 있습니다.
 
 앞 코스(fundamentals)의 kit과 **나란히 두고 써도 됩니다.** 컨테이너·포트·데이터베이스
 이름이 다릅니다 (아래 「앞 코스 kit과 함께 쓰기」).
@@ -109,7 +112,7 @@ customers ──< orders ──< order_items >── books ──< reviews >─�
 | 경로 지정 | 기본값이므로 지정하지 않아도 됩니다 | **`KIT_MODE=native ./setup.sh` 한 번**. 그 실행이 경로를 `.kit-mode`에 기억하므로 이후 명령에는 붙이지 않아도 됩니다 |
 | 정렬 규칙(collation) | 컨테이너 initdb를 `LANG=C.UTF-8`로 못 박아 얻습니다 | `CREATE DATABASE … TEMPLATE template0 LOCALE_PROVIDER builtin BUILTIN_LOCALE 'C.UTF-8'`으로 못 박습니다 |
 | 세션 시간대·메시지 언어·날짜 표기·로케일 | 두 경로 같음 — `ALTER DATABASE bookstore_ops SET timezone TO 'UTC'`·`SET lc_messages TO 'C'`·`SET DateStyle TO 'ISO, MDY'`·`SET lc_monetary/lc_numeric/lc_time TO 'C'`를 `./setup.sh`가 적용합니다(다시 실행해도 안전). 여러분이 직접 설치한 서버는 컴퓨터의 시간대(예: Asia/Seoul)와 로케일을 기본값으로 잡는데, 그대로 두면 `timestamptz`가 본문의 `+00`이 아니라 `+09`로 표시되고, 오류 메시지가 한국어로 나오고, `'01/02/2026'` 같은 날짜 입력이 다르게 읽히고, `to_char`의 통화 기호(`L`)·요일 이름(`TM`)이 `₩`·한국어로 나올 수 있어 데이터베이스 설정으로 고정합니다. 여러분의 대화형 psql 세션에도 적용됩니다 | 같음 |
-| 문자 분류(LC_CTYPE) | 컨테이너 initdb의 `C.UTF-8` | `CREATE DATABASE … LC_COLLATE 'C' LC_CTYPE 'C'`로 만듭니다(점검이 받아들이는 값은 C 계열 — `C`·`POSIX`·`C.UTF-8`). 이 설정은 만들 때만 정할 수 있어, 다른 값으로 이미 만들어진 `bookstore_ops`는 `dropdb` 뒤 `./setup.sh`로 다시 만들라고 안내합니다. 고정하지 않으면 macOS에서 행 전체를 한 값으로 찍는 출력(`SELECT t FROM t`, `ROW(…)::text`)에서 한글이 `"신아린"`처럼 따옴표로 감싸여 교재와 다르게 보입니다 |
+| 문자 분류(LC_CTYPE) | 컨테이너 initdb의 `C.UTF-8` | `CREATE DATABASE … LC_COLLATE 'C' LC_CTYPE 'C'`로 만듭니다. **값은 두 경로가 다릅니다**(`C.UTF-8` ↔ `C`). 고정하지 않으면 macOS에서 행 전체를 한 값으로 찍는 출력(`SELECT t FROM t`, `ROW(…)::text`)에서 한글이 `"신아린"`처럼 따옴표로 감싸여 교재와 다르게 보입니다. 이 설정은 만들 때만 정할 수 있는데, 다른 값으로 이미 만들어진 `bookstore_ops`는 **막지 않고 알림만 냅니다** — 이 코스의 예제·문제가 그 축에 걸리는 자리를 지금까지 한 군데도 쓰지 않기 때문입니다(아래 「실패 안내」의 `알림: … 문자 분류(LC_CTYPE)가 …` 행) |
 | `./reset.sh` `./check_env.sh` `./entry_check.sh` `./verify.sh` | 동일 | 동일 |
 | `./concurrency.sh --terminal` | 컨테이너 안 `/kit/concurrency/`의 스크립트를 실행 | `concurrency/`의 스크립트를 직접 실행 |
 
@@ -154,8 +157,8 @@ peer 인증이라, 비밀번호를 정한 뒤
    함께 적혀 나옵니다.
 
 파일 내용이 `docker`/`native`가 아니면 스크립트가 종료 코드 2로 막고 파일을 지우라고
-안내합니다. 이 파일은 **여러분 컴퓨터의 상태 파일이므로** 저장소의 `.gitignore`가
-추적에서 뺍니다.
+안내합니다. 이 파일은 **여러분 컴퓨터의 상태 파일이므로** 받으신 kit 폴더에는 들어
+있지 않습니다 — `./setup.sh`가 구축에 성공할 때 만듭니다.
 
 ## 입장 점검 — `./entry_check.sh`
 
@@ -163,7 +166,8 @@ peer 인증이라, 비밀번호를 정한 뒤
 (0장 0.5절).
 
 1. **환경 확인** — `./check_env.sh`와 같습니다: psql 접속, 서버 메이저 버전 18, world
-   속성(정렬 규칙 + 문자 분류 + 세션 시간대·메시지 언어·날짜 표기·로케일 + 데이터 검사 W1~W16).
+   속성(정렬 규칙 + 세션 시간대·메시지 언어·날짜 표기·로케일 + 데이터 검사 W1~W16). 문자
+   분류(LC_CTYPE)는 같은 자리에서 재지만 통과 판정에 넣지 않고 알림만 냅니다.
 2. **네 문항 채점** — `entry/q1.sql` ~ `entry/q4.sql`의 머리 주석에 문항이 있습니다. 그
    아래에 SQL을 적고 `./entry_check.sh`를 실행하면 world 위에서 실행해 기대 결과와
    대조합니다. 이 네 파일은 `./setup.sh`가 만들어 둡니다 — **한 번 만들어진 뒤로는
@@ -220,10 +224,10 @@ PASS q4
 | psql 접속 불가 | 기본 경로: `docker logs ll-sql-intermediate` 확인 후 `./setup.sh` 재실행 / 대안 경로: 서버 기동(macOS Homebrew `brew services start postgresql@18`, Linux·WSL2 `sudo systemctl start postgresql`)과 접속 정보·DB 이름 확인 후 `./setup.sh` |
 | 서버 버전이 18.x가 아님 | 기본 경로: `docker rm -f ll-sql-intermediate` 후 `./setup.sh`(postgres:18로 재생성) / 대안 경로: 18 설치 후 `PGPORT` 등으로 접속을 그쪽으로 |
 | world 정렬 규칙 불일치 | 기본 경로: `docker rm -f ll-sql-intermediate` 후 `./setup.sh` / 대안 경로: `dropdb bookstore_ops` 후 `./setup.sh`(정렬 규칙을 고정해 재생성). 어느 쪽이든 world는 다시 적재되므로 잃는 것이 없습니다 |
-| world 문자 분류 불일치 (LC_CTYPE) | 만들 때 정해지는 설정이라 바꿀 수 없습니다. 기본 경로: `docker rm -f ll-sql-intermediate` 후 `./setup.sh` / 대안 경로: **`dropdb bookstore_ops` 후 `./setup.sh`**(정렬 규칙과 문자 분류를 고정해 재생성). world는 다시 적재되므로 잃는 것이 없습니다 |
+| 「알림: 데이터베이스 bookstore_ops 의 문자 분류(LC_CTYPE)가 …」 (실패는 아님) | 그대로 두셔도 됩니다 — **막지 않습니다.** 이 설정은 값을 글자 단위로 어떻게 읽을지를 정하는데, 이 코스의 예제·문제에서 이 설정에만 매인 자리(행 전체를 한 값으로 찍는 출력, `\l`이 내는 `Ctype` 열)는 지금까지 한 군데도 쓰이지 않았습니다. 굳이 맞추고 싶으시면 만들 때만 정할 수 있는 설정이므로 기본 경로는 `docker rm -f ll-sql-intermediate` 후 `./setup.sh`, 대안 경로는 `dropdb bookstore_ops` 후 `./setup.sh` — world는 다시 적재되므로 잃는 것이 없습니다 |
 | world 세션 설정 불일치 (시간대·메시지 언어·날짜 표기·로케일) | 두 경로 같음: `./setup.sh`를 다시 실행합니다 — 설정만 다시 적용하며 컨테이너도 데이터베이스도 지우지 않습니다. 그래도 같으면 psql 쪽 환경 변수 `PGTZ`·`PGDATESTYLE`이나 `ALTER ROLE … SET`으로 둔 역할 설정이 데이터베이스 설정을 덮고 있는지 확인하세요 |
 | 「알림: psqlrc 가 여러분의 psql 세션 설정을 바꿉니다」 (대안 경로, 실패는 아님) | kit 스크립트는 psql을 `-X`로 불러 psqlrc를 읽지 않습니다 — psqlrc는 점검의 판정에 들어가지 않지만, 여러분이 직접 여는 psql 세션은 psqlrc의 `SET timezone …`·`SET DateStyle …`·`SET lc_* …` 때문에 본문과 다르게 보일 수 있습니다. 알림은 psqlrc를 읽은 세션의 **실제 값**과 psql이 실제로 읽는 파일(`~/.psqlrc`, 버전별 `~/.psqlrc-18`·`~/.psqlrc-<psql -V 가 찍는 전체 버전>` — Homebrew·PGDG 빌드는 `18.6 (Homebrew)`처럼 접미가 붙습니다, `PSQLRC`가 가리키는 파일, 시스템 psqlrc)의 해당 줄을 보여 줍니다. 코스를 진행하는 동안 그 줄을 지우거나 `--` 주석으로 바꾸세요(임시로는 `psql -X`). `\timing`·`\x auto`·`\pset` 같은 표시 설정은 두어도 kit 점검에 영향이 없습니다 |
-| world 속성 검증 실패 | `./reset.sh` 후 재시도. 그래도 실패하면 기본 경로는 `docker rm -f ll-sql-intermediate` 후 `./setup.sh`, 대안 경로는 **`dropdb bookstore_ops` 후 `./setup.sh`**(`createdb`로 직접 만들면 로케일이 서버 기본값이 되어 `setup.sh`가 정렬 규칙 검사에서 막습니다) |
+| world 속성 검증 실패 | `./reset.sh` 후 재시도. 그래도 실패하면 기본 경로는 `docker rm -f ll-sql-intermediate` 후 `./setup.sh`, 대안 경로는 **`dropdb bookstore_ops` 후 `./setup.sh`**(`createdb`로 직접 만들지 마세요 — 로케일이 서버 기본값이 되어 교재와 차례가 다른 표를 보게 됩니다. 서버에 따라서는 `setup.sh`의 정렬 규칙 검사가 그것을 잡아 주지만, 코드포인트 차례로 정렬하는 서버에서는 검사를 그대로 통과합니다) |
 
 world 속성 검증 실패에는 `world_check.sql`의 예외 메시지가 그대로 따라 나옵니다. `W`로
 시작하는 번호는 `world_check.sql`의 검사 번호입니다 — 그 파일에서 같은 번호의 주석
@@ -238,16 +242,19 @@ kit 스크립트는 **한 번에 하나씩**, 앞의 것이 끝난 뒤에 실행
 |---|---|---|
 | `./setup.sh` | 남기지 않습니다 | world를 다시 적재하기 전에 `./reset.sh`를 부르므로, 그 자리에서 아래 `./reset.sh` 행의 `reset 실패: …` 문구를 내고 멈춥니다 (종료 코드 2) |
 | `./check_env.sh` | 남기지 않습니다 | 거절하지 않고 그대로 확인합니다. 다만 표시를 남긴 쪽이 world를 바꾸는 중이면 `world 속성 검증 실패 …`로 엉뚱하게 실패할 수 있습니다 |
-| `./entry_check.sh` | 남깁니다 — **1단계(환경 확인)를 마친 뒤**입니다 | 2단계로 넘어가면서 `오류: 다른 검증 러너(PID …)가 같은 world(…)를 쓰고 있습니다 — 겹쳐 돌리면 결과가 비결정적이 됩니다 (거짓 PASS 위험).`로 거절합니다 (종료 코드 2). 다만 표시를 남긴 쪽이 world를 바꾸는 중이면 그 앞 1단계가 먼저 `환경 확인 실패: world 속성 검증 실패 …`로 끝납니다 (종료 코드 1) |
-| `./reset.sh` | 남기지 않습니다 | `reset 실패: 검증 러너(PID …)가 같은 world(…)를 쓰는 중입니다 — 지금 되돌리면 그 실행의 결과가 깨지고 world가 손상될 수 있습니다`로 거절합니다 (종료 코드 2) |
-| `./verify.sh` | 남깁니다 | 위 `오류: 다른 검증 러너(PID …) …` 문구로 거절합니다 (종료 코드 2) |
+| `./entry_check.sh` | 남깁니다 — **1단계(환경 확인)를 마친 뒤**입니다 | 2단계로 넘어가면서 `오류: 같은 world(…)를 쓰는 다른 실행(PID …)이 있습니다 — 겹쳐 돌리면 두 실행이 서로의 데이터를 되돌려, 맞지 않는 결과가 통과로 나올 수 있습니다.`로 거절합니다 (종료 코드 2). 다만 표시를 남긴 쪽이 world를 바꾸는 중이면 그 앞 1단계가 먼저 `환경 확인 실패: world 속성 검증 실패 …`로 끝납니다 (종료 코드 1) |
+| `./reset.sh` | 남기지 않습니다 | `reset 실패: 같은 world(…)를 쓰는 다른 실행(PID …)이 있습니다 — 지금 되돌리면 그 실행의 결과가 깨지고 world가 손상될 수 있습니다`로 거절합니다 (종료 코드 2) |
+| `./verify.sh` | 남깁니다 | 위 `오류: 같은 world(…)를 쓰는 다른 실행(PID …) …` 문구로 거절합니다 (종료 코드 2) |
 | `./concurrency.sh <시나리오>` (자동 재현) | 남깁니다 | 같은 `오류: …` 문구로 거절합니다 (종료 코드 2) |
 | `./concurrency.sh --terminal A`(또는 `B`) | 남기지 않습니다 | 거절하지 않고 그대로 세션을 엽니다 — 두 터미널 모드는 여러분이 두 세션의 차례를 손으로 맞추는 실습이기 때문입니다 |
 
 거절당하면 그 실행이 끝난 뒤 다시 실행하시면 됩니다. **거꾸로는 막아 주지 않습니다** —
 world를 바꾸면서도 표시를 남기지 않는 쪽(`./reset.sh`·`./setup.sh`·`./concurrency.sh --terminal`)이
 돌고 있는 사이에 시작한 실행은 거절되지 않고, 바뀌는 중인 world를 보게 됩니다. 그러면 위 표의
-`world 속성 검증 실패 …`처럼 엉뚱한 실패를 내거나 둘 다 실패할 수 있습니다.
+`world 속성 검증 실패 …`처럼 엉뚱한 실패를 내거나 둘 다 실패할 수 있습니다 — 2026-09-19에
+`./reset.sh`가 도는 사이에 `./verify.sh`를 시작해 보니 양쪽이 데이터베이스 락에서 엉켜
+(`ERROR:  deadlock detected`) `./reset.sh`는 `world 초기화 완료 …`로 끝났지만 `./verify.sh`는
+`오류: 케이스 … 실행 전 world 초기화에 실패했습니다`로 멈췄습니다 (종료 코드 2).
 
 ## 상태 되돌리기 — `./reset.sh`
 
@@ -342,7 +349,8 @@ PASS 01-counts
   `./verify.sh ./cases`를 돌리면 이 케이스가 FAIL로 잡힙니다 — 2026-09-12 실측에서
   `결과: PASS 9 / FAIL 1`이었고 FAIL은 이 케이스였습니다. 환경 확인(`./check_env.sh`)은
   버전의 앞자리 `18.`만 보므로 이것 때문에 막히지는 않습니다.
-- **11장의 실행 계획(`EXPLAIN`) 출력** — 이 절 마지막 문단에 적어 두었습니다.
+- **실행 계획(`EXPLAIN`)을 담은 출력** — 11장 본문과, kit이 처음부터 가지고 있던 케이스
+  `06-explain-index`입니다. 이 절 마지막 문단에 적어 두었습니다.
 
 예제 데이터 쪽은 두 경로에서 같은 결과가 나옵니다. kit이 처음부터 가지고 있던 케이스
 8건(`cases/`의 `01`~`08`)은 **직접 설치한 서버**(macOS Homebrew PostgreSQL 18.6, 컴퓨터 시간대
@@ -360,3 +368,13 @@ en_US 서버에서 `L`이 `$`, ko_KR 서버에서 `₩`·한국어 요일이 됩
 있습니다. 기본 경로의 컨테이너는 PostgreSQL 기본 설정이고, 여러분이 직접 설치한 서버의
 설정이 다르면(예: `max_parallel_workers_per_gather`) 11장 본문의 계획과 다른 모양이 나올
 수 있습니다. 그 경우 본문이 가르치는 읽는 법(스캔 유형·인덱스 사용 여부)은 그대로입니다.
+
+**이 성질은 케이스에도 그대로 걸립니다.** 교재가 실행 계획을 글자 그대로 고정해 둔 자리는
+world가 아니라 **그 서버의 설정**을 함께 고정한 셈이 되기 때문입니다 — `06-explain-index`의
+기대 출력에는 `Workers Planned: 2`가 박혀 있는데, 이 값은 `max_parallel_workers_per_gather`가
+정합니다. 컨테이너도, PGDG 패키지도, Homebrew 설치본도 기본값이 `2`라 두 경로에서 지금까지
+확인된 차이는 없지만, 그 값을 손대 둔 서버에서는 계획의 **모양째** 달라집니다 — 2026-09-19에
+`SET max_parallel_workers_per_gather = 0`을 준 채 돌려 보니 여섯 줄짜리 병렬 계획이 세 줄
+(`Aggregate` → `Seq Scan`)로 바뀌어 이 케이스가 FAIL했습니다. 앞으로 실행 계획을 싣는 장이
+늘면 같은 자리가 늘 수 있습니다. 케이스가 이렇게 어긋난 것은 여러분의 world가 잘못된 것이
+아니니, 서버 설정을 기본값으로 두시거나 그 케이스의 FAIL을 그대로 두고 진행하셔도 됩니다.

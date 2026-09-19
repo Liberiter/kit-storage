@@ -4,9 +4,20 @@
 #       macOS: OrbStack, Linux: Docker Engine). 그 외 수작업 불필요.
 #
 # 대안 경로(0장 0.7절 — 네이티브 설치)는 KIT_MODE=native ./setup.sh.
-# 이 경로에서는 컨테이너를 만들 것이 없으므로, 대신 학습자가 설치한 서버가
-# 코스에 쓸 수 있는 상태인지 점검하고, world를 담을 데이터베이스를 기본 경로와
-# **같은 정렬 규칙**으로 만든 뒤 world를 적재한다 (아래 CREATE DATABASE 주석).
+# 이 경로에서는 컨테이너를 만들 것이 없으므로, 대신 설치하신 서버가 코스에 쓸 수 있는
+# 상태인지 점검하고, world를 담을 데이터베이스를 기본 경로와 **같은 정렬 규칙**으로
+# 만든 뒤 world를 적재한다 (아래 CREATE DATABASE 주석).
+#
+# 두 경로 모두 데이터베이스의 **세션 시간대(UTC)·메시지 언어(C)·날짜 표기('ISO, MDY')·
+# 로케일(lc_monetary·lc_numeric·lc_time = C)** 를 ALTER DATABASE 로 못 박는다
+# (kit_psql.sh 「세션 시간대·메시지 언어·날짜 표기·로케일」). 직접 설치한 서버는 그
+# 컴퓨터의 로케일을 기본값으로 잡아, 그대로 두면 오류 메시지가 한국어로 나오고
+# to_char 의 통화·요일 표기가 본문과 달라진다. 멱등이므로 기존 데이터베이스에도 다시
+# 실행하면 설정이 다시 적용된다. 대안 경로의 데이터베이스는 libc 문자 분류(LC_CTYPE)도
+# C 로 만든다 — 다만 이것은 만들 때만 정할 수 있고, 이 코스의 출력에서 이 축에 걸리는
+# 것은 1장 1.2 의 \l 이 내는 Ctype 열 한 자리뿐이라(kit_psql.sh 「libc 문자 분류」 —
+# 서버 자신의 사실을 비추는 자리다), 다른 값으로 이미 만들어져 있는 데이터베이스는
+# 막지 않고 알림만 낸다.
 #
 # 구축에 성공하면 **어느 경로로 구축했는지를 상태 파일에 적는다**
 # (kit_state_save — 정의와 이유는 kit_psql.sh 「구축 경로 기억」). 그래야 대안
@@ -62,13 +73,17 @@ if [ "$KIT_MODE" = native ]; then
   # builtin 제공자를 쓴다. 로케일을 바꿔 만들 때는 TEMPLATE template0이
   # 필요하다 — template1은 서버 기본 로케일이라 제공자가 어긋난다
   # ("new locale provider (builtin) does not match ... use template0").
+  # LC_CTYPE·LC_COLLATE 'C' 는 서버 기본 로케일을 물려받아 C 계열 밖으로 나가는 것을
+  # 막는다. 컨테이너와 «값»이 같아지지는 않지만(컨테이너는 C.UTF-8, 이쪽은 C)
+  # **거동은 같다** — 대소문자·문자 클래스는 제공자와 그 로케일이 맡고 여기서는
+  # BUILTIN_LOCALE 'C.UTF-8' 이 그 역할을 한다 (kit_psql.sh 「libc 문자 분류」).
   if [ "$(kit_psql -d "$admin_db" -tAc "SELECT 1 FROM pg_database WHERE datname='$DB'")" != "1" ]; then
-    if kit_psql -d "$admin_db" -q -c "CREATE DATABASE \"$DB\" TEMPLATE template0 ENCODING 'UTF8' LOCALE_PROVIDER builtin BUILTIN_LOCALE 'C.UTF-8'" >/dev/null 2>&1; then
-      echo "데이터베이스 생성: $DB (정렬 규칙 C.UTF-8 고정 — builtin 제공자)"
+    if kit_psql -d "$admin_db" -q -c "CREATE DATABASE \"$DB\" TEMPLATE template0 ENCODING 'UTF8' LOCALE_PROVIDER builtin BUILTIN_LOCALE 'C.UTF-8' LC_COLLATE 'C' LC_CTYPE 'C'" >/dev/null 2>&1; then
+      echo "데이터베이스 생성: $DB (정렬 규칙 C.UTF-8 고정 — builtin 제공자, libc 문자 분류 C)"
     else
       echo "오류: 데이터베이스 $DB 를 만들지 못했습니다 (권한 문제일 수 있습니다)." >&2
       echo "  다음: 데이터베이스를 만들 수 있는 역할로 아래 명령을 실행한 뒤 이 스크립트를 다시 실행하세요." >&2
-      echo "        createdb --template=template0 --encoding=UTF8 --locale-provider=builtin --builtin-locale=C.UTF-8 $DB" >&2
+      echo "        createdb --template=template0 --encoding=UTF8 --locale-provider=builtin --builtin-locale=C.UTF-8 --lc-collate=C --lc-ctype=C $DB" >&2
       echo "        (권한 문제가 아니라면 서버가 PostgreSQL 18인지 확인하세요 — builtin 로케일 제공자는 17부터 있습니다.)" >&2
       exit 1
     fi
@@ -86,6 +101,27 @@ if [ "$KIT_MODE" = native ]; then
     echo "  다음: 이 데이터베이스는 다른 로케일로 만들어졌습니다. dropdb $DB 로 지운 뒤" >&2
     echo "        ./setup.sh 를 다시 실행하세요 — 정렬 규칙을 고정해 새로 만들고 world를" >&2
     echo "        seed.sql에서 다시 적재하므로 잃는 것이 없습니다." >&2
+    exit 1
+  fi
+
+  # 이미 있던 $DB의 libc 문자 분류(LC_CTYPE)가 C 계열이 아니어도 **막지 않는다.**
+  # 이 축이 영향을 주는 자리는 넓지만(확인된 목록은 kit_psql.sh 「libc 문자 분류」 —
+  # 전부라고 단정하지 않는다), 이 코스의 출력에서 실제로 갈리는 것은 1장 1.2 의
+  # ch01-04-list-databases 한 건뿐이다 — \l 이 내는 Ctype 열이 datctype 을 그대로
+  # 비추고, 그 줄은 서버 자신의 사실을 비추는 자리라 kit 이 이미 경로 축으로 세고 있다. 알림은 아래에서 부르는 ./check_env.sh 가 한 번만 낸다 — 여기서도 내면
+  # 구축 화면에 같은 말이 두 번 찍힌다.
+
+  # 세션 시간대·메시지 언어·날짜 표기·로케일(통화·숫자·날짜 이름)을 데이터베이스 설정으로
+  # 고정한다 (기본 경로와 같은 값 — kit_psql.sh 「세션 시간대·메시지 언어·날짜 표기·로케일」).
+  if kit_session_fix "$DB" >/dev/null 2>&1; then
+    echo "세션 설정 고정: timezone=UTC, lc_messages=C, DateStyle='ISO, MDY', lc_monetary/lc_numeric/lc_time=C (데이터베이스 $DB 의 기본값으로 — 여러분의 psql 세션에도 적용됩니다)"
+  else
+    echo "오류: 데이터베이스 $DB 의 세션 설정(timezone·lc_messages·DateStyle·lc_monetary·lc_numeric·lc_time)을 고정하지 못했습니다 (권한 문제일 수 있습니다)." >&2
+    echo "  다음: 슈퍼유저(예: postgres)로 아래 명령들을 실행한 뒤 이 스크립트를 다시 실행하세요." >&2
+    echo "        ALTER DATABASE \"$DB\" SET timezone TO 'UTC';" >&2
+    echo "        ALTER DATABASE \"$DB\" SET lc_messages TO 'C';" >&2
+    echo "        ALTER DATABASE \"$DB\" SET DateStyle TO 'ISO, MDY';" >&2
+    echo "        ALTER DATABASE \"$DB\" SET lc_monetary TO 'C';  ALTER DATABASE \"$DB\" SET lc_numeric TO 'C';  ALTER DATABASE \"$DB\" SET lc_time TO 'C';" >&2
     exit 1
   fi
 
@@ -160,6 +196,18 @@ esac
 if [ "$(kit_psql -tAc "SELECT 1 FROM pg_database WHERE datname='$DB'")" != "1" ]; then
   docker exec "$CONTAINER" createdb -U postgres "$DB"
   echo "데이터베이스 생성: $DB"
+fi
+
+# 세션 시간대·메시지 언어·날짜 표기·로케일(통화·숫자·날짜 이름)을 데이터베이스 설정으로
+# 고정한다. 컨테이너는 원래 Etc/UTC·C.UTF-8·'ISO, MDY' 이지만, 대안 경로와 **같은 값**을
+# 같은 방법으로 못 박아 두 경로의 world 가 같음을 설정 하나로 보장한다
+# (kit_psql.sh 「세션 시간대·메시지 언어·날짜 표기·로케일」).
+if kit_session_fix "$DB" >/dev/null 2>&1; then
+  echo "세션 설정 고정: timezone=UTC, lc_messages=C, DateStyle='ISO, MDY', lc_monetary/lc_numeric/lc_time=C (데이터베이스 $DB 의 기본값으로)"
+else
+  echo "오류: 데이터베이스 $DB 의 세션 설정(timezone·lc_messages·DateStyle·lc_monetary·lc_numeric·lc_time)을 고정하지 못했습니다." >&2
+  echo "  다음: docker logs $CONTAINER 로 서버 로그를 확인하세요. 막히면 docker rm -f $CONTAINER 뒤 ./setup.sh 를 다시 실행하세요." >&2
+  exit 1
 fi
 
 ./reset.sh

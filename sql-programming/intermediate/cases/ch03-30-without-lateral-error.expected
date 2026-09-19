@@ -1,0 +1,6 @@
+ERROR:  invalid reference to FROM-clause entry for table "categories"
+LINE 9:     WHERE books.category = categories.name
+                                   ^
+DETAIL:  There is an entry for table "categories", but it cannot be referenced from this part of the query.
+HINT:  To reference that table, you must mark this subquery with LATERAL.
+[exit 3]

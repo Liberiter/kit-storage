@@ -1,0 +1,4 @@
+ERROR:  column "분야" does not exist
+LINE 4:     round(avg(price) OVER (PARTITION BY 분야)) AS "분야 평균...
+                                                ^
+[exit 3]

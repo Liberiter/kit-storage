@@ -1,0 +1,4 @@
+ERROR:  syntax error at or near ")"
+LINE 1: SELECT title AS 제목, round(avg(price) OVER) AS 평균가
+                                                   ^
+[exit 3]

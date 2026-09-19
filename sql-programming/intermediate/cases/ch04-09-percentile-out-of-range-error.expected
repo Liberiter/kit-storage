@@ -1,0 +1,2 @@
+ERROR:  percentile value 50 is not between 0 and 1
+[exit 3]

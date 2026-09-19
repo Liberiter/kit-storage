@@ -1,0 +1,6 @@
+ERROR:  relation "cheap_books" does not exist
+LINE 2:     SELECT count(*) AS 권수 FROM cheap_books
+                                         ^
+DETAIL:  There is a WITH item named "cheap_books", but it cannot be referenced from this part of the query.
+HINT:  Use WITH RECURSIVE, or re-order the WITH items to remove forward references.
+[exit 3]

@@ -1,0 +1,4 @@
+ERROR:  column "books.title" must appear in the GROUP BY clause or be used in an aggregate function
+LINE 1: SELECT category AS 분야, title AS 제목, max(price) AS 최고가
+                                 ^
+[exit 3]

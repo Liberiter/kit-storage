@@ -1,0 +1,4 @@
+ERROR:  window functions are not allowed in WHERE
+LINE 4:     AND price > avg(price) OVER ()
+                        ^
+[exit 3]

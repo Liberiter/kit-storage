@@ -1,0 +1,4 @@
+ERROR:  column "books.price" must appear in the GROUP BY clause or be used in an aggregate function
+LINE 4:     round(avg(price) OVER (PARTITION BY title)) AS 평균가
+                      ^
+[exit 3]

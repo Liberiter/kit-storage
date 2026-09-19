@@ -1,0 +1,4 @@
+ERROR:  aggregate function calls cannot be nested
+LINE 9: HAVING sum(order_items.quantity) >= avg(sum(order_items.quan...
+                                                ^
+[exit 3]

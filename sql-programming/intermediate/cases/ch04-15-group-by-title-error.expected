@@ -1,0 +1,4 @@
+ERROR:  column "books.title" must appear in the GROUP BY clause or be used in an aggregate function
+LINE 1: SELECT title AS 제목, price AS 가격, round(avg(price)) AS 평...
+               ^
+[exit 3]

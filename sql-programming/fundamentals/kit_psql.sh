@@ -40,13 +40,13 @@
 # `KIT_MODE=native ./setup.sh`를 **한 번** 실행한 뒤로 챕터 본문의 맨 명령을
 # 그대로 쓸 수 있고, 본문을 한 곳도 고치지 않아도 된다.
 #
-# 이것은 검증 러너의 케이스 규약(HARNESS.md 「검증 러너 규약」 — 이 코스를 만드는
-# 쪽의 문서)과 무관하다 — 케이스의 모양이 아니라 kit가 무엇을 어떻게 실행하는가,
-# 즉 실행 환경 선택의 문제다. 상태 파일은 학습자의 로컬 상태이지 kit의 내용물이
-# 아니므로 저장소의 `.gitignore`가 추적에서 뺀다.
+# 상태 파일은 그 컴퓨터의 로컬 상태이지 kit의 내용물이 아니다 — 받은 kit 폴더에는
+# 들어 있지 않고 ./setup.sh 가 구축에 성공할 때 생긴다.
 #
 # 이 파일은 world의 **정렬 규칙(collation)** 판정 기준(KIT_SORT_EXPECTED·
-# kit_sort_probe)과, 여러 스크립트가 공유하는 **실행 전 점검**
+# kit_sort_probe), **세션 시간대·메시지 언어** 기준(KIT_SESSION_EXPECTED·
+# kit_session_probe·kit_session_fix), **libc 문자 분류** 기준(KIT_CTYPE_EXPECTED_TEXT·
+# kit_ctype_probe·kit_ctype_ok)과, 여러 스크립트가 공유하는 **실행 전 점검**
 # (kit_runtime_check·kit_connect_check)도 함께 정의한다. setup.sh·reset.sh·
 # check_env.sh·verify.sh가 같은 기준과 같은 문구를 써야 하므로 한 자리에 둔다.
 
@@ -161,10 +161,10 @@ kit_connect_check() { # $1=레이블, $2=종료 코드 (기본 1)
   kit_psql -d "$KIT_DB" -tAc "SELECT 1" >/dev/null 2>&1 && return 0
   if [ "$KIT_MODE" = native ]; then
     echo "$label 실패: psql 접속 불가 (데이터베이스 $KIT_DB)" >&2
-    echo "  다음: PostgreSQL 서버가 떠 있는지(macOS Homebrew는 brew services start postgresql@18, Linux·WSL2는 sudo systemctl start postgresql), 접속 정보(PGHOST·PGPORT·PGUSER·PGPASSWORD — Linux·WSL2는 PGHOST=localhost까지)와 $KIT_DB 데이터베이스가 맞는지 확인한 뒤 ./setup.sh 를 실행하세요 — setup.sh가 대안 경로에서 무엇을 점검하는지 안내합니다" >&2
+    echo "  다음: PostgreSQL 서버가 떠 있는지(macOS Homebrew는 brew services start postgresql@18, Linux·WSL2는 sudo systemctl start postgresql), 접속 정보(PGHOST·PGPORT·PGUSER·PGPASSWORD — Linux·WSL2는 PGHOST=localhost까지)와 $KIT_DB 데이터베이스가 맞는지 확인한 뒤 ./setup.sh 를 실행하세요 — setup.sh가 대안 경로에서 무엇을 점검하는지 안내합니다. 그래도 접속되지 않으면 0장 0.7절의 설치·접속 안내를 처음부터 다시 따라 주세요" >&2
   else
     echo "$label 실패: psql 접속 불가 (컨테이너 $KIT_CONTAINER, 데이터베이스 $KIT_DB)" >&2
-    echo "  다음: docker logs $KIT_CONTAINER 로 서버 상태를 본 뒤 ./setup.sh 를 다시 실행하세요" >&2
+    echo "  다음: docker logs $KIT_CONTAINER 로 서버 상태를 본 뒤 ./setup.sh 를 다시 실행하세요. 그래도 접속되지 않으면 docker rm -f $KIT_CONTAINER 로 컨테이너를 지운 뒤 ./setup.sh 를 실행하고(예제 데이터는 다시 넣어집니다), 그래도 같으면 0장 0.1절의 런타임 설치 안내를 다시 따라 주세요" >&2
   fi
   exit "$rc"
 }
@@ -183,10 +183,10 @@ kit_connect_check() { # $1=레이블, $2=종료 코드 (기본 1)
 #
 # 잠금은 **대상 world 단위**다 — 접속 방법이 아니라 서버(호스트:포트)와 DB 이름으로
 # 식별한다. 기본 경로는 localhost:$KIT_PORT, 대안 경로는 PGHOST:PGPORT이므로 호스트
-# psql로 같은 컨테이너에 붙는 대안 경로 러너도 같은 잠금을 본다. kit
-# 디렉토리 단위가 아닌 이유: 실제 사고는 같은 kit의 두 체크아웃이 같은
-# 컨테이너를 쓰다 났다. 잠금은 /tmp에 두므로 저장소에 남지 않는다 — .kit-mode 같은
-# 상태 파일이 아니라 실행 중에만 있는 것이다.
+# psql로 같은 컨테이너에 붙는 대안 경로 러너도 같은 잠금을 본다. kit 디렉토리 단위가
+# 아닌 이유: 실제 사고는 같은 kit을 두 폴더에 받아 두고 한 컨테이너를 함께 쓰다 났다.
+# 잠금은 /tmp에 두므로 kit 폴더에 남지 않는다 — .kit-mode 같은 상태 파일이 아니라
+# 실행 중에만 있는 것이다.
 #
 # 잠금이 보지 못하는 경우: 다른 머신·다른 사용자에서 온 접속, 같은 서버를 다른
 # 호스트 표기(정규화하는 localhost·127.0.0.1·::1 외의 별칭)로 가리키는 접속,
@@ -236,7 +236,7 @@ kit_lock_acquire() { # verify.sh가 부른다. 다른 러너가 돌고 있으면
   if ! mkdir "$dir" 2>/dev/null; then
     owner="$(kit_lock_owner)"
     if [ -n "$owner" ]; then
-      echo "오류: 다른 검증 러너(PID $owner)가 같은 world($(kit_lock_target))를 쓰고 있습니다 — 겹쳐 돌리면 결과가 비결정적이 됩니다 (거짓 PASS 위험)." >&2
+      echo "오류: 같은 world($(kit_lock_target))를 쓰는 다른 실행(PID $owner)이 있습니다 — 겹쳐 돌리면 두 실행이 서로의 데이터를 되돌려, 맞지 않는 결과가 통과로 나올 수 있습니다." >&2
       echo "  다음: 그 실행이 끝난 뒤 다시 실행하세요. 같이 돌려야 하면 KIT_CONTAINER=<새 이름> KIT_PORT=<새 포트> ./setup.sh 로 전용 컨테이너를 세운 뒤 같은 변수로 ./verify.sh 를 부르세요." >&2
       exit 2
     fi
@@ -272,4 +272,129 @@ KIT_SORT_PROBE_SQL="SELECT string_agg(c, ',' ORDER BY c) FROM (VALUES ('과학')
 
 kit_sort_probe() { # $1=데이터베이스 이름 → stdout: 그 DB의 실제 정렬 결과 한 줄
   kit_psql -d "$1" -X -tAc "$KIT_SORT_PROBE_SQL"
+}
+
+# world의 **세션 시간대·메시지 언어·날짜 표기·로케일** — 정렬 규칙과 같은 취급이다.
+# 두 경로가 같은 오류 메시지(영어)와 같은 날짜·수치 표기를 내야 한다.
+#   lc_messages 는 서버 로케일을 따른다. ko_KR 로 만든 서버에서는 오류 메시지가
+#   한국어로 바뀌어, 오류를 기대하는 케이스와 본문의 오류 출력이 통째로 갈린다
+#   (이 코스의 기대 출력 가운데 ERROR: 를 싣는 것이 수십 건이다).
+#   DateStyle 도 initdb 가 로케일에서 정한다(en_US → 'iso, mdy', ko_KR → 'iso, ymd') —
+#   출력은 ISO 라 같지만 '01/02/2026' 같은 모호한 날짜 **입력**의 해석이 갈린다(6장).
+#   lc_monetary·lc_numeric·lc_time 도 서버 로케일을 따른다 — to_char 의 L(통화 기호)·
+#   D·G(소수점·자릿수 구분)·TM(요일·월 이름)이 그것을 읽어, en_US 서버는 `$   12,000.00`,
+#   ko_KR 서버는 `₩`·한국어 요일로 나온다(컨테이너 C.UTF-8 은 기호 없음·영어).
+#   timezone 은 initdb 가 그 컴퓨터의 시간대를 잡아 정한다 — 컨테이너는 Etc/UTC, 직접
+#   설치한 서버는 Asia/Seoul 같은 로컬 시간대다. 이 코스의 world 는 날짜 열이 전부
+#   date 라 표시가 곧바로 갈리지는 않지만, now()·current_timestamp 를 쓰는 자리와
+#   timestamptz 로의 변환이 시간대를 따른다.
+#   그래서 setup.sh 가 두 경로 모두 데이터베이스 설정으로 못 박는다 —
+#   ALTER DATABASE … SET timezone TO 'UTC' / SET lc_messages TO 'C' / SET DateStyle TO 'ISO, MDY'
+#   / SET lc_monetary·lc_numeric·lc_time TO 'C' (kit_session_fix). 데이터베이스 설정이므로
+#   여러분의 대화형 psql 세션에도 적용된다(스크립트에 PGTZ 를 주는 것으로는 세션이 갈린다).
+#   다만 psql 쪽 환경 변수 PGTZ·PGDATESTYLE 과 ALTER ROLE … SET 은 데이터베이스 설정을
+#   이기고 kit 의 프로브에도 그대로 걸리므로, check_env.sh 가 불일치를 보면 그 둘을 안내한다.
+#   ~/.psqlrc 의 SET 은 다르다 — kit 호출은 전부 -X 라 psqlrc 를 읽지 않으므로 프로브에
+#   걸리지 않고 여러분의 대화형 세션에만 작용한다(README 「두 경로」).
+#   판정은 접속한 세션의 실제 설정값으로 한다 (kit_session_probe).
+KIT_SESSION_EXPECTED='UTC|C|ISO, MDY|C|C|C'
+KIT_SESSION_PROBE_SQL_BARE="SELECT current_setting('TimeZone') || '|' || current_setting('lc_messages') || '|' || current_setting('DateStyle') || '|' || current_setting('lc_monetary') || '|' || current_setting('lc_numeric') || '|' || current_setting('lc_time')"
+KIT_SESSION_PROBE_SQL="$KIT_SESSION_PROBE_SQL_BARE;"
+
+kit_session_probe() { # $1=데이터베이스 이름 → stdout: "<timezone>|<lc_messages>|<DateStyle>|<lc_monetary>|<lc_numeric>|<lc_time>" 한 줄
+  kit_psql -d "$1" -X -tAc "$KIT_SESSION_PROBE_SQL"
+}
+
+kit_session_fix() { # $1=데이터베이스 이름 → 그 DB의 기본 세션 설정을 고정한다 (멱등, 기존 DB에도)
+  kit_psql -d "$1" -X -q -v ON_ERROR_STOP=1 \
+    -c "ALTER DATABASE \"$1\" SET timezone TO 'UTC';" \
+    -c "ALTER DATABASE \"$1\" SET lc_messages TO 'C';" \
+    -c "ALTER DATABASE \"$1\" SET DateStyle TO 'ISO, MDY';" \
+    -c "ALTER DATABASE \"$1\" SET lc_monetary TO 'C';" \
+    -c "ALTER DATABASE \"$1\" SET lc_numeric TO 'C';" \
+    -c "ALTER DATABASE \"$1\" SET lc_time TO 'C';"
+}
+
+# world의 **libc 문자 분류(LC_CTYPE)** — 세션 설정이 아니라 데이터베이스를 만들 때
+# 정해지는 성질이라 ALTER 로 고칠 수 없다.
+#
+# 이 축은 **값을 글자 단위로 어떻게 읽을지**를 정한다. 서버가 그 영향을 받는 자리는
+# 넓고 **여기 적은 것이 전부라고 단정하지 않는다** — 확인된 것만 적는다.
+#
+# 컨테이너(glibc)에서 datctype 만 다른 두 DB 로 실측(2026-09-18. 왼쪽이 `C.UTF-8`,
+# 오른쪽이 `C`):
+#   - 대소문자 변환 — `upper('é')` = É ↔ é, `lower('É')` = é ↔ É.
+#   - 정규식의 문자 클래스 — `'김' ~ '^[[:alpha:]]$'` = t ↔ f. **한글도 갈린다.**
+#   - 대소문자를 무시하는 비교 — `'É' ILIKE 'é'` = t ↔ f, `'É' ~* 'é'` = t ↔ f.
+#     PostgreSQL 문서가 이것을 문자 클래스와 갈라 적는다.
+# 플랫폼에 매인 것 하나:
+#   - 행 전체를 한 값으로 찍는 출력(`ROW(…)::text`, `SELECT t FROM 테이블 t`)이 값을
+#     따옴표로 감쌀지 — 이것은 **macOS libc** 에서 갈린다(아래 「갈리는 바이트는 0xA0」
+#     불릿). 컨테이너(glibc)에서는 `ROW('김유나')::text` 가 C.UTF-8·C·en_US.utf8
+#     세 DB 모두 `(김유나)` 로 **갈리지 않는다**(2026-09-18 실측).
+# 그리고 정의상 갈리는 것 하나:
+#   - `\l` 이 내는 Ctype 열의 값 자체 — 그 열이 datctype 을 그대로 비춘다.
+# **무엇이 무엇을 맡는가.** 대소문자 변환·문자 클래스·무시 비교를 맡는 것은 그
+# 데이터베이스의 **제공자와 그 로케일**이다 — libc 제공자면 LC_CTYPE 가 그 역할까지
+# 하고, builtin 제공자면 BUILTIN_LOCALE 가 한다. LC_CTYPE 에만 매인 것은 **record
+# 인용(isspace)과 \l 의 Ctype 열**이다.
+# 그래서 두 경로는 LC_CTYPE 값이 갈리는데도 거동이 같다 — 기본 경로는 libc 제공자에
+# 로케일 C.UTF-8 이고, 대안 경로는 builtin 제공자에 BUILTIN_LOCALE C.UTF-8 이라
+# **로케일이 둘 다 C.UTF-8** 이기 때문이다. 컨테이너 실측(2026-09-18):
+#   bookstore  | libc    | ctype C.UTF-8 | upper(é)=É  '김'~alpha=t  ILIKE=t  ~*=t
+#   대안 경로 절 그대로 | builtin | ctype C  | upper(é)=É  '김'~alpha=t  ILIKE=t  ~*=t
+#   libc + ctype C      | libc    | ctype C  | upper(é)=é  '김'~alpha=f  ILIKE=f  ~*=f
+# 셋째 줄이 **두 경로 어느 쪽도 아니다** — 학습자가 직접 그렇게 만든 데이터베이스가
+# 그 구성일 수 있다(kit_ctype_ok 는 C 를 C 계열로 받아 알림을 내지 않는다).
+#
+# **이 코스의 «출력»에서 실제로 갈리는 것은 `\l` 한 자리뿐이다.** 근거는 「world 의
+# 문자가 무엇인가」가 아니라 — 한글이 바로 그 반례다 — **이 코스가 그 자리들을 쓰지
+# 않는다**는 것이다. cases 전수(465건):
+#   - 정규식(`~`·`~*`·`SIMILAR TO`·`[[:` )과 대소문자 무시 비교(`ILIKE`) — **0건**.
+#   - 대소문자 변환 — ch06-26-upper-email **한 건**이고 인자가 `email` 열인데
+#     `email ~ '[^\x20-\x7e]'` 이 0행이다(전량 ASCII). 어느 ctype 에서나 값이 같다.
+#   - 행 전체를 한 값으로 찍는 질의 — 0건(`grep -rn 'ROW(' cases ../chapters/*.md`).
+# 러너 전량 대조가 이것을 받친다 — datctype 을 en_US.utf8 로도 C 로도 두고 돌려
+# 갈린 것이 `ch01-04-list-databases` 한 건뿐이었다(464/1).
+#
+# 실측 (2026-09-18, macOS 26 + PostgreSQL 18.6 (Homebrew). 한 서버에 datctype 만
+# 다른 데이터베이스 셋 — C / ko_KR.UTF-8 / en_US.UTF-8 — 을 두고 대조했다):
+#   - 갈리는 바이트는 0xA0 이다. macOS libc 는 UTF-8 로케일(en_US.UTF-8·ko_KR.UTF-8)
+#     에서 isspace(0xA0) 을 참으로 보고 C 계열에서는 거짓으로 본다. **0x85 는 어느
+#     쪽에서도 공백이 아니다** (`갅` = EA B0 85 → 양쪽 모두 `(갅)`).
+#   - 그래서 갈리는 값은 **UTF-8 바이트에 0xA0 이 든 글자를 담은 것**뿐이다. 한글
+#     음절 11172자 가운데 301자가 그렇다(`고` = EA B3 A0, `신` = EC 8B A0 …) —
+#     ko_KR.UTF-8 ctype 에서 `ROW('김유나')::text` 는 `("김유나")` 이고 C 계열에서는
+#     `(김유나)` 다. 0xA0 이 없는 값은 양쪽이 같다 — `윤주원`(EC 9C A4 EC A3 BC
+#     EC 9B 90)은 어느 쪽에서도 `(윤주원)` 이다. 센 방법: `generate_series` 로
+#     BMP(U+0020~U+FFFD, 대리 영역 제외)를 전수로 훑어 `ROW(chr(g))::text` 가
+#     `'(' || chr(g) || ')'` 와 다른 것을 모았고, C 계열에서도 인용되는 여섯(공백·
+#     `"`·`(`·`)`·`,`·`\`) 밖에 en_US/ko_KR 에서 더 인용된 것은 전부 0xA0 을 담고
+#     있었다(그렇지 않은 것 0건).
+#   - **이 코스의 출력에서 이 축에 걸리는 것은 한 건뿐이다.** 본문과 cases 에 행 전체를
+#     한 값으로 찍는 질의가 없다(챕터 본문과 cases 에 0건 —
+#     `grep -rn 'ROW(' cases ../chapters/*.md`). 걸리는 한 건은 1장 1.2 의
+#     ch01-04-list-databases 로, \l 이 내는 Ctype 열의 값이 datctype 을 그대로
+#     비춘다 — 서버 자신의 사실을 비추는 케이스라 「한 경로에서만 재현되는 케이스」가
+#     이미 받는 자리다. 대안 경로에서 datctype 만 ko_KR.UTF-8 로 둔 bookstore 에
+#     러너 전량을 돌리면 C 계열 데이터베이스와 같은 463/2 인데, 그 경로에서는
+#     ch01-04 가 어느 설정에서나 FAIL 로 세어져 차이가 셈에 드러나지 않는다
+#     (HARNESS.md 「부분 수정의 재현 기록」 2026-09-18 절의 ③).
+#
+# 그래서 대안 경로의 CREATE DATABASE 는 **새로 만들 때** LC_CTYPE 'C' LC_COLLATE 'C'
+# 로 못 박는다 — 서버 기본 로케일을 물려받아 C 계열 밖으로 나가는 것을 막는 것이지
+# 두 경로의 «값»을 같게 만드는 것은 아니다(기본 경로는 C.UTF-8, 대안 경로는 C 다).
+# 그리고 **이미 만들어져 있는 데이터베이스는
+# setup.sh·check_env.sh 가 막지 않고 알림만 낸다.** kit_ctype_probe·kit_ctype_ok 는
+# 그 알림의 판정에 쓴다 — pg_database.datctype 이 C 계열(C·POSIX·C.UTF-8/C.utf8)인지 본다.
+KIT_CTYPE_PROBE_SQL_PREFIX="SELECT datctype FROM pg_database WHERE datname = "
+
+kit_ctype_probe() { # $1=데이터베이스 이름 → stdout: 그 DB의 datctype 한 줄
+  kit_psql -d "$1" -X -tAc "${KIT_CTYPE_PROBE_SQL_PREFIX}'$1';"
+}
+
+# 허용 값과 화면 문구(KIT_CTYPE_EXPECTED_TEXT)는 한 쌍이다 — 한쪽을 고치면 다른 쪽도 고친다.
+KIT_CTYPE_EXPECTED_TEXT='C 계열 — C, POSIX, C.UTF-8(C.utf8)'
+kit_ctype_ok() { # $1=datctype 값 → 0 이면 기대 범위
+  case "$1" in C|POSIX|C.UTF-8|C.utf8) return 0 ;; *) return 1 ;; esac
 }

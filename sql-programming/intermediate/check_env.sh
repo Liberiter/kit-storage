@@ -1,14 +1,15 @@
 #!/usr/bin/env bash
-# 환경 확인 — 접속 → 버전 → world 속성(정렬 규칙 + libc 문자 분류 + 세션 시간대·메시지 언어·
-# 날짜 표기·로케일 + world_check.sql) 순으로 확인한다.
+# 환경 확인 — 접속 → 버전 → world 속성(정렬 규칙 + 세션 시간대·메시지 언어·날짜 표기·로케일
+# + world_check.sql) 순으로 확인한다. libc 문자 분류(LC_CTYPE)는 사이에서 **알림만** 내고
+# 판정에는 넣지 않는다 (아래 「world 속성 (2)」).
 # 입장 점검(entry check)의 첫 단계다: ./entry_check.sh 가 이것을 먼저 부르고, 통과하면
 # 4문을 채점한다 (0장 0.5절). 실패하면 원인과 함께 **다음에 무엇을 하면 되는지**를
 # 한 줄로 알린다.
 #
 # 판정하는 것은 셋이다 — (a) psql 접속, (b) 서버 메이저 버전, (c) world 속성.
-# 정렬 규칙·libc 문자 분류·세션 시간대·메시지 언어·날짜 표기 확인은 (c)에 속한다: 설치
-# 방식이나 컨테이너 존재 여부가 아니라 **접속한 데이터베이스의 성질**만 보므로 두 경로에서
-# 같은 검사가 같은 기대값으로 돈다.
+# 정렬 규칙·세션 시간대·메시지 언어·날짜 표기 확인은 (c)에 속한다: 설치 방식이나 컨테이너
+# 존재 여부가 아니라 **접속한 데이터베이스의 성질**만 보므로 두 경로에서 같은 검사가 같은
+# 기대값으로 돈다. libc 문자 분류는 같은 자리에서 재지만 판정이 아니라 알림이다.
 #
 # 두 경로를 모두 통과시킨다 (0장 0.1절 기본 경로·0.7절 대안 경로):
 #   기본 경로  ./check_env.sh                (KIT_MODE=docker, 기본값)
@@ -61,20 +62,19 @@ if [ "$sort_now" != "$KIT_SORT_EXPECTED" ]; then
   fi
 fi
 
-# world 속성 (2) — libc 문자 분류(LC_CTYPE). 데이터베이스를 만들 때 정해지고 ALTER 로 못
-# 고치므로 처방은 「지우고 ./setup.sh」다. 기본 경로는 컨테이너 initdb(C.UTF-8)가, 대안 경로는
-# setup.sh 의 CREATE DATABASE … LC_CTYPE 'C' 가 보장한다 (kit_psql.sh 「libc 문자 분류」).
+# world 속성 (2) — libc 문자 분류(LC_CTYPE). **판정에 넣지 않는다.** 이 축은 값을 글자 단위로
+# 어떻게 읽을지를 정하고 영향을 받는 자리가 넓다 — 확인된 목록과 실측은 kit_psql.sh
+# 「libc 문자 분류」에 있고 **그것이 전부라고 단정하지 않는다.** 그 가운데 LC_CTYPE «에만» 매인
+# 것은 행 전체를 한 값으로 찍는 출력의 인용과 \l 의 Ctype 열이고, **이 코스의 예제·문제는 그
+# 자리를 지금까지 한 번도 쓰지 않는다**(cases 185건과 지금까지 쓰인 본문 전수 0건, 2026-09-19).
+# 대소문자 변환·정규식·무시 비교는 제공자와 그 로케일이 맡으므로 datctype 으로는 판정되지도
+# 않는다 — 옛 kit 으로 이미 만든 데이터베이스를 관측되지 않는 차이로 막지 않기 위해 알림만 낸다.
+# 데이터베이스를 만들 때 정해지는 성질이라 ALTER 로는 못 고친다 — 맞추려면 dropdb 뒤 ./setup.sh 다.
 ctype_now=$(kit_ctype_probe "$DB" 2>/dev/null || true)
 if ! kit_ctype_ok "$ctype_now"; then
-  echo "  기대한 문자 분류(LC_CTYPE): $KIT_CTYPE_EXPECTED_TEXT" >&2
-  echo "  실제:                       ${ctype_now:-(확인 실패)}" >&2
-  if [ "$KIT_MODE" = native ]; then
-    fail "world 문자 분류 불일치 — 데이터베이스 $DB 가 C 계열이 아닌 LC_CTYPE 으로 만들어졌습니다 (행 전체를 한 값으로 찍는 출력에서 한글이 따옴표로 감싸여 교재와 다르게 보입니다)" \
-         "이 설정은 만들 때 정해져 바꿀 수 없습니다. dropdb $DB 로 데이터베이스를 지운 뒤 ./setup.sh 를 실행하세요 — 정렬 규칙과 문자 분류를 고정해 새로 만들고 world를 다시 적재하므로 잃는 것이 없습니다"
-  else
-    fail "world 문자 분류 불일치 — 데이터베이스 $DB 가 C 계열이 아닌 LC_CTYPE 으로 만들어졌습니다" \
-         "컨테이너가 C.UTF-8 로케일로 초기화되지 않았습니다. docker rm -f $KIT_CONTAINER 로 컨테이너를 지운 뒤 ./setup.sh 를 실행하면 LANG=C.UTF-8 로 다시 만듭니다"
-  fi
+  echo "알림: 데이터베이스 $DB 의 문자 분류(LC_CTYPE)가 '${ctype_now:-(확인 실패)}' 입니다 — ./setup.sh 가 새로 만드는 데이터베이스는 $KIT_CTYPE_EXPECTED_TEXT 입니다." >&2
+  echo "        이 설정은 값을 글자 단위로 어떻게 읽을지를 정합니다. 이 코스의 예제와 문제에서 이 설정에만 매인 자리(행 전체를 한 값으로 찍는 출력, \\l 이 내는 Ctype 열)는 지금까지 한 군데도 쓰이지 않았습니다. 그래서 환경 확인은 이 항목으로 막지 않습니다." >&2
+  echo "        굳이 맞추고 싶으시면 dropdb $DB 로 지운 뒤 ./setup.sh 를 다시 실행하세요 — world 는 다시 적재되므로 잃는 것이 없습니다." >&2
 fi
 
 # kit 점검 밖의 축 — 대안 경로에서 psqlrc 가 여러분의 psql 세션 설정을 바꾸면 알림만 낸다
@@ -105,7 +105,7 @@ if ! out=$(kit_psql -d "$DB" -X -q -v ON_ERROR_STOP=1 < world_check.sql 2>&1); t
   echo "  (위 메시지의 W로 시작하는 번호는 world_check.sql의 검사 번호입니다 — world_check.sql에서 그 번호의 주석을 찾으면 무엇을 보는 검사인지 알 수 있습니다.)" >&2
   if [ "$KIT_MODE" = native ]; then
     fail "world 속성 검증 실패 — world(책숲 운영 데이터)가 초기 상태와 다릅니다" \
-         "./reset.sh 로 world를 초기 상태로 되돌린 뒤 다시 실행하세요. 그래도 실패하면 dropdb $DB 로 데이터베이스를 지운 뒤 ./setup.sh 를 실행하세요 — setup.sh가 정렬 규칙을 고정해 다시 만들고 world를 적재합니다 (여기서 createdb로 직접 만들면 로케일이 서버 기본값이 되어 setup.sh가 막습니다)"
+         "./reset.sh 로 world를 초기 상태로 되돌린 뒤 다시 실행하세요. 그래도 실패하면 dropdb $DB 로 데이터베이스를 지운 뒤 ./setup.sh 를 실행하세요 — setup.sh가 정렬 규칙을 고정해 다시 만들고 world를 적재합니다 (여기서 createdb로 직접 만들면 로케일이 서버 기본값이 되어 교재와 차례가 다른 표를 보게 됩니다 — 서버에 따라서는 setup.sh 의 정렬 규칙 검사가 그것을 잡습니다)"
   else
     fail "world 속성 검증 실패 — world(책숲 운영 데이터)가 초기 상태와 다릅니다" \
          "./reset.sh 로 world를 초기 상태로 되돌린 뒤 다시 실행하세요. 그래도 실패하면 docker rm -f $KIT_CONTAINER 로 컨테이너를 지우고 ./setup.sh 를 실행하세요"
