@@ -35,6 +35,12 @@ fi
 
 set -uo pipefail
 cd "$(dirname "$0")"
+# 이 줄도 «셸이» 파일을 읽는 자리다 — 없으면 셸이 먼저 실패하고 kit의 문구가 나올
+# 자리가 없다(0장 0.6). fail()·kit_psql 이 아직 없으므로 직접 낸다.
+[ -r ./kit_psql.sh ] || {
+  echo "오류: kit 파일 kit_psql.sh 을(를) 읽을 수 없습니다." >&2
+  echo "  다음: 파일이 지워졌거나 옮겨졌다면 kit을 다시 받으세요 (0장 0.3절)." >&2
+  exit 2; }
 . ./kit_psql.sh
 
 DB="$KIT_DB"
@@ -85,14 +91,20 @@ for q in q1 q2 q3 q4; do
 
   if [ "$q" = q4 ]; then
     # 변경형: 되돌리고 → 여러분의 트랜잭션 실행 → 확인 질의의 결과를 대조 → 되돌린다
-    ./reset.sh >/dev/null || { echo "오류: q4 실행 전 world 초기화에 실패했습니다 (위 reset 메시지 참고)." >&2; exit 2; }
+    ./reset.sh >/dev/null || {
+      echo "오류: q4 실행 전 world 초기화에 실패했습니다 (위 reset 메시지 참고)." >&2
+      echo "  다음: ./reset.sh 를 직접 실행해 원인을 확인하세요. 그래도 막히면 ./setup.sh 로 world를 처음 상태로 다시 세운 뒤 다시 실행하세요." >&2
+      exit 2; }
     if ! out=$(run_sql "$ans"); then
       echo "FAIL $q — 실행 중 오류:"; printf '%s\n' "$out" | sed 's/^/    /'
       fail=$((fail+1)); failed+=("$q")
       ./reset.sh >/dev/null; continue
     fi
     actual=$(run_sql entry/q4_check.sql; printf '[exit %d]' "$?")
-    ./reset.sh >/dev/null || { echo "오류: q4 실행 후 world 초기화에 실패했습니다 (위 reset 메시지 참고)." >&2; exit 2; }
+    ./reset.sh >/dev/null || {
+      echo "오류: q4 실행 후 world 초기화에 실패했습니다 (위 reset 메시지 참고)." >&2
+      echo "  다음: ./reset.sh 를 직접 실행해 원인을 확인하세요. 그래도 막히면 ./setup.sh 로 world를 처음 상태로 다시 세운 뒤 다시 실행하세요." >&2
+      exit 2; }
   else
     actual=$(run_sql "$ans"; printf '[exit %d]' "$?")
   fi

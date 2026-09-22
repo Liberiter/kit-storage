@@ -14,6 +14,12 @@
 #   대안 경로  KIT_MODE=native ./check_env.sh (호스트에 설치한 psql로 접속)
 set -euo pipefail
 cd "$(dirname "$0")"
+# 이 줄도 «셸이» 파일을 읽는 자리다 — 없으면 셸이 먼저 실패하고 kit의 문구가 나올
+# 자리가 없다(0장 0.6). fail()·kit_psql 이 아직 없으므로 직접 낸다.
+[ -r ./kit_psql.sh ] || {
+  echo "entry check 실패: kit 파일 kit_psql.sh 을(를) 읽을 수 없습니다." >&2
+  echo "  다음: 파일이 지워졌거나 옮겨졌다면 kit을 다시 받으세요 (0장 0.3절)." >&2
+  exit 1; }
 . ./kit_psql.sh
 
 DB="$KIT_DB"
@@ -103,10 +109,10 @@ if [ "$session_now" != "$KIT_SESSION_EXPECTED" ]; then
   echo "  실제 설정:                                                                  ${session_now:-(확인 실패)}" >&2
   if [ "$KIT_MODE" = native ]; then
     fail "world 세션 설정 불일치 — 데이터베이스 $DB 의 시간대·메시지 언어·날짜 표기·로케일이 교재 본문과 다릅니다 (오류 메시지의 언어, 날짜 입력 해석, to_char 의 통화 기호·요일 이름이 달라집니다)" \
-         "./setup.sh 를 다시 실행하세요 — 설정을 다시 적용합니다(데이터베이스를 지우지 않습니다). 그래도 같으면 psql 쪽 환경 변수 PGTZ·PGDATESTYLE 이나 ALTER ROLE … SET 으로 둔 역할 설정이 데이터베이스 설정을 덮고 있는지 확인하세요"
+         "./setup.sh 를 다시 실행하세요 — 설정을 다시 적용하면서 예제 데이터도 처음 상태로 넣습니다(데이터베이스를 지우지 않습니다). 그래도 같으면 psql 쪽 환경 변수 PGTZ·PGDATESTYLE 이나 ALTER ROLE … SET 으로 둔 역할 설정이 데이터베이스 설정을 덮고 있는지 확인하세요"
   else
     fail "world 세션 설정 불일치 — 데이터베이스 $DB 의 시간대·메시지 언어·날짜 표기·로케일이 교재 본문과 다릅니다 (오류 메시지의 언어, 날짜 입력 해석, to_char 의 통화 기호·요일 이름이 달라집니다)" \
-         "./setup.sh 를 다시 실행하세요 — 설정을 다시 적용합니다(컨테이너도 데이터베이스도 지우지 않습니다)"
+         "./setup.sh 를 다시 실행하세요 — 설정을 다시 적용하면서 예제 데이터도 처음 상태로 넣습니다(컨테이너도 데이터베이스도 지우지 않습니다)"
   fi
 fi
 

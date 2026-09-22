@@ -135,7 +135,8 @@ Linux·WSL2(PGDG 패키지)에서는 관리자 `postgres`에 비밀번호가 없
 데이터베이스에 붙는 설정이라 **여러분의 대화형 psql 세션에도 그대로
 적용되고**, 여러 번 실행해도 안전합니다. `./check_env.sh`가 이 값들을 다시
 재어 보고, 다르면 `world 세션 설정 불일치`로 알립니다 — 그때의 처방은
-`./setup.sh`를 다시 실행하는 것입니다(데이터베이스를 지우지 않습니다).
+`./setup.sh`를 다시 실행하는 것입니다 — 설정을 다시 적용하면서 예제 데이터도
+처음 상태로 넣습니다(데이터베이스를 지우지 않습니다).
 
 데이터베이스 설정보다 **더 가까운 자리에서 준 값**은 이것을 이깁니다 — 지금까지
 확인된 것은 psql의 환경 변수 `PGTZ`·`PGDATESTYLE`과 `ALTER ROLE … SET`으로 둔
@@ -288,7 +289,7 @@ FAIL이 **몇 건인지**만 적고 PASS 개수는 적지 않았습니다. 위 �
 | psql 접속 불가 | 기본 경로: `docker logs <컨테이너>` 확인 후 `./setup.sh` 재실행. 그래도 안 되면 `docker rm -f <컨테이너>` 후 `./setup.sh`, 그래도 같으면 0장 0.1절의 설치 안내로 / 대안 경로: 서버 기동과 접속 정보·DB 이름 확인 후 `./setup.sh`. 그래도 안 되면 0장 0.7절의 설치·접속 안내로 | `./check_env.sh`·`./verify.sh` (`./reset.sh`는 아래) |
 | 서버 버전이 18.x가 아님 | 기본 경로: `docker rm -f <컨테이너>` 후 `./setup.sh`(postgres:18로 재생성) / 대안 경로: 18 설치 후 `PGPORT` 등으로 접속을 그쪽으로 | `./check_env.sh`만 |
 | world 정렬 규칙 불일치 | 기본 경로: `docker rm -f <컨테이너>` 후 `./setup.sh`(`LANG=C.UTF-8`로 재생성) / 대안 경로: `dropdb bookstore` 후 `./setup.sh`(정렬 규칙을 고정해 재생성). 어느 쪽이든 world는 `seed.sql`에서 다시 적재되므로 잃는 것이 없습니다 | `./check_env.sh`만 |
-| world 세션 설정 불일치 | `./setup.sh`를 다시 실행하면 설정을 다시 적용합니다(컨테이너도 데이터베이스도 지우지 않습니다). 그래도 같으면 `PGTZ`·`PGDATESTYLE` 환경 변수나 `ALTER ROLE … SET`으로 둔 역할 설정이 덮고 있는지 확인합니다 (위 「세션 설정 고정」) | `./check_env.sh`만 |
+| world 세션 설정 불일치 | `./setup.sh`를 다시 실행하면 설정을 다시 적용하면서 예제 데이터도 처음 상태로 넣습니다(컨테이너도 데이터베이스도 지우지 않습니다). 그래도 같으면 `PGTZ`·`PGDATESTYLE` 환경 변수나 `ALTER ROLE … SET`으로 둔 역할 설정이 덮고 있는지 확인합니다 (위 「세션 설정 고정」) | `./check_env.sh`만 |
 | world 속성 검증 실패 | `./reset.sh` 후 재시도. 그래도 실패하면 기본 경로는 `docker rm -f <컨테이너>` 후 `./setup.sh`, 대안 경로는 **`dropdb bookstore` 후 `./setup.sh`**(`createdb`로 직접 만들지 마세요 — 로케일이 서버 기본값이 되어 교재와 차례가 다른 표를 보게 됩니다. 서버에 따라서는 `setup.sh`의 정렬 규칙 검사가 그것을 잡아 주지만, 코드포인트 차례로 정렬하는 서버에서는 검사를 그대로 통과합니다) | `./check_env.sh`만 |
 
 첫 줄의 머리말은 스크립트마다 다릅니다 — `entry check 실패: `·`reset 실패: `·

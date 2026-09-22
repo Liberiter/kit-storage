@@ -31,6 +31,12 @@
 # 상태 파일도 그때 갱신된다.
 set -euo pipefail
 cd "$(dirname "$0")"
+# 이 줄도 «셸이» 파일을 읽는 자리다 — 없으면 셸이 먼저 실패하고 kit의 문구가 나올
+# 자리가 없다(0장 0.6). fail()·kit_psql 이 아직 없으므로 직접 낸다.
+[ -r ./kit_psql.sh ] || {
+  echo "오류: kit 파일 kit_psql.sh 을(를) 읽을 수 없습니다." >&2
+  echo "  다음: 파일이 지워졌거나 옮겨졌다면 kit을 다시 받으세요 (0장 0.3절)." >&2
+  exit 1; }
 . ./kit_psql.sh
 
 IMAGE="postgres:18"
@@ -200,23 +206,22 @@ else
 fi
 
 # 공식 이미지는 첫 기동 때 초기화용 임시 서버를 한 번 띄웠다 내리고 본 서버를 띄운다.
-# pg_isready 만 보면 그 임시 서버를 「준비 완료」로 읽을 수 있으므로, 실제로 질의가
-# 두 번 연속 성공할 때까지 기다린다.
+# 그 임시 서버는 «소켓만» 듣는다 — 업스트림 entrypoint의 docker_temp_server_start 가
+# -c listen_addresses='' 로 띄우기 때문이다("does not listen on external TCP/IP").
+# 그래서 pg_isready 를 소켓으로 부르면 임시 서버도 「준비 완료」로 읽힌다. TCP 로
+# 물어 본 서버만 통과시키고, 실제 질의까지 한 번 더 확인한다.
 echo -n "서버 준비 대기"
-ok=0
 for _ in $(seq 1 90); do
-  if docker exec "$CONTAINER" pg_isready -U postgres -q 2>/dev/null \
+  if docker exec "$CONTAINER" pg_isready -h 127.0.0.1 -U postgres -q 2>/dev/null \
      && kit_psql -d postgres -tAc "SELECT 1" >/dev/null 2>&1; then
-    ok=$((ok+1)); [ $ok -ge 2 ] && { ready=1; break; }
-  else
-    ok=0
+    ready=1; break
   fi
   echo -n "."; sleep 1
 done
 echo
 [ "${ready:-0}" = 1 ] || {
   echo "오류: 90초 내에 서버가 준비되지 않았습니다 (컨테이너 $CONTAINER)." >&2
-  echo "  다음: docker logs $CONTAINER 로 서버 로그를 확인하세요. 포트 $PORT 를 다른 프로그램이 쓰고 있으면 KIT_PORT=<다른 포트> ./setup.sh 로, 그래도 막히면 docker rm -f $CONTAINER 뒤 ./setup.sh 를 다시 실행하세요." >&2
+  echo "  다음: 첫 실행이거나 컴퓨터가 느리면 잠시 뒤 ./setup.sh 를 한 번 더 실행하세요. 반복되면 docker logs $CONTAINER 로 서버가 남긴 메시지를 확인하고, 그래도 막히면 docker rm -f $CONTAINER 뒤 ./setup.sh 를 다시 실행하세요." >&2
   exit 1; }
 
 # 메이저 버전 확인 (이 코스의 기준: PostgreSQL 18)

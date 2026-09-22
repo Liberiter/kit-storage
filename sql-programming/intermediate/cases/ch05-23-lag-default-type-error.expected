@@ -1,0 +1,4 @@
+ERROR:  invalid input syntax for type bigint: "없음"
+LINE 14:     lag(매출, 1, '없음') OVER (ORDER BY 주문월) AS 전월매출
+                          ^
+[exit 3]

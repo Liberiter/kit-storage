@@ -82,7 +82,10 @@ KIT_PSQL="${KIT_PSQL:-psql}"
 
 case "$KIT_MODE" in
   docker|native) ;;
-  *) echo "오류: KIT_MODE=$KIT_MODE — docker 또는 native 여야 합니다." >&2; exit 2 ;;
+  *)
+    echo "오류: KIT_MODE=$KIT_MODE — docker 또는 native 여야 합니다." >&2
+    echo "  다음: 기본 경로(컨테이너)는 KIT_MODE 없이 그대로 실행하시고, 대안 경로는 KIT_MODE=native 로 실행하세요 (0장 0.7절)." >&2
+    exit 2 ;;
 esac
 
 # 비대화형 호출은 언제나 -X(= --no-psqlrc)다. 대안 경로에서 여러분의 ~/.psqlrc 에

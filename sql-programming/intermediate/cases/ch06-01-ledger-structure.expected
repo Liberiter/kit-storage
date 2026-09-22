@@ -1,0 +1,23 @@
+            Table "legacy.sales_ledger"
+   Column   | Type | Collation | Nullable | Default 
+------------+------+-----------+----------+---------
+ 주문번호   | text |           |          | 
+ 주문일     | text |           |          | 
+ 고객명     | text |           |          | 
+ 고객이메일 | text |           |          | 
+ 고객도시   | text |           |          | 
+ 도서1      | text |           |          | 
+ 저자1      | text |           |          | 
+ 단가1      | text |           |          | 
+ 수량1      | text |           |          | 
+ 도서2      | text |           |          | 
+ 저자2      | text |           |          | 
+ 단가2      | text |           |          | 
+ 수량2      | text |           |          | 
+ 도서3      | text |           |          | 
+ 저자3      | text |           |          | 
+ 단가3      | text |           |          | 
+ 수량3      | text |           |          | 
+ 상태       | text |           |          | 
+ 발송일     | text |           |          | 
+[exit 0]

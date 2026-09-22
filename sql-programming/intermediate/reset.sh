@@ -14,6 +14,12 @@
 # + 다음 행동 한 줄을 낸다.
 set -euo pipefail
 cd "$(dirname "$0")"
+# 이 줄도 «셸이» 파일을 읽는 자리다 — 없으면 셸이 먼저 실패하고 kit의 문구가 나올
+# 자리가 없다(0장 0.6). fail()·kit_psql 이 아직 없으므로 직접 낸다.
+[ -r ./kit_psql.sh ] || {
+  echo "reset 실패: kit 파일 kit_psql.sh 을(를) 읽을 수 없습니다." >&2
+  echo "  다음: 파일이 지워졌거나 옮겨졌다면 kit을 다시 받으세요 (0장 0.3절)." >&2
+  exit 1; }
 . ./kit_psql.sh
 
 DB="$KIT_DB"
@@ -53,6 +59,16 @@ run_step() { # $1=단계 이름, 나머지=kit_psql 인자. 표준 입력은 그
 }
 
 PSQL_OPTS=(-d "$DB" -X -q -v ON_ERROR_STOP=1)
+
+# 적재는 셸의 입력 리디렉션(`< 파일`)으로 파일을 읽는데, 리디렉션은 run_step 이
+# 돌기 전에 «셸이» 처리한다. 파일이 없으면 셸이 거기서 실패하고 set -e 가 스크립트를
+# 끝내므로 kit의 문구가 나올 자리가 없다 (0장 0.6이 「원인 줄과 다음: 안내를 내고
+# 멈춥니다」라고 적는 자리다). 그래서 읽기 전에 먼저 확인한다 — world를 지우기
+# «전에» 본다. 지운 뒤에 걸리면 되돌릴 것이 없는 채로 멈춘다.
+for _f in schema.sql seed_ref.sql seed.sql seed_ops.sql legacy.sql antipatterns.sql; do
+  [ -r "$_f" ] || fail "kit 파일 $_f 을(를) 읽을 수 없습니다" \
+                       "파일이 지워졌거나 옮겨졌다면 kit을 다시 받으세요 (0장 0.3절)"
+done
 
 run_step "스키마 재생성 (public·legacy·antipatterns)" "${PSQL_OPTS[@]}" \
   -c "SET client_min_messages = warning;

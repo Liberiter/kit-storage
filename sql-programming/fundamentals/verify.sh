@@ -37,6 +37,12 @@ fi
 
 set -uo pipefail
 cd "$(dirname "$0")"
+# 이 줄도 «셸이» 파일을 읽는 자리다 — 없으면 셸이 먼저 실패하고 kit의 문구가 나올
+# 자리가 없다(0장 0.6). fail()·kit_psql 이 아직 없으므로 직접 낸다.
+[ -r ./kit_psql.sh ] || {
+  echo "오류: kit 파일 kit_psql.sh 을(를) 읽을 수 없습니다." >&2
+  echo "  다음: 파일이 지워졌거나 옮겨졌다면 kit을 다시 받으세요 (0장 0.3절)." >&2
+  exit 2; }
 . ./kit_psql.sh
 
 DB="$KIT_DB"
@@ -44,11 +50,17 @@ DB="$KIT_DB"
 MODE=run
 if [ "${1:-}" = "--update" ]; then MODE=update; shift; fi
 DIR="${1:-cases}"
-[ -d "$DIR" ] || { echo "오류: 케이스 디렉토리 없음: $DIR" >&2; exit 2; }
+[ -d "$DIR" ] || {
+  echo "오류: 케이스 디렉토리 없음: $DIR" >&2
+  echo "  다음: kit 디렉토리에서 ./verify.sh 를 인자 없이 실행하면 ./cases 를 씁니다." >&2
+  exit 2; }
 
 shopt -s nullglob
 files=("$DIR"/*.sql)
-[ ${#files[@]} -gt 0 ] || { echo "오류: $DIR 에 .sql 케이스가 없습니다" >&2; exit 2; }
+[ ${#files[@]} -gt 0 ] || {
+  echo "오류: $DIR 에 .sql 케이스가 없습니다" >&2
+  echo "  다음: 케이스가 든 디렉토리를 가리키는지 확인하세요 — kit 디렉토리에서 ./verify.sh 를 인자 없이 실행하면 ./cases 를 씁니다." >&2
+  exit 2; }
 
 # 런타임·컨테이너(또는 psql)가 없거나 서버에 접속되지 않으면 케이스마다 FAIL 을 쏟는 대신
 # 여기서 한 번에 멈춘다 — 다른 스크립트와 같은 원인·다음 행동 문구 (kit_psql.sh

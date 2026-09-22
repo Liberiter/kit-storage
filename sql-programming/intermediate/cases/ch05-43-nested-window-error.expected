@@ -1,0 +1,4 @@
+ERROR:  window function calls cannot be nested
+LINE 5:     lag(sum(quantity) OVER (ORDER BY moved_at, movement_id))...
+                ^
+[exit 3]

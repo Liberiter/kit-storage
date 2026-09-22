@@ -23,6 +23,12 @@
 # 기본 경로에서는 setup.sh 가 concurrency/ 를 컨테이너 안 /kit/concurrency 에 복사해 두었다.
 set -uo pipefail
 cd "$(dirname "$0")"
+# 이 줄도 «셸이» 파일을 읽는 자리다 — 없으면 셸이 먼저 실패하고 kit의 문구가 나올
+# 자리가 없다(0장 0.6). fail()·kit_psql 이 아직 없으므로 직접 낸다.
+[ -r ./kit_psql.sh ] || {
+  echo "concurrency 실패: kit 파일 kit_psql.sh 을(를) 읽을 수 없습니다." >&2
+  echo "  다음: 파일이 지워졌거나 옮겨졌다면 kit을 다시 받으세요 (0장 0.3절)." >&2
+  exit 2; }
 . ./kit_psql.sh
 
 DB="$KIT_DB"

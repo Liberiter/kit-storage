@@ -1,0 +1,4 @@
+ERROR:  syntax error at or near "OVER"
+LINE 1: SELECT title AS 제목, rank OVER (ORDER BY price DESC) AS 순...
+                                   ^
+[exit 3]

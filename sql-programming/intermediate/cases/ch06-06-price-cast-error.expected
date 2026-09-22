@@ -1,0 +1,2 @@
+ERROR:  invalid input syntax for type integer: "18,500원"
+[exit 3]

@@ -1,0 +1,25 @@
+ 고객 | 도서 | 주문 | 항목 |  총매출  
+------+------+------+------+----------
+   76 |  214 |  207 |  354 | 12395500
+(1 row)
+
+           Table "public.ledger_order_items"
+   Column   |  Type   | Collation | Nullable | Default 
+------------+---------+-----------+----------+---------
+ order_no   | text    |           | not null | 
+ title      | text    |           | not null | 
+ quantity   | integer |           | not null | 
+ unit_price | integer |           | not null | 
+Indexes:
+    "ledger_order_items_pkey" PRIMARY KEY, btree (order_no, title)
+Foreign-key constraints:
+    "ledger_order_items_order_no_fkey" FOREIGN KEY (order_no) REFERENCES ledger_orders(order_no)
+    "ledger_order_items_title_fkey" FOREIGN KEY (title) REFERENCES ledger_books(title)
+
+ 주문번호  | 고객명 |              도서              | 수량 | 단가  
+-----------+--------+--------------------------------+------+-------
+ ORD-00001 | 조수아 | 우리가 몰랐던 꼬마 화가 안내서 |    2 | 18500
+ ORD-00001 | 조수아 | 우리가 몰랐던 항해 사전        |    1 | 18000
+ ORD-00001 | 조수아 | 처음 만나는 섬 여행 안내서     |    1 |  8500
+(3 rows)
+[exit 0]

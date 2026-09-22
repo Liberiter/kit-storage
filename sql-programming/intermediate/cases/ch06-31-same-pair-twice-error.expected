@@ -1,0 +1,3 @@
+ERROR:  duplicate key value violates unique constraint "trial_order_items_pkey"
+DETAIL:  Key (order_no, title)=(ORD-00001, 작은 별자리) already exists.
+[exit 3]

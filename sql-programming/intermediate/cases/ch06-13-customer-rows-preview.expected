@@ -1,0 +1,9 @@
+       고객이메일       | 고객명 | 고객도시 
+------------------------+--------+----------
+ arin.jang2@bookmail.kr | 장아린 | 울산
+ arin.kim@bookmail.kr   | 김아린 | 울산
+ arin.oh2@bookmail.kr   | 오아린 | 인천
+ arin.oh@bookmail.kr    | 오아린 | 수원
+ arin.park@bookmail.kr  | 박아린 | 인천
+(5 rows)
+[exit 0]
