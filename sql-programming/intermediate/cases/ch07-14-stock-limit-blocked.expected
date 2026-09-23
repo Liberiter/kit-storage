@@ -1,0 +1,7 @@
+ 재고가150을넘는줄 
+-------------------
+                51
+(1 row)
+
+ERROR:  check constraint "book_supply_stock_limit" of relation "book_supply" is violated by some row
+[exit 3]

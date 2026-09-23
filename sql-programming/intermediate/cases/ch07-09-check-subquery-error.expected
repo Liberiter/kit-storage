@@ -1,0 +1,2 @@
+ERROR:  cannot use subquery in check constraint
+[exit 3]

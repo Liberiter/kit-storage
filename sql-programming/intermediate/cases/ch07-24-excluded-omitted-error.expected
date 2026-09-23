@@ -1,0 +1,4 @@
+ERROR:  column reference "supplier_price" is ambiguous
+LINE 4: SET supplier_price = supplier_price,
+                             ^
+[exit 3]

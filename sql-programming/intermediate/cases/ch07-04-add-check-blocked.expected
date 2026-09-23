@@ -1,0 +1,2 @@
+ERROR:  check constraint "supplier_feed_price_positive" of relation "supplier_feed" is violated by some row
+[exit 3]

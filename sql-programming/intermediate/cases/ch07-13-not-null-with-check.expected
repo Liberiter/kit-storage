@@ -1,0 +1,3 @@
+ERROR:  null value in column "supplier_price" of relation "trial_supply" violates not-null constraint
+DETAIL:  Failing row contains (1, null, null).
+[exit 3]

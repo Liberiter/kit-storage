@@ -1,0 +1,5 @@
+ book_id | supplier_price 
+---------+----------------
+       2 |           6300
+(1 row)
+[exit 0]

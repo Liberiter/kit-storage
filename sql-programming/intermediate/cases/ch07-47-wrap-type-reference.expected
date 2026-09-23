@@ -1,0 +1,8 @@
+ 주문번호 | 포장종류  | 포장비 
+----------+-----------+--------
+        1 | 기본 포장 |   2000
+(1 row)
+
+ERROR:  insert or update on table "gift_wraps" violates foreign key constraint "gift_wraps_wrap_type_fkey"
+DETAIL:  Key (wrap_type)=(리븐 포장) is not present in table "wrap_types".
+[exit 3]

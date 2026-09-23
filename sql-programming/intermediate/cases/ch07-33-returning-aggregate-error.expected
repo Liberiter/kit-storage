@@ -1,0 +1,4 @@
+ERROR:  aggregate functions are not allowed in RETURNING
+LINE 1: ... supplier_feed WHERE supplier_price <= 0 RETURNING count(*);
+                                                              ^
+[exit 3]

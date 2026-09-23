@@ -1,0 +1,6 @@
+ book_id | supplier_price | barcode 
+---------+----------------+---------
+       1 |                | 
+       2 |                | 
+(2 rows)
+[exit 0]

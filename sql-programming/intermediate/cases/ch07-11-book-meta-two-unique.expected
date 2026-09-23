@@ -1,0 +1,15 @@
+              Table "public.book_meta"
+ Column  |  Type   | Collation | Nullable | Default 
+---------+---------+-----------+----------+---------
+ book_id | integer |           | not null | 
+ isbn13  | text    |           | not null | 
+ tags    | text[]  |           | not null | 
+Indexes:
+    "book_meta_pkey" PRIMARY KEY, btree (book_id)
+    "book_meta_isbn13_key" UNIQUE CONSTRAINT, btree (isbn13)
+Check constraints:
+    "book_meta_isbn13_check" CHECK (isbn13 ~ '^979-11-[0-9]{5}-[0-9]{3}-[0-9]$'::text)
+    "book_meta_tags_check" CHECK (cardinality(tags) >= 1)
+Foreign-key constraints:
+    "book_meta_book_id_fkey" FOREIGN KEY (book_id) REFERENCES books(book_id)
+[exit 0]

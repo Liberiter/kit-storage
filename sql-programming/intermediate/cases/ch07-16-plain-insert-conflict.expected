@@ -1,0 +1,8 @@
+ 공급현황줄수 
+--------------
+          196
+(1 row)
+
+ERROR:  duplicate key value violates unique constraint "book_supply_pkey"
+DETAIL:  Key (book_id)=(19) already exists.
+[exit 3]

@@ -1,0 +1,3 @@
+ERROR:  duplicate key value violates unique constraint "book_meta_isbn13_key"
+DETAIL:  Key (isbn13)=(979-11-07919-729-1) already exists.
+[exit 3]

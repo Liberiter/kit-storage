@@ -1,0 +1,9 @@
+ book_id | min_quantity 
+---------+--------------
+       1 |           10
+       2 |            5
+(2 rows)
+
+ERROR:  new row for relation "book_min_orders" violates check constraint "book_min_orders_min_quantity_check"
+DETAIL:  Failing row contains (3, 0).
+[exit 3]

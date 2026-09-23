@@ -1,0 +1,9 @@
+            주장             |                                              실측값                                              
+-----------------------------+--------------------------------------------------------------------------------------------------
+ orders.status 의 CHECK 정의 | CHECK ((status = ANY (ARRAY['배송준비'::text, '배송중'::text, '배송완료'::text, '취소'::text])))
+ orders_check 의 정의        | CHECK (((status = ANY (ARRAY['배송중'::text, '배송완료'::text])) = (shipped_date IS NOT NULL)))
+ orders_check1 의 정의       | CHECK (((shipped_date IS NULL) OR (shipped_date >= order_date)))
+ 1번 책의 ISBN               | 979-11-07919-729-1
+ 2번 책의 ISBN               | 979-11-15838-458-2
+(5 rows)
+[exit 0]
