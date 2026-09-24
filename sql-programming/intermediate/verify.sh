@@ -73,7 +73,9 @@ kit_lock_acquire   # 다른 러너가 돌고 있으면 여기서 2로 끝난다
 
 run_case() { # $1=sql파일 → stdout: 실행 출력 + "[exit N]"
   local out rc
-  out=$(kit_psql -d "$DB" -X -q -v ON_ERROR_STOP=1 --pset pager=off < "$1" 2>&1)
+  # 표준 출력과 오류는 psql 쪽에서 합친다 (kit_psql.sh kit_psql_merged) — 호스트에서 합치면
+  # 경고 줄과 결과표의 차례가 실행마다 갈려 같은 케이스가 통과와 실패를 오간다.
+  out=$(kit_psql_merged -d "$DB" -X -q -v ON_ERROR_STOP=1 --pset pager=off < "$1")
   rc=$?
   printf '%s\n[exit %d]\n' "$out" "$rc"
 }

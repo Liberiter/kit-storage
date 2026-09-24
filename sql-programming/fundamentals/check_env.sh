@@ -100,9 +100,9 @@ fi
 
 # world 속성 (3) — 세션 시간대·메시지 언어·날짜 표기·로케일(통화·숫자·날짜 이름). 기대값과
 # 프로브는 kit_psql.sh에 있다. 정렬 규칙과 마찬가지로 데이터가 아니라 데이터베이스 설정이라
-# ./reset.sh 로는 되돌아가지 않는다 — 처방은 ./setup.sh 재실행(설정을 다시 적용한다)이고
-# 데이터베이스를 지울 필요는 없다. kit 호출은 전부 -X 라 이 프로브는 여러분의 ~/.psqlrc 를
-# 읽지 않는다 (README 「두 경로」).
+# ./reset.sh 로는 되돌아가지 않는다 — 처방은 ./setup.sh 재실행(설정을 다시 적용하면서 예제
+# 데이터도 처음 상태로 넣는다)이고 데이터베이스를 지울 필요는 없다. kit 호출은 전부 -X 라
+# 이 프로브는 여러분의 ~/.psqlrc 를 읽지 않는다 (README 「두 경로」).
 session_now=$(kit_session_probe "$DB" 2>/dev/null || true)
 if [ "$session_now" != "$KIT_SESSION_EXPECTED" ]; then
   echo "  기대한 설정 (timezone|lc_messages|DateStyle|lc_monetary|lc_numeric|lc_time): $KIT_SESSION_EXPECTED" >&2

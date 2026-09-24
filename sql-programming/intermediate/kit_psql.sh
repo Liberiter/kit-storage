@@ -112,6 +112,23 @@ kit_psql_tty() { # 대화형(터미널 붙임) 실행 — 동시성 실습 스�
   fi
 }
 
+# kit_psql 과 같되 psql 의 표준 출력과 표준 오류를 «psql 쪽에서» 한 스트림으로 합쳐 낸다 —
+# 출력의 줄 차례까지 대조하는 자리(verify.sh 의 케이스 대조, entry_check.sh 의 채점)가 쓴다.
+# 기본 경로에서 `kit_psql … 2>&1` 처럼 호스트에서 합치면, docker exec 가 두 스트림을 따로
+# 실어 날라 호스트에 닿는 차례가 보장되지 않는다 — 경고 줄(WARNING)이 결과표 위에 오기도 하고
+# 아래에 오기도 해서 같은 입력이 실행마다 통과와 실패를 오갈 수 있다. 컨테이너 안에서 sh 가
+# 합치면 psql 이 쓴 차례 그대로다. 대안 경로는 psql 이 호스트의 프로세스 하나라 호스트에서
+# 합쳐도 같은 차례다. (concurrency.sh 의 open_psql_merged 도 같은 까닭으로 같은 방법을 쓴다.)
+# 기본 경로 끝의 2>&1 은 docker 명령 «자신의» 오류(도중에 컨테이너가 멈춘 경우 등)를 같은
+# 출력에 담으려는 것이다 — psql 의 두 스트림은 이미 안에서 합쳐져 있어 그 차례에 끼어들지 않는다.
+kit_psql_merged() { # 인자는 psql 옵션. 표준 입력은 그대로 이어진다.
+  if [ "$KIT_MODE" = native ]; then
+    "$KIT_PSQL" -X "$@" 2>&1
+  else
+    docker exec -i "$KIT_CONTAINER" sh -c 'exec psql -X -U postgres "$@" 2>&1' sh "$@" 2>&1
+  fi
+}
+
 # 경로별 접속 안내 한 줄 (실패 안내·구축 완료 안내에서 함께 쓴다).
 kit_connect_hint() {
   if [ "$KIT_MODE" = native ]; then

@@ -30,7 +30,7 @@ CREATE TABLE orders (
     status       text    NOT NULL
                  CHECK (status IN ('배송준비', '배송중', '배송완료', '취소')),
     shipped_date date,               -- 아직 발송 전이면 NULL (5장)
-    -- 발송된 상태(배송중·배송완료)일 때만 발송일이 있다 (world 정합성)
+    -- 발송된 상태(배송중·배송완료)인 것과 발송일이 있는 것은 등가다 — 한쪽만 참일 수 없다 (world 정합성)
     CHECK ((status IN ('배송중', '배송완료')) = (shipped_date IS NOT NULL)),
     CHECK (shipped_date IS NULL OR shipped_date >= order_date)
 );

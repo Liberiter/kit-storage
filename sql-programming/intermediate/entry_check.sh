@@ -67,7 +67,9 @@ echo "== 2단계: 네 문항 채점 ($ANSWERS/q1.sql ~ q4.sql)"
 kit_lock_acquire   # q4 가 world 를 바꾸므로, 같은 world 를 쓰는 다른 실행과 겹치지 않게
 
 run_sql() { # $1=sql 파일 → stdout: psql 출력(+오류), 반환 코드는 psql 의 것
-  kit_psql -d "$DB" -X -q -v ON_ERROR_STOP=1 --pset pager=off < "$1" 2>&1
+  # 표준 출력과 오류는 psql 쪽에서 합친다 (kit_psql.sh kit_psql_merged) — 호스트에서 합치면
+  # 경고 줄과 결과표의 차례가 실행마다 갈릴 수 있다.
+  kit_psql_merged -d "$DB" -X -q -v ON_ERROR_STOP=1 --pset pager=off < "$1"
 }
 
 has_sql() { # 파일에 주석·빈 줄 말고 내용이 있는가

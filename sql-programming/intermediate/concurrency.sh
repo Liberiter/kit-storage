@@ -66,6 +66,12 @@ if [ -n "$TERMINAL" ]; then
   file="$(echo "$SCENARIO" | tr '-' '_')_$(echo "$TERMINAL" | tr 'AB' 'ab').sql"
   if [ "$KIT_MODE" = native ]; then
     path="concurrency/$file"
+    # 대본 파일은 psql 이 -f 로 읽는다 — 없으면 psql 자신의 오류 한 줄만 남고 끝나므로
+    # 부르기 전에 먼저 본다 (아래 기본 경로 갈래의 확인과 같은 머리말·종료 코드).
+    [ -r "$path" ] || {
+      echo "concurrency 실패: kit 파일 $path 을(를) 읽을 수 없습니다." >&2
+      echo "  다음: 파일이 지워졌거나 옮겨졌다면 kit을 다시 받으세요 (0장 0.3절)." >&2
+      exit 2; }
   else
     path="/kit/concurrency/$file"
     docker exec "$KIT_CONTAINER" test -f "$path" 2>/dev/null || {
