@@ -1,0 +1,8 @@
+ 옮긴댓글 | 상품댓글 | 회원댓글 
+----------+----------+----------
+        5 |        4 |        1
+(1 row)
+
+ERROR:  insert or update on table "comments_linked" violates foreign key constraint "comments_linked_product_code_fkey"
+DETAIL:  Key (product_code)=(BK-099) is not present in table "products".
+[exit 3]

@@ -1,0 +1,11 @@
+                 주장                  |                        실측값                        
+---------------------------------------+------------------------------------------------------
+ BK-008 로 적힌 두 상품의 이름         | 빛나는 제주 여행 사전 / 빛나는 제주 여행 사전 (개정)
+ hayun.choi@oldshop.kr 회원의 이름     | 최하윤
+ members 의 기본키 정의                | PRIMARY KEY (email)
+ order_items 의 기본키 정의            | PRIMARY KEY (order_id, book_id)
+ product_attributes.attr_value 의 타입 | text
+ 24-04-02 를 날짜로 읽을 때의 오류     | date/time field value out of range: "24-04-02"
+ 글자인 created_on 의 max              | 24-04-02
+(7 rows)
+[exit 0]

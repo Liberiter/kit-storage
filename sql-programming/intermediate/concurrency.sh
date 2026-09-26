@@ -97,9 +97,11 @@ cleanup_work() { rm -rf "$WORK"; }
 # 스트림을 따로 다중화해 돌려주므로 호스트에 닿는 차례가 보장되지 않는다 — ERROR 줄이
 # 표식(__DONE__) 뒤에 도착해 다음 단계 아래 찍히고 판정이 「기대와 다름」으로 어긋나는 일이
 # 간헐적으로 있었다(실측 6회 중 2회). 컨테이너 안에서 sh 가 합치면 psql 이 쓴 차례 그대로다.
+# 대안 경로는 kit_psql_native 로 부른다 — psql 자신의 문구(행 수 `(1 row)` 등)를 여러분 셸의 로케일과
+# 무관하게 영어로 고정한다(kit_psql.sh kit_psql_native 주석).
 open_psql_merged() { # 인자는 psql 옵션. stdout+stderr 를 psql 쪽에서 합쳐 한 스트림으로 낸다.
   if [ "$KIT_MODE" = native ]; then
-    "$KIT_PSQL" "$@" 2>&1
+    kit_psql_native "$@" 2>&1
   else
     docker exec -i "$KIT_CONTAINER" sh -c 'exec psql -U postgres "$@" 2>&1' sh "$@"
   fi

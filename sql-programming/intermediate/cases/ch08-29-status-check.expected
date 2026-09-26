@@ -1,0 +1,8 @@
+ 고칠줄수 
+----------
+        5
+(1 row)
+
+ERROR:  new row for relation "products" violates check constraint "products_status_allowed"
+DETAIL:  Failing row contains (BK-017, 새로 들어온 책, 에세이, 12000, Active, 2025-04-01).
+[exit 3]

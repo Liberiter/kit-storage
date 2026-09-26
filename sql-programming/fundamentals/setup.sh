@@ -9,7 +9,8 @@
 # 만든 뒤 world를 적재한다 (아래 CREATE DATABASE 주석).
 #
 # 두 경로 모두 데이터베이스의 **세션 시간대(UTC)·메시지 언어(C)·날짜 표기('ISO, MDY')·
-# 로케일(lc_monetary·lc_numeric·lc_time = C)** 를 ALTER DATABASE 로 못 박는다
+# 로케일(lc_monetary·lc_numeric·lc_time = C)·실수 표시 자릿수(extra_float_digits = 1)** 를
+# ALTER DATABASE 로 못 박는다
 # (kit_psql.sh 「세션 시간대·메시지 언어·날짜 표기·로케일」). 직접 설치한 서버는 그
 # 컴퓨터의 로케일을 기본값으로 잡아, 그대로 두면 오류 메시지가 한국어로 나오고
 # to_char 의 통화·요일 표기가 본문과 달라진다. 멱등이므로 기존 데이터베이스에도 다시
@@ -117,17 +118,18 @@ if [ "$KIT_MODE" = native ]; then
   # 비추고, 그 줄은 서버 자신의 사실을 비추는 자리라 kit 이 이미 경로 축으로 세고 있다. 알림은 아래에서 부르는 ./check_env.sh 가 한 번만 낸다 — 여기서도 내면
   # 구축 화면에 같은 말이 두 번 찍힌다.
 
-  # 세션 시간대·메시지 언어·날짜 표기·로케일(통화·숫자·날짜 이름)을 데이터베이스 설정으로
+  # 세션 시간대·메시지 언어·날짜 표기·로케일(통화·숫자·날짜 이름)·실수 표시 자릿수를 데이터베이스 설정으로
   # 고정한다 (기본 경로와 같은 값 — kit_psql.sh 「세션 시간대·메시지 언어·날짜 표기·로케일」).
   if kit_session_fix "$DB" >/dev/null 2>&1; then
-    echo "세션 설정 고정: timezone=UTC, lc_messages=C, DateStyle='ISO, MDY', lc_monetary/lc_numeric/lc_time=C (데이터베이스 $DB 의 기본값으로 — 여러분의 psql 세션에도 적용됩니다)"
+    echo "세션 설정 고정: timezone=UTC, lc_messages=C, DateStyle='ISO, MDY', lc_monetary/lc_numeric/lc_time=C, extra_float_digits=1 (데이터베이스 $DB 의 기본값으로 — 여러분의 psql 세션에도 적용됩니다)"
   else
-    echo "오류: 데이터베이스 $DB 의 세션 설정(timezone·lc_messages·DateStyle·lc_monetary·lc_numeric·lc_time)을 고정하지 못했습니다 (권한 문제일 수 있습니다)." >&2
+    echo "오류: 데이터베이스 $DB 의 세션 설정(timezone·lc_messages·DateStyle·lc_monetary·lc_numeric·lc_time·extra_float_digits)을 고정하지 못했습니다 (권한 문제일 수 있습니다)." >&2
     echo "  다음: 슈퍼유저(예: postgres)로 아래 명령들을 실행한 뒤 이 스크립트를 다시 실행하세요." >&2
     echo "        ALTER DATABASE \"$DB\" SET timezone TO 'UTC';" >&2
     echo "        ALTER DATABASE \"$DB\" SET lc_messages TO 'C';" >&2
     echo "        ALTER DATABASE \"$DB\" SET DateStyle TO 'ISO, MDY';" >&2
     echo "        ALTER DATABASE \"$DB\" SET lc_monetary TO 'C';  ALTER DATABASE \"$DB\" SET lc_numeric TO 'C';  ALTER DATABASE \"$DB\" SET lc_time TO 'C';" >&2
+    echo "        ALTER DATABASE \"$DB\" SET extra_float_digits TO 1;" >&2
     exit 1
   fi
 
@@ -187,6 +189,9 @@ fi
 # 그래서 pg_isready 를 소켓으로 부르면 임시 서버도 「준비 완료」로 읽히고, 그 서버가
 # 내려가는 틈(실측 106ms)에 다음 질의가 붙으면 kit 문구 없이 psql 원문 오류로 죽는다.
 # TCP 로 물어 본 서버만 통과시킨다. 실제 질의까지 한 번 더 확인한다.
+# 시한은 60회 시도(한 번에 1초 쉼 — 벽시계로는 60초보다 조금 길다)이고 두 코스가 같다. 새 컨테이너가
+# 준비되는 데 실측 1.1~1.3초, CPU를 두 배로 과부하시킨 채로도 7.7~11.0초였다(2026-09-26,
+# macOS/OrbStack — HARNESS.md 「부분 수정의 재현 기록」 2026-09-26 절).
 echo -n "서버 준비 대기"
 for _ in $(seq 1 60); do
   if docker exec "$CONTAINER" pg_isready -h 127.0.0.1 -U postgres -q 2>/dev/null \
@@ -217,14 +222,14 @@ if [ "$(kit_psql -tAc "SELECT 1 FROM pg_database WHERE datname='$DB'")" != "1" ]
   echo "데이터베이스 생성: $DB"
 fi
 
-# 세션 시간대·메시지 언어·날짜 표기·로케일(통화·숫자·날짜 이름)을 데이터베이스 설정으로
+# 세션 시간대·메시지 언어·날짜 표기·로케일(통화·숫자·날짜 이름)·실수 표시 자릿수를 데이터베이스 설정으로
 # 고정한다. 컨테이너는 원래 Etc/UTC·C.UTF-8·'ISO, MDY' 이지만, 대안 경로와 **같은 값**을
 # 같은 방법으로 못 박아 두 경로의 world 가 같음을 설정 하나로 보장한다
 # (kit_psql.sh 「세션 시간대·메시지 언어·날짜 표기·로케일」).
 if kit_session_fix "$DB" >/dev/null 2>&1; then
-  echo "세션 설정 고정: timezone=UTC, lc_messages=C, DateStyle='ISO, MDY', lc_monetary/lc_numeric/lc_time=C (데이터베이스 $DB 의 기본값으로)"
+  echo "세션 설정 고정: timezone=UTC, lc_messages=C, DateStyle='ISO, MDY', lc_monetary/lc_numeric/lc_time=C, extra_float_digits=1 (데이터베이스 $DB 의 기본값으로)"
 else
-  echo "오류: 데이터베이스 $DB 의 세션 설정(timezone·lc_messages·DateStyle·lc_monetary·lc_numeric·lc_time)을 고정하지 못했습니다." >&2
+  echo "오류: 데이터베이스 $DB 의 세션 설정(timezone·lc_messages·DateStyle·lc_monetary·lc_numeric·lc_time·extra_float_digits)을 고정하지 못했습니다." >&2
   echo "  다음: docker logs $CONTAINER 로 서버 로그를 확인하세요. 막히면 docker rm -f $CONTAINER 뒤 ./setup.sh 를 다시 실행하세요." >&2
   exit 1
 fi

@@ -1,0 +1,5 @@
+ member_id |      예전이메일       |       새이메일        
+-----------+-----------------------+-----------------------
+         3 | hayun.choi@oldshop.kr | hayun.choi@newmail.kr
+(1 row)
+[exit 0]

@@ -45,7 +45,8 @@
 #
 # 이 파일은 world의 **정렬 규칙(collation)** 판정 기준(KIT_SORT_EXPECTED·
 # kit_sort_probe), **세션 시간대·메시지 언어** 기준(KIT_SESSION_EXPECTED·
-# kit_session_probe·kit_session_fix), **libc 문자 분류** 기준(KIT_CTYPE_EXPECTED_TEXT·
+# kit_session_probe·kit_session_fix), **psql 클라이언트 문구의 언어** 기준(KIT_CLIENT_EXPECTED·
+# kit_client_probe — 고정은 kit_psql_native), **libc 문자 분류** 기준(KIT_CTYPE_EXPECTED_TEXT·
 # kit_ctype_probe·kit_ctype_ok)과, 여러 스크립트가 공유하는 **실행 전 점검**
 # (kit_runtime_check·kit_connect_check)도 함께 정의한다. setup.sh·reset.sh·
 # check_env.sh·verify.sh가 같은 기준과 같은 문구를 써야 하므로 한 자리에 둔다.
@@ -94,9 +95,31 @@ esac
 # 깨뜨린다. 그래서 kit 스크립트는 psqlrc 를 읽지 않는다 — 바꿔 말해 **kit 의 점검은
 # 여러분의 ~/.psqlrc 를 보지 못한다**(README 「두 경로」에도 적어 두었다). 이 kit 에는
 # 대화형 psql 호출이 없으므로 예외로 둘 함수가 없다.
+#
+# 대안 경로의 psql 은 **클라이언트 로케일을 고정해** 부른다 (kit_psql_native). psql 자신이
+# 내는 문구 — 결과표 끝의 행 수(`(5 rows)`), 접속 실패의 `psql: error:`, `\d` 표의 제목·열
+# 이름 같은 것 — 는 서버의 lc_messages 가 아니라 **psql 을 실행한 쪽의 로케일**(LC_ALL →
+# LC_MESSAGES → LANG, 그리고 LANGUAGE)을 따른다. 번역을 품은 psql(예: Homebrew
+# postgresql@18)을 한국어 로케일에서 부르면 `(5개 행)`·`psql: 오류:` 가 나와, 서버 설정을 모두
+# 고정했어도 대안 경로 러너가 거의 전량 FAIL 한다(2026-09-26 실측 — HARNESS.md 「부분 수정의
+# 재현 기록」). macOS 는 LANG 이 없어도 시스템 언어 설정을 따라 한국어가 된다.
+#   고정값은 LC_ALL=C.UTF-8 이고 LANGUAGE 는 비운다. LC_MESSAGES=C 만 주는 것으로는 안 된다 —
+#   LC_ALL 이 이기므로 LC_ALL=ko_KR.UTF-8 인 셸에서 그대로 한국어였다(실측). C 가 아니라 C.UTF-8
+#   인 까닭은 기본 경로의 컨테이너 psql 이 도는 LANG=C.UTF-8 과 같은 조건(문자 분류 UTF-8)을 두려는
+#   것이다. 비대화형 호출에서는 LC_ALL=C 로도 문구와 클라이언트 인코딩(UTF8)이 같았다(2026-09-26
+#   실측). 터미널에 붙은 psql 은 다르다 — LC_ALL=C 면 클라이언트 인코딩이 SQL_ASCII 가 되어 한글
+#   표의 열 폭이 어긋났고 C.UTF-8 은 UTF8 이었다(같은 날 실측). README 가 여러분의 대화형 psql 에
+#   권하는 것도 그래서 C.UTF-8 이다.
+#   이 고정은 kit 스크립트의 비대화형 호출에만 걸린다. 대안 경로에서 여러분이 직접 여는 psql 은
+#   여러분 셸의 로케일을 따른다(기본 경로는 컨테이너 안의 psql 이라 LANG=C.UTF-8 로 영어다) — 그것은 여러분 세션만의 축이라 kit 이 판정하지 않는다(README 「두 경로」).
+#   고정이 실제로 먹는지는 check_env.sh 가 kit_client_probe 로 판정한다.
+kit_psql_native() { # 인자는 psql 옵션 (-X 는 부르는 쪽이 붙인다)
+  LC_ALL=C.UTF-8 LANGUAGE= "$KIT_PSQL" "$@"
+}
+
 kit_psql() { # 인자는 psql 옵션. 표준 입력은 그대로 이어진다.
   if [ "$KIT_MODE" = native ]; then
-    "$KIT_PSQL" -X "$@"
+    kit_psql_native -X "$@"
   else
     docker exec -i "$KIT_CONTAINER" psql -X -U postgres "$@"
   fi
@@ -113,7 +136,7 @@ kit_psql() { # 인자는 psql 옵션. 표준 입력은 그대로 이어진다.
 # 출력에 담으려는 것이다 — psql 의 두 스트림은 이미 안에서 합쳐져 있어 그 차례에 끼어들지 않는다.
 kit_psql_merged() { # 인자는 psql 옵션. 표준 입력은 그대로 이어진다.
   if [ "$KIT_MODE" = native ]; then
-    "$KIT_PSQL" -X "$@" 2>&1
+    kit_psql_native -X "$@" 2>&1
   else
     docker exec -i "$KIT_CONTAINER" sh -c 'exec psql -X -U postgres "$@" 2>&1' sh "$@" 2>&1
   fi
@@ -308,20 +331,27 @@ kit_sort_probe() { # $1=데이터베이스 이름 → stdout: 그 DB의 실제 �
 #   설치한 서버는 Asia/Seoul 같은 로컬 시간대다. 이 코스의 world 는 날짜 열이 전부
 #   date 라 표시가 곧바로 갈리지는 않지만, now()·current_timestamp 를 쓰는 자리와
 #   timestamptz 로의 변환이 시간대를 따른다.
+#   extra_float_digits 는 real·double precision 값을 글자로 찍는 자릿수를 정한다(기본값 1 —
+#   가장 짧은 정확한 표기). 0 이하면 반올림한 옛 표기가 나온다. 이 코스의 world·본문·cases 는
+#   실수형을 쓰지 않아 지금 갈리는 출력은 0건이지만, 서버 설정·PGOPTIONS·역할 설정으로 갈릴 수
+#   있는 **SQL 과목의** 성질이라 intermediate kit 과 같은 값으로 함께 고정한다(그 코스 8장이 real
+#   값을 그대로 찍는다 — 0 이면 케이스 2건, -1 이면 4건이 갈렸다. 그 실측과 케이스 이름은 intermediate
+#   kit 의 kit_psql.sh 같은 자리에 있다).
 #   그래서 setup.sh 가 두 경로 모두 데이터베이스 설정으로 못 박는다 —
 #   ALTER DATABASE … SET timezone TO 'UTC' / SET lc_messages TO 'C' / SET DateStyle TO 'ISO, MDY'
-#   / SET lc_monetary·lc_numeric·lc_time TO 'C' (kit_session_fix). 데이터베이스 설정이므로
+#   / SET lc_monetary·lc_numeric·lc_time TO 'C' / SET extra_float_digits TO 1 (kit_session_fix).
+#   데이터베이스 설정이므로
 #   여러분의 대화형 psql 세션에도 적용된다(스크립트에 PGTZ 를 주는 것으로는 세션이 갈린다).
-#   다만 psql 쪽 환경 변수 PGTZ·PGDATESTYLE 과 ALTER ROLE … SET 은 데이터베이스 설정을
-#   이기고 kit 의 프로브에도 그대로 걸리므로, check_env.sh 가 불일치를 보면 그 둘을 안내한다.
+#   다만 psql 쪽 환경 변수 PGTZ·PGDATESTYLE·PGOPTIONS 와 ALTER ROLE … SET 은 데이터베이스 설정을
+#   이기고 kit 의 프로브에도 그대로 걸리므로, check_env.sh 가 불일치를 보면 그것들을 안내한다.
 #   ~/.psqlrc 의 SET 은 다르다 — kit 호출은 전부 -X 라 psqlrc 를 읽지 않으므로 프로브에
 #   걸리지 않고 여러분의 대화형 세션에만 작용한다(README 「두 경로」).
 #   판정은 접속한 세션의 실제 설정값으로 한다 (kit_session_probe).
-KIT_SESSION_EXPECTED='UTC|C|ISO, MDY|C|C|C'
-KIT_SESSION_PROBE_SQL_BARE="SELECT current_setting('TimeZone') || '|' || current_setting('lc_messages') || '|' || current_setting('DateStyle') || '|' || current_setting('lc_monetary') || '|' || current_setting('lc_numeric') || '|' || current_setting('lc_time')"
+KIT_SESSION_EXPECTED='UTC|C|ISO, MDY|C|C|C|1'
+KIT_SESSION_PROBE_SQL_BARE="SELECT current_setting('TimeZone') || '|' || current_setting('lc_messages') || '|' || current_setting('DateStyle') || '|' || current_setting('lc_monetary') || '|' || current_setting('lc_numeric') || '|' || current_setting('lc_time') || '|' || current_setting('extra_float_digits')"
 KIT_SESSION_PROBE_SQL="$KIT_SESSION_PROBE_SQL_BARE;"
 
-kit_session_probe() { # $1=데이터베이스 이름 → stdout: "<timezone>|<lc_messages>|<DateStyle>|<lc_monetary>|<lc_numeric>|<lc_time>" 한 줄
+kit_session_probe() { # $1=데이터베이스 이름 → stdout: "<timezone>|<lc_messages>|<DateStyle>|<lc_monetary>|<lc_numeric>|<lc_time>|<extra_float_digits>" 한 줄
   kit_psql -d "$1" -X -tAc "$KIT_SESSION_PROBE_SQL"
 }
 
@@ -332,7 +362,17 @@ kit_session_fix() { # $1=데이터베이스 이름 → 그 DB의 기본 세션 �
     -c "ALTER DATABASE \"$1\" SET DateStyle TO 'ISO, MDY';" \
     -c "ALTER DATABASE \"$1\" SET lc_monetary TO 'C';" \
     -c "ALTER DATABASE \"$1\" SET lc_numeric TO 'C';" \
-    -c "ALTER DATABASE \"$1\" SET lc_time TO 'C';"
+    -c "ALTER DATABASE \"$1\" SET lc_time TO 'C';" \
+    -c "ALTER DATABASE \"$1\" SET extra_float_digits TO 1;"
+}
+
+# psql **클라이언트** 문구의 언어 — 위 세션 설정(서버 쪽)과 다른 축이다 (kit_psql_native 주석).
+# kit 이 부르는 psql 이 결과표 끝에 영어 행 수를 내는지로 판정한다. 기본 경로는 컨테이너 안
+# psql(LANG=C.UTF-8), 대안 경로는 kit_psql_native 의 고정이 그것을 보장해야 한다.
+KIT_CLIENT_EXPECTED='(1 row)'
+kit_client_probe() { # $1=데이터베이스 이름 → stdout: 결과표의 비지 않은 마지막 줄 (행 수 줄)
+  # psql 은 행 수 줄 뒤에 빈 줄을 하나 더 찍으므로 tail -n 1 이 아니라 비지 않은 마지막 줄을 고른다.
+  kit_psql -d "$1" -X -c "SELECT 1 AS probe;" 2>/dev/null | awk 'NF { last = $0 } END { print last }'
 }
 
 # world의 **libc 문자 분류(LC_CTYPE)** — 세션 설정이 아니라 데이터베이스를 만들 때

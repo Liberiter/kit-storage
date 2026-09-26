@@ -1,0 +1,10 @@
+           Table "antipatterns.products"
+   Column   | Type | Collation | Nullable | Default 
+------------+------+-----------+----------+---------
+ code       | text |           |          | 
+ name       | text |           |          | 
+ tags       | text |           |          | 
+ price      | real |           |          | 
+ status     | text |           |          | 
+ created_on | text |           |          | 
+[exit 0]

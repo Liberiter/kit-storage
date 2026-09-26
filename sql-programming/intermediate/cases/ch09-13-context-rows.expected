@@ -1,0 +1,6 @@
+ view_id |                                               context                                               
+---------+-----------------------------------------------------------------------------------------------------
+       1 | {"device": "mobile", "dwell_ms": 1312, "referrer": "sns", "scroll_pct": 17}
+      11 | {"utm": "newsletter-0826", "device": "mobile", "dwell_ms": 795, "referrer": "ad", "scroll_pct": 13}
+(2 rows)
+[exit 0]

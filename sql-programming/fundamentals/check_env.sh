@@ -1,13 +1,15 @@
 #!/usr/bin/env bash
 # 환경 검증 = 코스 entry check(입장 점검)의 판정 기준 (0장 0.5절).
-# 접속 → 버전 → world 속성(정렬 규칙 · 세션 설정 + world_check.sql) 순으로 확인한다.
+# 접속 → 버전 → psql 문구 언어 → world 속성(정렬 규칙 · 세션 설정 + world_check.sql) 순으로
+# 확인한다.
 # libc 문자 분류(LC_CTYPE)는 판정에 넣지 않고 알림만 낸다 (아래 「world 속성 (2)」).
 # 실패하면 원인과 함께 **다음에 무엇을 하면 되는지**를 한 줄로 알린다.
 #
 # 판정 근거는 entry check의 셋뿐이다 — (a) psql 접속, (b) 서버 메이저
 # 버전, (c) world 속성 검증. 정렬 규칙 확인은 (c)에 속한다: 설치 방식이나
 # 컨테이너 존재 여부가 아니라 **접속한 데이터베이스의 성질**만 보므로 두
-# 경로에서 같은 검사가 같은 기대값으로 돈다.
+# 경로에서 같은 검사가 같은 기대값으로 돈다. psql 문구 언어 확인은 (a)에 속한다 —
+# 접속에 쓰는 psql 자신이 교재와 같은 문구로 답하는지를 본다(아래 「psql 클라이언트 문구의 언어」).
 #
 # 두 경로를 모두 통과시킨다 (0장 0.1절 기본 경로·0.7절 대안 경로):
 #   기본 경로  ./check_env.sh                (KIT_MODE=docker, 기본값)
@@ -54,6 +56,24 @@ case "$ver" in
     ;;
 esac
 
+# psql 클라이언트 문구의 언어 — 서버 설정이 아니라 kit 이 부르는 psql 자신의 성질이다
+# (kit_psql.sh kit_psql_native·kit_client_probe). 결과표 끝의 행 수 줄(`(1 row)`)과 psql 자신의
+# 오류(`psql: error:`)가 이것을 따른다. kit 이 고정하므로 여러분 셸의 로케일과는 무관하게
+# 통과해야 하고, 실패하면 고정이 먹지 않는 psql 이다 — 러너의 대조가 전량 어긋난다.
+# 여러분이 직접 여는 psql 의 언어는 판정하지 않는다 (README 「두 경로」).
+client_now=$(kit_client_probe "$DB" || true)
+if [ "$client_now" != "$KIT_CLIENT_EXPECTED" ]; then
+  echo "  기대한 행 수 줄: $KIT_CLIENT_EXPECTED" >&2
+  echo "  실제 행 수 줄:   ${client_now:-(확인 실패)}" >&2
+  if [ "$KIT_MODE" = native ]; then
+    fail "psql 문구 언어 불일치 — kit 이 부르는 psql($KIT_PSQL)이 교재 본문과 다른 언어로 결과를 냅니다" \
+         "kit 은 psql 을 LC_ALL=C.UTF-8 로 불러 영어 문구를 받도록 고정합니다. 그런데도 이렇게 나오면 KIT_PSQL 이 가리키는 것이 스스로 언어를 정하는 감싼 스크립트일 수 있습니다 — PostgreSQL 18 이 설치한 psql 실행 파일을 KIT_PSQL=/설치경로/psql 로 가리킨 뒤 다시 실행하세요"
+  else
+    fail "psql 문구 언어 불일치 — 컨테이너 $KIT_CONTAINER 안의 psql 이 교재 본문과 다른 언어로 결과를 냅니다" \
+         "docker rm -f $KIT_CONTAINER 로 컨테이너를 지운 뒤 ./setup.sh 를 실행하세요 — kit 이 정한 로케일(LANG=C.UTF-8)로 컨테이너를 다시 만들고 world를 다시 적재하므로 잃는 것이 없습니다"
+  fi
+fi
+
 # world 속성 (1) — 정렬 규칙(collation).
 # 챕터 본문의 표는 한글 ORDER BY의 차례를 그대로 싣는다. 정렬 규칙이 다르면
 # 값은 같은데 줄의 차례가 다른 표를 학습자가 보게 된다(9·11·12·13장).
@@ -98,20 +118,21 @@ if ! kit_ctype_ok "$ctype_now"; then
   echo "        굳이 맞추고 싶으시면 dropdb $DB 로 지운 뒤 ./setup.sh 를 다시 실행하세요 — world 는 seed.sql 에서 다시 적재되므로 잃는 것이 없습니다." >&2
 fi
 
-# world 속성 (3) — 세션 시간대·메시지 언어·날짜 표기·로케일(통화·숫자·날짜 이름). 기대값과
+# world 속성 (3) — 세션 시간대·메시지 언어·날짜 표기·로케일(통화·숫자·날짜 이름)·실수 표시
+# 자릿수(extra_float_digits). 기대값과
 # 프로브는 kit_psql.sh에 있다. 정렬 규칙과 마찬가지로 데이터가 아니라 데이터베이스 설정이라
 # ./reset.sh 로는 되돌아가지 않는다 — 처방은 ./setup.sh 재실행(설정을 다시 적용하면서 예제
 # 데이터도 처음 상태로 넣는다)이고 데이터베이스를 지울 필요는 없다. kit 호출은 전부 -X 라
 # 이 프로브는 여러분의 ~/.psqlrc 를 읽지 않는다 (README 「두 경로」).
 session_now=$(kit_session_probe "$DB" 2>/dev/null || true)
 if [ "$session_now" != "$KIT_SESSION_EXPECTED" ]; then
-  echo "  기대한 설정 (timezone|lc_messages|DateStyle|lc_monetary|lc_numeric|lc_time): $KIT_SESSION_EXPECTED" >&2
-  echo "  실제 설정:                                                                  ${session_now:-(확인 실패)}" >&2
+  echo "  기대한 설정 (timezone|lc_messages|DateStyle|lc_monetary|lc_numeric|lc_time|extra_float_digits): $KIT_SESSION_EXPECTED" >&2
+  echo "  실제 설정:                                                                                     ${session_now:-(확인 실패)}" >&2
   if [ "$KIT_MODE" = native ]; then
-    fail "world 세션 설정 불일치 — 데이터베이스 $DB 의 시간대·메시지 언어·날짜 표기·로케일이 교재 본문과 다릅니다 (오류 메시지의 언어, 날짜 입력 해석, to_char 의 통화 기호·요일 이름이 달라집니다)" \
-         "./setup.sh 를 다시 실행하세요 — 설정을 다시 적용하면서 예제 데이터도 처음 상태로 넣습니다(데이터베이스를 지우지 않습니다). 그래도 같으면 psql 쪽 환경 변수 PGTZ·PGDATESTYLE 이나 ALTER ROLE … SET 으로 둔 역할 설정이 데이터베이스 설정을 덮고 있는지 확인하세요"
+    fail "world 세션 설정 불일치 — 데이터베이스 $DB 의 시간대·메시지 언어·날짜 표기·로케일·실수 표시 자릿수가 교재 본문과 다릅니다 (오류 메시지의 언어, 날짜 입력 해석, to_char 의 통화 기호·요일 이름, 실수 값의 자릿수가 달라집니다)" \
+         "./setup.sh 를 다시 실행하세요 — 설정을 다시 적용하면서 예제 데이터도 처음 상태로 넣습니다(데이터베이스를 지우지 않습니다). 그래도 같으면 psql 쪽 환경 변수 PGTZ·PGDATESTYLE·PGOPTIONS 나 ALTER ROLE … SET 으로 둔 역할 설정이 데이터베이스 설정을 덮고 있는지 확인하세요"
   else
-    fail "world 세션 설정 불일치 — 데이터베이스 $DB 의 시간대·메시지 언어·날짜 표기·로케일이 교재 본문과 다릅니다 (오류 메시지의 언어, 날짜 입력 해석, to_char 의 통화 기호·요일 이름이 달라집니다)" \
+    fail "world 세션 설정 불일치 — 데이터베이스 $DB 의 시간대·메시지 언어·날짜 표기·로케일·실수 표시 자릿수가 교재 본문과 다릅니다 (오류 메시지의 언어, 날짜 입력 해석, to_char 의 통화 기호·요일 이름, 실수 값의 자릿수가 달라집니다)" \
          "./setup.sh 를 다시 실행하세요 — 설정을 다시 적용하면서 예제 데이터도 처음 상태로 넣습니다(컨테이너도 데이터베이스도 지우지 않습니다)"
   fi
 fi

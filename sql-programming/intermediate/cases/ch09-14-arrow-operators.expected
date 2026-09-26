@@ -1,0 +1,6 @@
+ view_id | 기기jsonb | 기기글자 |     캠페인      
+---------+-----------+----------+-----------------
+       1 | "mobile"  | mobile   | 
+      11 | "mobile"  | mobile   | newsletter-0826
+(2 rows)
+[exit 0]

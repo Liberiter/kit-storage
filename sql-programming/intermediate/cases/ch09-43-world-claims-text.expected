@@ -1,0 +1,9 @@
+           주장           |                                  실측값                                  
+--------------------------+--------------------------------------------------------------------------
+ book_meta 의 기본키 정의 | PRIMARY KEY (book_id)
+ 과학 책의 첫 태그        | 교양과학
+ 방문자 시간대 이름       | America/Los_Angeles,Asia/Seoul,Asia/Tokyo,Australia/Sydney,Europe/London
+ 역사 책의 첫 태그        | 한국사
+ 첫 공급 피드의 날짜      | 2026-08-25
+(5 rows)
+[exit 0]

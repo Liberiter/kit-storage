@@ -48,7 +48,8 @@
 #
 # 이 파일은 world의 **정렬 규칙(collation)** 판정 기준(KIT_SORT_EXPECTED·
 # kit_sort_probe), **세션 시간대·메시지 언어** 기준(KIT_SESSION_EXPECTED·
-# kit_session_probe·kit_session_fix)과, 여러 스크립트가 공유하는 **실행 전 점검**
+# kit_session_probe·kit_session_fix), **psql 클라이언트 문구의 언어** 기준(KIT_CLIENT_EXPECTED·
+# kit_client_probe — 고정은 kit_psql_native)과, 여러 스크립트가 공유하는 **실행 전 점검**
 # (kit_runtime_check·kit_connect_check), ~/.psqlrc 안내(kit_psqlrc_warn)도 함께 정의한다.
 # setup.sh·reset.sh·check_env.sh·verify.sh·entry_check.sh·concurrency.sh가 같은 기준과 같은
 # 문구를 써야 하므로 한 자리에 둔다.
@@ -96,9 +97,32 @@ esac
 # 결과에 섞여 버전 확인 같은 판정을 거짓 원인으로 깨뜨린다. 그래서 kit 스크립트는 psqlrc 를
 # 읽지 않는다 — 바꿔 말해 kit 의 점검은 ~/.psqlrc 의 영향을 **보지 못한다**(check_env.sh 가 그
 # 점을 따로 안내한다). 대화형 실행(kit_psql_tty)은 여러분 세션과 같은 조건이어야 하므로 예외다.
+#
+# 대안 경로의 psql 은 **클라이언트 로케일을 고정해** 부른다 (kit_psql_native). psql 자신이
+# 내는 문구 — 결과표 끝의 행 수(`(5 rows)`), 접속 실패의 `psql: error:`, `\d` 표의 제목·열
+# 이름 같은 것 — 는 서버의 lc_messages 가 아니라 **psql 을 실행한 쪽의 로케일**(LC_ALL →
+# LC_MESSAGES → LANG, 그리고 LANGUAGE)을 따른다. 번역을 품은 psql(예: Homebrew
+# postgresql@18)을 한국어 로케일에서 부르면 `(5개 행)`·`psql: 오류:` 가 나와, 서버 설정을 모두
+# 고정했어도 대안 경로 러너가 거의 전량 FAIL 한다(2026-09-26 실측 — HARNESS.md 「부분 수정의
+# 재현 기록」). macOS 는 LANG 이 없어도 시스템 언어 설정을 따라 한국어가 된다.
+#   고정값은 LC_ALL=C.UTF-8 이고 LANGUAGE 는 비운다. LC_MESSAGES=C 만 주는 것으로는 안 된다 —
+#   LC_ALL 이 이기므로 LC_ALL=ko_KR.UTF-8 인 셸에서 그대로 한국어였다(실측). C 가 아니라 C.UTF-8
+#   인 까닭은 기본 경로의 컨테이너 psql 이 도는 LANG=C.UTF-8 과 같은 조건(문자 분류 UTF-8)을 두려는
+#   것이다. 비대화형 호출에서는 LC_ALL=C 로도 문구와 클라이언트 인코딩(UTF8)이 같았다(2026-09-26
+#   실측). 터미널에 붙은 psql 은 다르다 — LC_ALL=C 면 클라이언트 인코딩이 SQL_ASCII 가 되어 한글
+#   표의 열 폭이 어긋났고 C.UTF-8 은 UTF8 이었다(같은 날 실측). README 가 여러분의 대화형 psql 에
+#   권하는 것도 그래서 C.UTF-8 이다.
+#   이 고정은 kit 스크립트의 비대화형 호출(kit_psql·kit_psql_merged, concurrency.sh 자동 재현의
+#   open_psql_merged)에만 걸린다. 대안 경로에서는 대화형 kit_psql_tty 와 여러분이 직접 여는 psql 이
+#   여러분 셸의 로케일을 따른다(기본 경로는 컨테이너 안의 psql 이라 LANG=C.UTF-8 로 영어다) — 그것은 여러분 세션만의 축이라 kit 이 판정하지 않는다(README 「두 경로」).
+#   고정이 실제로 먹는지는 check_env.sh 가 kit_client_probe 로 판정한다.
+kit_psql_native() { # 인자는 psql 옵션 (-X 는 부르는 쪽이 붙인다)
+  LC_ALL=C.UTF-8 LANGUAGE= "$KIT_PSQL" "$@"
+}
+
 kit_psql() { # 인자는 psql 옵션. 표준 입력은 그대로 이어진다.
   if [ "$KIT_MODE" = native ]; then
-    "$KIT_PSQL" -X "$@"
+    kit_psql_native -X "$@"
   else
     docker exec -i "$KIT_CONTAINER" psql -X -U postgres "$@"
   fi
@@ -123,7 +147,7 @@ kit_psql_tty() { # 대화형(터미널 붙임) 실행 — 동시성 실습 스�
 # 출력에 담으려는 것이다 — psql 의 두 스트림은 이미 안에서 합쳐져 있어 그 차례에 끼어들지 않는다.
 kit_psql_merged() { # 인자는 psql 옵션. 표준 입력은 그대로 이어진다.
   if [ "$KIT_MODE" = native ]; then
-    "$KIT_PSQL" -X "$@" 2>&1
+    kit_psql_native -X "$@" 2>&1
   else
     docker exec -i "$KIT_CONTAINER" sh -c 'exec psql -X -U postgres "$@" 2>&1' sh "$@" 2>&1
   fi
@@ -314,21 +338,27 @@ kit_sort_probe() { # $1=데이터베이스 이름 → stdout: 그 DB의 실제 �
 #   lc_monetary·lc_numeric·lc_time 도 서버 로케일을 따른다 — to_char 의 L(통화 기호)·D·G(소수점·
 #   자릿수 구분)·TM(요일·월 이름)이 그것을 읽어, en_US 서버는 `$   1,234,567.89`, ko_KR 서버는
 #   `₩`·한국어 요일로 나온다(컨테이너 C.UTF-8 은 기호 없음·영어).
+#   extra_float_digits 는 real·double precision 값을 글자로 찍는 자릿수를 정한다(기본값 1 —
+#   가장 짧은 정확한 표기). 0 이하면 반올림한 옛 표기가 나온다. 8장이 real 값을 그대로 찍어
+#   0 이면 케이스 2건(ch08-08·ch08-34), -1 이면 4건(+ch08-24·ch08-35)이 갈렸다(2026-09-26 실측,
+#   HARNESS.md 「부분 수정의 재현 기록」). 서버 설정(postgresql.conf)·PGOPTIONS·역할 설정으로
+#   갈릴 수 있다.
 #   그래서 setup.sh 가 두 경로 모두 데이터베이스 설정으로 못 박는다 —
 #   ALTER DATABASE … SET timezone TO 'UTC' / SET lc_messages TO 'C' / SET DateStyle TO 'ISO, MDY'
-#   / SET lc_monetary·lc_numeric·lc_time TO 'C' (kit_session_fix). 데이터베이스 설정이므로
+#   / SET lc_monetary·lc_numeric·lc_time TO 'C' / SET extra_float_digits TO 1 (kit_session_fix).
+#   데이터베이스 설정이므로
 #   여러분의 대화형 psql 세션에도 적용된다(스크립트에 PGTZ 를 주는 것으로는 세션이 갈린다).
-#   다만 psql 쪽 환경 변수 PGTZ·PGDATESTYLE 과 ALTER ROLE … SET 은 데이터베이스 설정을 이기고
-#   kit 의 프로브에도 그대로 걸리므로, check_env.sh 가 불일치를 보면 그 둘을 안내한다.
+#   다만 psql 쪽 환경 변수 PGTZ·PGDATESTYLE·PGOPTIONS 와 ALTER ROLE … SET 은 데이터베이스 설정을
+#   이기고 kit 의 프로브에도 그대로 걸리므로, check_env.sh 가 불일치를 보면 그것들을 안내한다.
 #   ~/.psqlrc 의 SET 은 다르다 — kit 호출은 전부 -X 라 psqlrc 를 읽지 않으므로 프로브에 걸리지
 #   않고 여러분의 대화형 세션에만 작용한다. check_env.sh 는 대안 경로에서 psqlrc 를 읽는 세션의
 #   실제 값을 따로 재어(아래 「~/.psqlrc」) 다르면 「알림」을 낸다(판정은 바꾸지 않는다).
 #   판정은 접속한 세션의 실제 설정값으로 한다 (kit_session_probe).
-KIT_SESSION_EXPECTED='UTC|C|ISO, MDY|C|C|C'
-KIT_SESSION_PROBE_SQL_BARE="SELECT current_setting('TimeZone') || '|' || current_setting('lc_messages') || '|' || current_setting('DateStyle') || '|' || current_setting('lc_monetary') || '|' || current_setting('lc_numeric') || '|' || current_setting('lc_time')"
+KIT_SESSION_EXPECTED='UTC|C|ISO, MDY|C|C|C|1'
+KIT_SESSION_PROBE_SQL_BARE="SELECT current_setting('TimeZone') || '|' || current_setting('lc_messages') || '|' || current_setting('DateStyle') || '|' || current_setting('lc_monetary') || '|' || current_setting('lc_numeric') || '|' || current_setting('lc_time') || '|' || current_setting('extra_float_digits')"
 KIT_SESSION_PROBE_SQL="$KIT_SESSION_PROBE_SQL_BARE;"
 
-kit_session_probe() { # $1=데이터베이스 이름 → stdout: "<timezone>|<lc_messages>|<DateStyle>|<lc_monetary>|<lc_numeric>|<lc_time>" 한 줄
+kit_session_probe() { # $1=데이터베이스 이름 → stdout: "<timezone>|<lc_messages>|<DateStyle>|<lc_monetary>|<lc_numeric>|<lc_time>|<extra_float_digits>" 한 줄
   kit_psql -d "$1" -X -tAc "$KIT_SESSION_PROBE_SQL"
 }
 
@@ -339,7 +369,17 @@ kit_session_fix() { # $1=데이터베이스 이름 → 그 DB의 기본 세션 �
     -c "ALTER DATABASE \"$1\" SET DateStyle TO 'ISO, MDY';" \
     -c "ALTER DATABASE \"$1\" SET lc_monetary TO 'C';" \
     -c "ALTER DATABASE \"$1\" SET lc_numeric TO 'C';" \
-    -c "ALTER DATABASE \"$1\" SET lc_time TO 'C';"
+    -c "ALTER DATABASE \"$1\" SET lc_time TO 'C';" \
+    -c "ALTER DATABASE \"$1\" SET extra_float_digits TO 1;"
+}
+
+# psql **클라이언트** 문구의 언어 — 위 세션 설정(서버 쪽)과 다른 축이다 (kit_psql_native 주석).
+# kit 이 부르는 psql 이 결과표 끝에 영어 행 수를 내는지로 판정한다. 기본 경로는 컨테이너 안
+# psql(LANG=C.UTF-8), 대안 경로는 kit_psql_native 의 고정이 그것을 보장해야 한다.
+KIT_CLIENT_EXPECTED='(1 row)'
+kit_client_probe() { # $1=데이터베이스 이름 → stdout: 결과표의 비지 않은 마지막 줄 (행 수 줄)
+  # psql 은 행 수 줄 뒤에 빈 줄을 하나 더 찍으므로 tail -n 1 이 아니라 비지 않은 마지막 줄을 고른다.
+  kit_psql -d "$1" -X -c "SELECT 1 AS probe;" 2>/dev/null | awk 'NF { last = $0 } END { print last }'
 }
 
 # world의 **libc 문자 분류(LC_CTYPE)** — 세션 설정이 아니라 데이터베이스를 만들 때 정해지는
@@ -405,7 +445,7 @@ kit_ctype_ok() { # $1=datctype 값 → 0 이면 기대 범위
 # ## ~/.psqlrc — kit 점검 밖에 있는 축의 안내 (대안 경로)
 #
 # kit 의 psql 호출은 전부 -X 라 psqlrc 를 읽지 않는다. 그래서 psqlrc 의 `SET timezone …`·
-# `SET DateStyle …`·`SET lc_* …` 는 kit 의 세션 설정 판정을 통과시키면서 여러분의 대화형
+# `SET DateStyle …`·`SET lc_* …`·`SET extra_float_digits …` 는 kit 의 세션 설정 판정을 통과시키면서 여러분의 대화형
 # 세션만 본문과 다르게 만든다(예: timestamptz 가 +09 로 표시).
 #
 # 재는 방법: psqlrc 를 **읽는** psql 로 `\copy (SELECT current_setting(…)) TO <임시 파일>` 을
@@ -471,7 +511,7 @@ kit_psqlrc_warn() { # 언제나 0 을 반환한다 — 알림일 뿐 판정이 �
   hits=""
   while IFS= read -r f; do
     [ -n "$f" ] || continue
-    h=$(command grep -inE '^[[:space:]]*set[[:space:]]+(timezone|time zone|datestyle|lc_messages|lc_monetary|lc_numeric|lc_time)\b' "$f" 2>/dev/null || true)
+    h=$(command grep -inE '^[[:space:]]*set[[:space:]]+(timezone|time zone|datestyle|lc_messages|lc_monetary|lc_numeric|lc_time|extra_float_digits)\b' "$f" 2>/dev/null || true)
     [ -n "$h" ] || continue
     while IFS= read -r line; do hits="$hits$f:$line"$'\n'; done <<EOF_H
 $h
@@ -484,8 +524,8 @@ EOF_F
   else
     if [ -z "$hits" ]; then return 0; fi                   # 프로브 실패 — 파일에 SET 줄이 있을 때만
   fi
-  echo "알림: psqlrc 가 여러분의 psql 세션 설정을 바꿉니다 — kit 점검은 psqlrc 를 읽지 않으므로(-X) 이것은 판정에 들어가지 않지만, 여러분이 직접 여는 psql 세션은 교재 본문과 다르게 보일 수 있습니다(timestamptz 표시·날짜 입력 해석·to_char 출력)." >&2
-  if [ -n "$actual" ]; then echo "        psqlrc 적용 후 여러분 세션 (timezone|lc_messages|DateStyle|lc_monetary|lc_numeric|lc_time): $actual  (코스 기대값: $KIT_SESSION_EXPECTED)" >&2; fi
+  echo "알림: psqlrc 가 여러분의 psql 세션 설정을 바꿉니다 — kit 점검은 psqlrc 를 읽지 않으므로(-X) 이것은 판정에 들어가지 않지만, 여러분이 직접 여는 psql 세션은 교재 본문과 다르게 보일 수 있습니다(timestamptz 표시·날짜 입력 해석·to_char 출력·실수 값의 자릿수)." >&2
+  if [ -n "$actual" ]; then echo "        psqlrc 적용 후 여러분 세션 (timezone|lc_messages|DateStyle|lc_monetary|lc_numeric|lc_time|extra_float_digits): $actual  (코스 기대값: $KIT_SESSION_EXPECTED)" >&2; fi
   if [ -n "$files" ]; then printf '%s\n' "$files" | sed 's/^/        psql 이 읽는 파일: /' >&2; fi
   if [ -n "$hits" ]; then printf '%s' "$hits" | sed 's/^/        /' >&2; fi
   echo "        다음: 이 코스를 진행하는 동안 그 SET 줄을 지우거나 주석(--)으로 바꾸세요. 임시로는 psql -X 로 열어도 됩니다." >&2

@@ -1,0 +1,6 @@
+ERROR:  invalid input syntax for type json
+LINE 1: ...모바일 FROM page_views WHERE context -> 'device' = 'mobile';
+                                                              ^
+DETAIL:  Token "mobile" is invalid.
+CONTEXT:  JSON data, line 1: mobile
+[exit 3]

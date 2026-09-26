@@ -1,0 +1,8 @@
+ 고객번호 |         이메일         | 주문수 | 구매액  | 리뷰수 
+----------+------------------------+--------+---------+--------
+       17 | doyun.seo@bookmail.kr  |     20 | 1507000 |     15
+       46 | doyun.seo2@bookmail.kr |      7 |  661000 |      5
+       54 | doyun.seo3@bookmail.kr |      1 |   55500 |      2
+       97 | doyun.seo4@bookmail.kr |      5 |  530500 |      5
+(4 rows)
+[exit 0]

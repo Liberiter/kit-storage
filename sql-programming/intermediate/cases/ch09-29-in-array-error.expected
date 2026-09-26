@@ -1,0 +1,5 @@
+ERROR:  malformed array literal: "교양"
+LINE 1: SELECT count(*) AS 책수 FROM book_meta WHERE '교양' IN (tags...
+                                                     ^
+DETAIL:  Array value must start with "{" or dimension information.
+[exit 3]

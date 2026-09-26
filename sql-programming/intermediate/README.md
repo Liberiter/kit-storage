@@ -14,9 +14,11 @@ world "책숲 운영 데이터"(온라인 서점 책숲의 운영 기록)와 학
 psql을 부르고(공용 함수는 `kit_psql.sh`에 있습니다), 같은 `./check_env.sh`·`./entry_check.sh`가
 두 경로 모두를 판정합니다. world는 두 경로에서 같습니다 — 데이터도, **정렬 규칙도, 세션
 시간대(UTC)·오류 메시지 언어(영어)·날짜 표기(`ISO, MDY`)·`to_char`가 읽는 로케일(통화·숫자·
-날짜 이름)도** (`./setup.sh`가 데이터베이스 설정으로 못 박고 `./check_env.sh`가 확인합니다 — 단
+날짜 이름)·실수 표시 자릿수(`extra_float_digits`)도** (`./setup.sh`가 데이터베이스 설정으로 못 박고 `./check_env.sh`가 확인합니다 — 단
 여러분의 psqlrc가 세션 설정을 바꾸는 경우는 점검 결과에 넣지 않고 알림으로 알립니다, 아래
-「실패 안내」). 문자 분류(LC_CTYPE)는 **값이 두 경로에서 다릅니다**(기본 경로 `C.UTF-8`, 대안
+「실패 안내」). psql 자신이 찍는 문구(행 수 `(5 rows)` 같은 것)는 kit 스크립트 안과 기본 경로에서는 영어로
+고정되고, 대안 경로에서 여러분이 직접 여는 psql에서는 여러분 컴퓨터의 언어 설정을 따릅니다(아래 「두 경로」).
+문자 분류(LC_CTYPE)는 **값이 두 경로에서 다릅니다**(기본 경로 `C.UTF-8`, 대안
 경로 `C`). 그래도 **이 코스의 출력은 두 경로에서 같습니다** — 이 코스의 예제와 문제가 그
 설정에 걸리는 자리를 지금까지 한 군데도 쓰지 않기 때문입니다. 남은 차이는 아래 「대안 경로의
 알려진 차이」에 있습니다.
@@ -111,7 +113,7 @@ customers ──< orders ──< order_items >── books ──< reviews >─�
 | `./setup.sh` | 컨테이너 생성·기동(`LANG=C.UTF-8`) → DB 생성 → 세션 설정 고정 → 동시성 스크립트 복사 → 적재 → 환경 확인 | 컨테이너 없음. psql·서버 접속·버전 18·`bookstore_ops` DB를 점검(없으면 **정렬 규칙을 고정해** 생성) → 세션 설정 고정 → 적재 → 환경 확인 |
 | 경로 지정 | 기본값이므로 지정하지 않아도 됩니다 | **`KIT_MODE=native ./setup.sh` 한 번**. 그 실행이 경로를 `.kit-mode`에 기억하므로 이후 명령에는 붙이지 않아도 됩니다 |
 | 정렬 규칙(collation) | 컨테이너 initdb를 `LANG=C.UTF-8`로 못 박아 얻습니다 | `CREATE DATABASE … TEMPLATE template0 LOCALE_PROVIDER builtin BUILTIN_LOCALE 'C.UTF-8'`으로 못 박습니다 |
-| 세션 시간대·메시지 언어·날짜 표기·로케일 | 두 경로 같음 — `ALTER DATABASE bookstore_ops SET timezone TO 'UTC'`·`SET lc_messages TO 'C'`·`SET DateStyle TO 'ISO, MDY'`·`SET lc_monetary/lc_numeric/lc_time TO 'C'`를 `./setup.sh`가 적용합니다(다시 실행해도 안전). 여러분이 직접 설치한 서버는 컴퓨터의 시간대(예: Asia/Seoul)와 로케일을 기본값으로 잡는데, 그대로 두면 `timestamptz`가 본문의 `+00`이 아니라 `+09`로 표시되고, 오류 메시지가 한국어로 나오고, `'01/02/2026'` 같은 날짜 입력이 다르게 읽히고, `to_char`의 통화 기호(`L`)·요일 이름(`TM`)이 `₩`·한국어로 나올 수 있어 데이터베이스 설정으로 고정합니다. 여러분의 대화형 psql 세션에도 적용됩니다 | 같음 |
+| 세션 시간대·메시지 언어·날짜 표기·로케일·실수 표시 자릿수 | 두 경로 같음 — `ALTER DATABASE bookstore_ops SET timezone TO 'UTC'`·`SET lc_messages TO 'C'`·`SET DateStyle TO 'ISO, MDY'`·`SET lc_monetary/lc_numeric/lc_time TO 'C'`·`SET extra_float_digits TO 1`을 `./setup.sh`가 적용합니다(다시 실행해도 안전). 여러분이 직접 설치한 서버는 컴퓨터의 시간대(예: Asia/Seoul)와 로케일을 기본값으로 잡는데, 그대로 두면 `timestamptz`가 본문의 `+00`이 아니라 `+09`로 표시되고, 오류 메시지가 한국어로 나오고, `'01/02/2026'` 같은 날짜 입력이 다르게 읽히고, `to_char`의 통화 기호(`L`)·요일 이름(`TM`)이 `₩`·한국어로 나올 수 있어 데이터베이스 설정으로 고정합니다. `extra_float_digits`는 실수형(`real`·`double precision`) 값을 찍는 자릿수를 정합니다 — 8장이 `real` 값을 그대로 싣는데, 서버 설정에서 이 값을 `0` 이하로 바꿔 두면 그 자리의 숫자가 교재와 달라져 PostgreSQL의 기본값 `1`로 못 박습니다. 여러분의 대화형 psql 세션에도 적용됩니다 | 같음 |
 | 문자 분류(LC_CTYPE) | 컨테이너 initdb의 `C.UTF-8` | `CREATE DATABASE … LC_COLLATE 'C' LC_CTYPE 'C'`로 만듭니다. **값은 두 경로가 다릅니다**(`C.UTF-8` ↔ `C`). 고정하지 않으면 macOS에서 행 전체를 한 값으로 찍는 출력(`SELECT t FROM t`, `ROW(…)::text`)에서 한글이 `"신아린"`처럼 따옴표로 감싸여 교재와 다르게 보입니다. 이 설정은 만들 때만 정할 수 있는데, 다른 값으로 이미 만들어진 `bookstore_ops`는 **막지 않고 알림만 냅니다** — 이 코스의 예제·문제가 그 축에 걸리는 자리를 지금까지 한 군데도 쓰지 않기 때문입니다(아래 「실패 안내」의 `알림: … 문자 분류(LC_CTYPE)가 …` 행) |
 | `./reset.sh` `./check_env.sh` `./entry_check.sh` `./verify.sh` | 동일 | 동일 |
 | `./concurrency.sh --terminal` | 컨테이너 안 `/kit/concurrency/`의 스크립트를 실행 | `concurrency/`의 스크립트를 직접 실행 |
@@ -137,6 +139,30 @@ peer 인증이라, 비밀번호를 정한 뒤
 (`sudo -u postgres psql -c "ALTER USER postgres PASSWORD '…';"`)
 `PGUSER`·`PGPASSWORD`와 함께 **`PGHOST=localhost`를 지정**합니다. 서버 기동은
 `sudo systemctl start postgresql`입니다 — 자세한 순서는 0장 0.7절.
+
+**psql이 스스로 찍는 문구의 언어는 경로마다 다릅니다 — 기본 경로는 영어이고, 대안 경로는 여러분
+컴퓨터의 언어 설정을 따릅니다.** 서버가 내는 오류 메시지의 언어는 위 표의 `lc_messages`로 못 박지만,
+결과표 끝의 행 수(`(5 rows)`), 접속에 실패했을 때의 `psql: error:`, `\dt`·`\l`이 내는 표의 제목과 열
+이름처럼 **psql 자신이 찍는 문구**는 psql이 도는 곳의 로케일 설정(`LC_ALL`·`LC_MESSAGES`·`LANG`,
+그리고 `LANGUAGE`)을 따릅니다. 기본 경로의 psql은 컨테이너 안에서 kit이 정한 로케일로 돌고, 대안
+경로의 psql은 여러분 컴퓨터에서 돕니다. kit
+스크립트가 판정과 자동 재현에 쓰는 psql은 `C.UTF-8` 로케일로 불러 이 문구를 교재와 같은 영어로 고정하고(대안
+경로는 `LC_ALL=C.UTF-8`을 붙여 부르고, 기본 경로는 컨테이너가 그 로케일로 돕니다),
+`./check_env.sh`가 그것을 확인합니다 — 그래서 여러분의 언어 설정이 무엇이든 `./check_env.sh`·
+`./entry_check.sh`·`./verify.sh`의 판정과 `./concurrency.sh`의 자동 재현 화면에는 섞이지 않습니다.
+하지만 **대안 경로에서는** 여러분이 직접 여는 psql과 `./concurrency.sh --terminal`이 여는 세션이
+여러분 셸의 설정을 따르므로, 한국어로 설정된 컴퓨터에서는 `(5 rows)` 대신 `(5개 행)`,
+`psql: error:` 대신 `psql: 오류:`가 나올 수 있습니다(macOS는 `LANG`이 비어 있어도 시스템 언어
+설정을 따릅니다). 결과는 같고 문구만 다른 것이니 그대로 읽으셔도 됩니다. 교재와 같은 화면을
+보고 싶으시면 psql을 이렇게 여세요.
+
+```bash
+LC_ALL=C.UTF-8 psql -d bookstore_ops
+```
+
+두 터미널 모드도 앞에 붙이면 됩니다 — `LC_ALL=C.UTF-8 ./concurrency.sh --terminal A lost-update`.
+이 설정은 psqlrc와 같이 **여러분 세션만의 것**이라 kit이 판정하지 않습니다. 기본 경로는 컨테이너
+안의 psql이 kit이 정한 로케일(`C.UTF-8`)로 돌므로 해당하지 않습니다.
 
 #### 구축 경로 기억 — `.kit-mode`
 
@@ -165,8 +191,9 @@ peer 인증이라, 비밀번호를 정한 뒤
 이 코스는 앞 코스(fundamentals)를 마친 분을 전제합니다. 입장 점검은 두 단계입니다
 (0장 0.5절).
 
-1. **환경 확인** — `./check_env.sh`와 같습니다: psql 접속, 서버 메이저 버전 18, world
-   속성(정렬 규칙 + 세션 시간대·메시지 언어·날짜 표기·로케일 + 데이터 검사 W1~W16). 문자
+1. **환경 확인** — `./check_env.sh`와 같습니다: psql 접속, 서버 메이저 버전 18, psql 문구의
+   언어, world 속성(정렬 규칙 + 세션 시간대·메시지 언어·날짜 표기·로케일·실수 표시 자릿수 +
+   데이터 검사 W1~W16). 문자
    분류(LC_CTYPE)는 같은 자리에서 재지만 통과 판정에 넣지 않고 알림만 냅니다.
 2. **네 문항 채점** — `entry/q1.sql` ~ `entry/q4.sql`의 머리 주석에 문항이 있습니다. 그
    아래에 SQL을 적고 `./entry_check.sh`를 실행하면 world 위에서 실행해 기대 결과와
@@ -223,10 +250,11 @@ PASS q4
 | `psql` 명령 없음 (대안 경로) | 0장 0.7절대로 PostgreSQL 18 설치. PATH에 없으면 `KIT_PSQL=/설치경로/psql` |
 | psql 접속 불가 | 기본 경로: `docker logs ll-sql-intermediate` 확인 후 `./setup.sh` 재실행 / 대안 경로: 서버 기동(macOS Homebrew `brew services start postgresql@18`, Linux·WSL2 `sudo systemctl start postgresql`)과 접속 정보·DB 이름 확인 후 `./setup.sh` |
 | 서버 버전이 18.x가 아님 | 기본 경로: `docker rm -f ll-sql-intermediate` 후 `./setup.sh`(postgres:18로 재생성) / 대안 경로: 18 설치 후 `PGPORT` 등으로 접속을 그쪽으로 |
+| psql 문구 언어 불일치 — 원인 줄 위에 기대한 행 수 줄(`(1 row)`)과 실제 줄이 먼저 나옵니다 | kit이 부르는 psql이 영어가 아닌 문구를 냈다는 뜻입니다(위 「두 경로」의 psql 문구 문단). 기본 경로: `docker rm -f ll-sql-intermediate` 후 `./setup.sh`(kit이 정한 로케일로 재생성) / 대안 경로: kit은 psql을 `LC_ALL=C.UTF-8`로 불러 고정하므로, `KIT_PSQL`이 스스로 언어를 정하는 감싼 스크립트를 가리키고 있지 않은지 보고 PostgreSQL 18이 설치한 psql 실행 파일을 `KIT_PSQL=/설치경로/psql`로 가리킵니다 |
 | world 정렬 규칙 불일치 | 기본 경로: `docker rm -f ll-sql-intermediate` 후 `./setup.sh` / 대안 경로: `dropdb bookstore_ops` 후 `./setup.sh`(정렬 규칙을 고정해 재생성). 어느 쪽이든 world는 다시 적재되므로 잃는 것이 없습니다 |
 | 「알림: 데이터베이스 bookstore_ops 의 문자 분류(LC_CTYPE)가 …」 (실패는 아님) | 그대로 두셔도 됩니다 — **막지 않습니다.** 이 설정은 값을 글자 단위로 어떻게 읽을지를 정하는데, 이 코스의 예제·문제에서 이 설정에만 매인 자리(행 전체를 한 값으로 찍는 출력, `\l`이 내는 `Ctype` 열)는 지금까지 한 군데도 쓰이지 않았습니다. 굳이 맞추고 싶으시면 만들 때만 정할 수 있는 설정이므로 기본 경로는 `docker rm -f ll-sql-intermediate` 후 `./setup.sh`, 대안 경로는 `dropdb bookstore_ops` 후 `./setup.sh` — world는 다시 적재되므로 잃는 것이 없습니다 |
-| world 세션 설정 불일치 (시간대·메시지 언어·날짜 표기·로케일) | 두 경로 같음: `./setup.sh`를 다시 실행합니다 — 설정을 다시 적용하면서 예제 데이터도 처음 상태로 넣고, 컨테이너도 데이터베이스도 지우지 않습니다. 그래도 같으면 psql 쪽 환경 변수 `PGTZ`·`PGDATESTYLE`이나 `ALTER ROLE … SET`으로 둔 역할 설정이 데이터베이스 설정을 덮고 있는지 확인하세요 |
-| 「알림: psqlrc 가 여러분의 psql 세션 설정을 바꿉니다」 (대안 경로, 실패는 아님) | kit 스크립트는 psql을 `-X`로 불러 psqlrc를 읽지 않습니다 — psqlrc는 점검의 판정에 들어가지 않지만, 여러분이 직접 여는 psql 세션은 psqlrc의 `SET timezone …`·`SET DateStyle …`·`SET lc_* …` 때문에 본문과 다르게 보일 수 있습니다. 알림은 psqlrc를 읽은 세션의 **실제 값**과 psql이 실제로 읽는 파일(`~/.psqlrc`, 버전별 `~/.psqlrc-18`·`~/.psqlrc-<psql -V 가 찍는 전체 버전>` — Homebrew·PGDG 빌드는 `18.6 (Homebrew)`처럼 접미가 붙습니다, `PSQLRC`가 가리키는 파일, 시스템 psqlrc)의 해당 줄을 보여 줍니다. 코스를 진행하는 동안 그 줄을 지우거나 `--` 주석으로 바꾸세요(임시로는 `psql -X`). `\timing`·`\x auto`·`\pset` 같은 표시 설정은 두어도 kit 점검에 영향이 없습니다 |
+| world 세션 설정 불일치 (시간대·메시지 언어·날짜 표기·로케일·실수 표시 자릿수) | 두 경로 같음: `./setup.sh`를 다시 실행합니다 — 설정을 다시 적용하면서 예제 데이터도 처음 상태로 넣고, 컨테이너도 데이터베이스도 지우지 않습니다. 그래도 같으면 psql 쪽 환경 변수 `PGTZ`·`PGDATESTYLE`·`PGOPTIONS`나 `ALTER ROLE … SET`으로 둔 역할 설정이 데이터베이스 설정을 덮고 있는지 확인하세요 |
+| 「알림: psqlrc 가 여러분의 psql 세션 설정을 바꿉니다」 (대안 경로, 실패는 아님) | kit 스크립트는 psql을 `-X`로 불러 psqlrc를 읽지 않습니다 — psqlrc는 점검의 판정에 들어가지 않지만, 여러분이 직접 여는 psql 세션은 psqlrc의 `SET timezone …`·`SET DateStyle …`·`SET lc_* …`·`SET extra_float_digits …` 때문에 본문과 다르게 보일 수 있습니다. 알림은 psqlrc를 읽은 세션의 **실제 값**과 psql이 실제로 읽는 파일(`~/.psqlrc`, 버전별 `~/.psqlrc-18`·`~/.psqlrc-<psql -V 가 찍는 전체 버전>` — Homebrew·PGDG 빌드는 `18.6 (Homebrew)`처럼 접미가 붙습니다, `PSQLRC`가 가리키는 파일, 시스템 psqlrc)의 해당 줄을 보여 줍니다. 코스를 진행하는 동안 그 줄을 지우거나 `--` 주석으로 바꾸세요(임시로는 `psql -X`). `\timing`·`\x auto`·`\pset` 같은 표시 설정은 두어도 kit 점검에 영향이 없습니다 |
 | world 속성 검증 실패 | `./reset.sh` 후 재시도. 그래도 실패하면 기본 경로는 `docker rm -f ll-sql-intermediate` 후 `./setup.sh`, 대안 경로는 **`dropdb bookstore_ops` 후 `./setup.sh`**(`createdb`로 직접 만들지 마세요 — 로케일이 서버 기본값이 되어 교재와 차례가 다른 표를 보게 됩니다. 서버에 따라서는 `setup.sh`의 정렬 규칙 검사가 그것을 잡아 주지만, 코드포인트 차례로 정렬하는 서버에서는 검사를 그대로 통과합니다) |
 
 world 속성 검증 실패에는 `world_check.sql`의 예외 메시지가 그대로 따라 나옵니다. `W`로

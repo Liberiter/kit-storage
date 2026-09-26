@@ -1,0 +1,8 @@
+  code  | 줄수 
+--------+------
+ BK-008 |    2
+(1 row)
+
+ERROR:  could not create unique index "products_code_pkey"
+DETAIL:  Key (code)=(BK-008) is duplicated.
+[exit 3]
