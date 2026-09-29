@@ -1,0 +1,11 @@
+                            QUERY PLAN                            
+------------------------------------------------------------------
+ Seq Scan on page_views  (cost=0.00..8073.40 rows=66407 width=20)
+   Filter: (((context ->> 'dwell_ms'::text))::integer > 10000)
+(2 rows)
+
+ 조회수 
+--------
+   1656
+(1 row)
+[exit 0]

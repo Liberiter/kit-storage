@@ -1,0 +1,6 @@
+                                                                       QUERY PLAN                                                                       
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+ Index Scan using page_views_viewed_at_idx on page_views
+   Index Cond: ((viewed_at >= '2026-08-15 00:00:00+00'::timestamp with time zone) AND (viewed_at < '2026-08-15 01:00:00+00'::timestamp with time zone))
+(2 rows)
+[exit 0]

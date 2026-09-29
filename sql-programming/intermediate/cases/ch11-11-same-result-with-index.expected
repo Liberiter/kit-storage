@@ -1,0 +1,20 @@
+                          QUERY PLAN                           
+---------------------------------------------------------------
+ Limit
+   ->  Sort
+         Sort Key: viewed_at DESC
+         ->  Bitmap Heap Scan on page_views
+               Recheck Cond: (book_id = 12)
+               ->  Bitmap Index Scan on page_views_book_id_idx
+                     Index Cond: (book_id = 12)
+(7 rows)
+
+ view_id |       viewed_at        | customer_id 
+---------+------------------------+-------------
+  197135 | 2026-08-31 12:45:52+00 |            
+  198011 | 2026-08-31 09:15:47+00 |            
+  198307 | 2026-08-31 09:11:04+00 |            
+  198147 | 2026-08-31 08:33:27+00 |            
+  197292 | 2026-08-31 08:26:32+00 |            
+(5 rows)
+[exit 0]

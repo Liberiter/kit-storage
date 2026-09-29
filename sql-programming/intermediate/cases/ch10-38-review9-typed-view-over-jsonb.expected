@@ -1,0 +1,17 @@
+             View "public.page_view_facts"
+   Column   |  Type   | Collation | Nullable | Default 
+------------+---------+-----------+----------+---------
+ view_id    | bigint  |           |          | 
+ book_id    | integer |           |          | 
+ view_date  | date    |           |          | 
+ device     | text    |           |          | 
+ dwell_ms   | integer |           |          | 
+ scroll_pct | integer |           |          | 
+
+  기기   | 조회수 | 체류중앙값 | 평균스크롤 
+---------+--------+------------+------------
+ mobile  |  42205 |       1477 |       32.6
+ desktop |  25654 |       1478 |       32.5
+ tablet  |   5122 |       1489 |       33.0
+(3 rows)
+[exit 0]

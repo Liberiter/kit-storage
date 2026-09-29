@@ -1,0 +1,13 @@
+                                         QUERY PLAN                                         
+--------------------------------------------------------------------------------------------
+ Gather
+   Workers Planned: 2
+   ->  Parallel Seq Scan on page_views
+         Filter: (((viewed_at AT TIME ZONE 'Asia/Seoul'::text))::date = '2026-08-15'::date)
+(4 rows)
+
+ 조회수 
+--------
+   2620
+(1 row)
+[exit 0]

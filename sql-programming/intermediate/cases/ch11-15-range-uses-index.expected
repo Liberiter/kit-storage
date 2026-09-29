@@ -1,0 +1,11 @@
+                                                                       QUERY PLAN                                                                       
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+ Index Scan using page_views_viewed_at_idx on page_views
+   Index Cond: ((viewed_at >= '2026-08-14 15:00:00+00'::timestamp with time zone) AND (viewed_at < '2026-08-15 15:00:00+00'::timestamp with time zone))
+(2 rows)
+
+ 조회수 
+--------
+   2620
+(1 row)
+[exit 0]

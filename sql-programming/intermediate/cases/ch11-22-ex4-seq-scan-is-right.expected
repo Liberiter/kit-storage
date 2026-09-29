@@ -1,0 +1,11 @@
+           QUERY PLAN            
+---------------------------------
+ Seq Scan on page_views
+   Filter: (customer_id IS NULL)
+(2 rows)
+
+ 전체조회수 | 비로그인조회수 
+------------+----------------
+     199220 |         119592
+(1 row)
+[exit 0]

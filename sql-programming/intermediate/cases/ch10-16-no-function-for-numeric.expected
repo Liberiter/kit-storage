@@ -1,0 +1,5 @@
+ERROR:  function price_band(numeric) does not exist
+LINE 1: SELECT category, price_band(round(avg(price))) AS 평균가격대
+                         ^
+HINT:  No function matches the given name and argument types. You might need to add explicit type casts.
+[exit 3]

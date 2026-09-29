@@ -1,0 +1,19 @@
+                                                                                                                  QUERY PLAN                                                                                                                  
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ GroupAggregate
+   Group Key: (((viewed_at AT TIME ZONE 'Asia/Seoul'::text))::date)
+   ->  Sort
+         Sort Key: (((viewed_at AT TIME ZONE 'Asia/Seoul'::text))::date)
+         ->  Gather
+               Workers Planned: 2
+               ->  Parallel Seq Scan on page_views
+                     Filter: (((context ->> 'device'::text) = 'mobile'::text) AND (((viewed_at AT TIME ZONE 'Asia/Seoul'::text))::date >= '2026-08-15'::date) AND (((viewed_at AT TIME ZONE 'Asia/Seoul'::text))::date < '2026-08-18'::date))
+(8 rows)
+
+    날짜    | 모바일조회수 
+------------+--------------
+ 2026-08-15 |         1543
+ 2026-08-16 |         1520
+ 2026-08-17 |         1350
+(3 rows)
+[exit 0]

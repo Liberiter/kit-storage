@@ -1,0 +1,6 @@
+                       QUERY PLAN                        
+---------------------------------------------------------
+ Index Scan using page_views_pkey on page_views
+   Index Cond: ((view_id >= 1000) AND (view_id <= 1010))
+(2 rows)
+[exit 0]

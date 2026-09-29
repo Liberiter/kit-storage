@@ -1,0 +1,8 @@
+              QUERY PLAN               
+---------------------------------------
+ Gather
+   Workers Planned: 2
+   ->  Parallel Seq Scan on page_views
+         Filter: (customer_id = 7)
+(4 rows)
+[exit 0]

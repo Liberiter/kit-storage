@@ -1,0 +1,23 @@
+                       QUERY PLAN                        
+---------------------------------------------------------
+ Bitmap Heap Scan on page_views
+   Recheck Cond: (client_tz = 'Europe/London'::text)
+   ->  Bitmap Index Scan on page_views_client_tz_idx
+         Index Cond: (client_tz = 'Europe/London'::text)
+(4 rows)
+
+                 QUERY PLAN                 
+--------------------------------------------
+ Seq Scan on page_views
+   Filter: (client_tz = 'Asia/Seoul'::text)
+(2 rows)
+
+    방문자시간대     | 조회수 
+---------------------+--------
+ Asia/Seoul          | 169262
+ America/Los_Angeles |   9929
+ Europe/London       |   7966
+ Asia/Tokyo          |   6053
+ Australia/Sydney    |   6010
+(5 rows)
+[exit 0]

@@ -1,0 +1,11 @@
+                    QUERY PLAN                     
+---------------------------------------------------
+ Limit
+   ->  Gather Merge
+         Workers Planned: 2
+         ->  Sort
+               Sort Key: viewed_at DESC
+               ->  Parallel Seq Scan on page_views
+                     Filter: (book_id = 12)
+(7 rows)
+[exit 0]

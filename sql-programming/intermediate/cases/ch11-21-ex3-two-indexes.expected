@@ -1,0 +1,16 @@
+                                                                       QUERY PLAN                                                                       
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+ Index Scan using page_views_viewed_at_idx on page_views
+   Index Cond: ((viewed_at >= '2026-08-14 15:00:00+00'::timestamp with time zone) AND (viewed_at < '2026-08-15 15:00:00+00'::timestamp with time zone))
+   Filter: (book_id = 12)
+(3 rows)
+
+                                                                     QUERY PLAN                                                                     
+----------------------------------------------------------------------------------------------------------------------------------------------------
+ Bitmap Heap Scan on page_views
+   Recheck Cond: (book_id = 12)
+   Filter: ((viewed_at >= '2026-05-31 15:00:00+00'::timestamp with time zone) AND (viewed_at < '2026-08-31 15:00:00+00'::timestamp with time zone))
+   ->  Bitmap Index Scan on page_views_book_id_idx
+         Index Cond: (book_id = 12)
+(5 rows)
+[exit 0]

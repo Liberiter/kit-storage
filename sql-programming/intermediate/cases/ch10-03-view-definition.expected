@@ -1,0 +1,17 @@
+                          View "public.monthly_sales"
+   Column    |  Type  | Collation | Nullable | Default | Storage  | Description 
+-------------+--------+-----------+----------+---------+----------+-------------
+ sales_month | text   |           |          |         | extended | 
+ order_count | bigint |           |          |         | plain    | 
+ revenue     | bigint |           |          |         | plain    | 
+ units_sold  | bigint |           |          |         | plain    | 
+View definition:
+ SELECT to_char(orders.order_date::timestamp with time zone, 'YYYY-MM'::text) AS sales_month,
+    count(DISTINCT orders.order_id) AS order_count,
+    sum(order_items.unit_price * order_items.quantity) AS revenue,
+    sum(order_items.quantity) AS units_sold
+   FROM orders
+     JOIN order_items ON orders.order_id = order_items.order_id
+  WHERE orders.status <> '취소'::text
+  GROUP BY (to_char(orders.order_date::timestamp with time zone, 'YYYY-MM'::text));
+[exit 0]

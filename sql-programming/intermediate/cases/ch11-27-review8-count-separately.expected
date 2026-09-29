@@ -1,0 +1,31 @@
+                                               QUERY PLAN                                               
+--------------------------------------------------------------------------------------------------------
+ Hash Right Join  (cost=6398.17..6502.26 rows=320 width=20)
+   Hash Cond: (page_views.book_id = books.book_id)
+   ->  Finalize GroupAggregate  (cost=6350.66..6447.15 rows=320 width=12)
+         Group Key: page_views.book_id
+         ->  Gather Merge  (cost=6350.66..6440.11 rows=768 width=12)
+               Workers Planned: 2
+               ->  Sort  (cost=5350.64..5351.44 rows=320 width=12)
+                     Sort Key: page_views.book_id
+                     ->  Partial HashAggregate  (cost=5334.12..5337.32 rows=320 width=12)
+                           Group Key: page_views.book_id
+                           ->  Parallel Seq Scan on page_views  (cost=0.00..4919.08 rows=83008 width=4)
+   ->  Hash  (cost=43.51..43.51 rows=320 width=12)
+         ->  Hash Left Join  (cost=35.46..43.51 rows=320 width=12)
+               Hash Cond: (books.book_id = sold_units.book_id)
+               ->  Seq Scan on books  (cost=0.00..7.20 rows=320 width=4)
+               ->  Hash  (cost=31.69..31.69 rows=302 width=12)
+                     ->  Subquery Scan on sold_units  (cost=25.65..31.69 rows=302 width=12)
+                           ->  HashAggregate  (cost=25.65..28.67 rows=302 width=12)
+                                 Group Key: order_items.book_id
+                                 ->  Seq Scan on order_items  (cost=0.00..19.43 rows=1243 width=8)
+(20 rows)
+
+ 도서번호 | 조회수 | 판매권수 
+----------+--------+----------
+        1 |   1075 |        3
+        2 |    517 |        8
+        3 |    782 |        6
+(3 rows)
+[exit 0]

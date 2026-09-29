@@ -1,0 +1,3 @@
+ERROR:  7번 고객의 가입일보다 앞선 주문일입니다: 2026-01-15
+CONTEXT:  PL/pgSQL function check_order_after_signup() line 8 at RAISE
+[exit 3]

@@ -8,14 +8,12 @@
                      Filter: (book_id = 12)
 (6 rows)
 
-                       QUERY PLAN                        
----------------------------------------------------------
+                            QUERY PLAN                            
+------------------------------------------------------------------
  Aggregate
-   ->  Bitmap Heap Scan on page_views
-         Recheck Cond: (book_id = 12)
-         ->  Bitmap Index Scan on page_views_book_id_idx
-               Index Cond: (book_id = 12)
-(5 rows)
+   ->  Index Only Scan using page_views_book_id_idx on page_views
+         Index Cond: (book_id = 12)
+(3 rows)
 
  count 
 -------

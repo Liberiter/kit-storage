@@ -1,0 +1,5 @@
+ change_id | customer_id | old_city | new_city 
+-----------+-------------+----------+----------
+         1 |           1 | 서울     | 부산
+(1 row)
+[exit 0]

@@ -1,0 +1,8 @@
+                                       QUERY PLAN                                        
+-----------------------------------------------------------------------------------------
+ Bitmap Heap Scan on page_views  (cost=49.22..4350.17 rows=4248 width=20)
+   Recheck Cond: (book_id = 12)
+   ->  Bitmap Index Scan on page_views_book_id_idx  (cost=0.00..48.16 rows=4248 width=0)
+         Index Cond: (book_id = 12)
+(4 rows)
+[exit 0]

@@ -1,0 +1,15 @@
+                                                                          QUERY PLAN                                                                          
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Hash Right Anti Join
+   Hash Cond: (page_views.customer_id = customers.customer_id)
+   ->  Index Scan using page_views_viewed_at_idx on page_views
+         Index Cond: ((viewed_at >= '2026-08-30 15:00:00+00'::timestamp with time zone) AND (viewed_at < '2026-08-31 15:00:00+00'::timestamp with time zone))
+   ->  Hash
+         ->  Seq Scan on customers
+(6 rows)
+
+ customer_id |  name  
+-------------+--------
+         126 | 강지아
+(1 row)
+[exit 0]

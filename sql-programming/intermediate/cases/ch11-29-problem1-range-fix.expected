@@ -1,0 +1,20 @@
+                                                                                QUERY PLAN                                                                                
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit
+   ->  Sort
+         Sort Key: (count(*)) DESC, book_id
+         ->  HashAggregate
+               Group Key: book_id
+               ->  Index Scan using page_views_viewed_at_idx on page_views
+                     Index Cond: ((viewed_at >= '2026-08-30 15:00:00+00'::timestamp with time zone) AND (viewed_at < '2026-08-31 15:00:00+00'::timestamp with time zone))
+(7 rows)
+
+ book_id | 조회수 
+---------+--------
+      12 |     46
+      49 |     27
+     160 |     22
+      86 |     21
+     197 |     21
+(5 rows)
+[exit 0]

@@ -1,0 +1,3 @@
+ERROR:  cannot change name of view column "revenue" to "net_revenue"
+HINT:  Use ALTER VIEW ... RENAME COLUMN ... to change name of view column instead.
+[exit 3]

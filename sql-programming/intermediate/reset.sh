@@ -82,7 +82,11 @@ run_step "seed.sql 적재"         "${PSQL_OPTS[@]}" < seed.sql
 run_step "seed_ops.sql 생성·적재" "${PSQL_OPTS[@]}" < seed_ops.sql
 run_step "legacy.sql 적재"       "${PSQL_OPTS[@]}" < legacy.sql
 run_step "antipatterns.sql 적재" "${PSQL_OPTS[@]}" < antipatterns.sql
-# 통계를 다시 모은다. page_views 는 schema.sql 이 통계 표본을 전체 행으로 고정해 두었으므로
-# 실행 계획의 추정 행 수·비용이 구축마다 같다.
-run_step "통계 수집 (ANALYZE)"    "${PSQL_OPTS[@]}" -c "ANALYZE;"
+# 뒷정리(VACUUM)를 하고 통계를 다시 모은다. page_views 는 schema.sql 이 통계 표본을 전체 행으로
+# 고정해 두었으므로 실행 계획의 추정 행 수·비용이 구축마다 같다.
+# VACUUM 은 가시성 맵(visibility map)을 채운다. 이것을 건너뛰면 적재 직후에는 맵이 비어 있다가
+# 1분쯤 뒤 자동 뒷정리(autovacuum)가 채우므로, Index Only Scan 이 후보인 질의의 실행 계획이
+# 되돌린 직후와 조금 지난 뒤에 달라진다. 여기서 채워 두면 되돌린 직후부터 계획이 같다.
+# (VACUUM 은 트랜잭션 블록 안에서 돌 수 없다 — psql -c 의 한 문장으로 보낸다.)
+run_step "뒷정리·통계 수집 (VACUUM ANALYZE)" "${PSQL_OPTS[@]}" -c "VACUUM (ANALYZE);"
 echo "world 초기화 완료 (public: 책숲 운영 world 12테이블 / legacy: 판매 원장 / antipatterns: 안티패턴 조각)"

@@ -1,0 +1,19 @@
+                    QUERY PLAN                     
+---------------------------------------------------
+ Bitmap Heap Scan on page_views
+   Recheck Cond: (book_id <= 3)
+   ->  Bitmap Index Scan on page_views_book_id_idx
+         Index Cond: (book_id <= 3)
+(4 rows)
+
+         QUERY PLAN         
+----------------------------
+ Seq Scan on page_views
+   Filter: (book_id <= 160)
+(2 rows)
+
+ 세권까지 | 절반까지 
+----------+----------
+     2374 |   103480
+(1 row)
+[exit 0]

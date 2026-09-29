@@ -1,0 +1,15 @@
+                                      QUERY PLAN                                       
+---------------------------------------------------------------------------------------
+ HashAggregate  (cost=21167.11..21170.31 rows=320 width=20)
+   Group Key: books.book_id
+   ->  Hash Right Join  (cost=49.47..15363.27 rows=773845 width=16)
+         Hash Cond: (page_views.book_id = books.book_id)
+         ->  Seq Scan on page_views  (cost=0.00..6081.20 rows=199220 width=12)
+         ->  Hash  (cost=33.94..33.94 rows=1243 width=8)
+               ->  Hash Right Join  (cost=11.20..33.94 rows=1243 width=8)
+                     Hash Cond: (order_items.book_id = books.book_id)
+                     ->  Seq Scan on order_items  (cost=0.00..19.43 rows=1243 width=8)
+                     ->  Hash  (cost=7.20..7.20 rows=320 width=4)
+                           ->  Seq Scan on books  (cost=0.00..7.20 rows=320 width=4)
+(11 rows)
+[exit 0]
