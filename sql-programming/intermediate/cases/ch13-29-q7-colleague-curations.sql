@@ -1,5 +1,5 @@
 -- runner: reset
--- 13장(exit assessment) 문항 7 지문: 동료가 만든 큐레이션 테이블(쉼표 구분 목록)와 42번 책을 찾는 LIKE 질의
+-- 13장(exit assessment) 문항 7 지문: 동료가 만든 큐레이션 테이블(쉼표 구분 목록)과 42번 책을 찾는 LIKE 질의
 CREATE TABLE curations (
     curation_id integer PRIMARY KEY,
     title text NOT NULL,
