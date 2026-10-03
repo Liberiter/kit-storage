@@ -1,8 +1,6 @@
 -- 5장 5.3 «왜 그럴까요»: 기본 프레임(RANGE)은 동등 행을 한 덩어리로 본다
 WITH city_customers AS (
-    SELECT city AS 도시, count(*) AS 고객수
-    FROM customers
-    GROUP BY city
+    SELECT city AS 도시, count(*) AS 고객수 FROM customers GROUP BY city
 )
 SELECT
     도시,

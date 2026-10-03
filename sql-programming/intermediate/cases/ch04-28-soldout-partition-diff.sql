@@ -6,6 +6,5 @@ SELECT
     round(avg(price) OVER (PARTITION BY category)) AS "분야 평균가",
     price - round(avg(price) OVER (PARTITION BY category)) AS 차이
 FROM books
-WHERE stock = 0
-    AND category IN ('에세이', '요리')
+WHERE stock = 0 AND category IN ('에세이', '요리')
 ORDER BY category, price DESC, book_id;

@@ -60,6 +60,17 @@ back_for() {
 
 kit_runtime_check "entry check"
 
+# 채점이 읽는 kit 파일 — 기대 결과(entry/expected/qN.expected)와 q4 의 확인 질의(entry/q4_check.sql).
+# 없으면 diff·셸 리디렉션이 실패하고, 그 실패가 「FAIL qN — 기대한 결과와 다릅니다」로 읽혀 여러분의 답이
+# 틀린 것처럼 보인다(답은 채점되지도 않았다). 그래서 채점을 시작하기 전에 먼저 확인한다 — 1단계(환경
+# 확인)보다 앞에 두어 잠금을 잡기 전에 멈춘다 (reset.sh 의 같은 가드와 같은 문구).
+for _f in entry/expected/q1.expected entry/expected/q2.expected entry/expected/q3.expected entry/expected/q4.expected entry/q4_check.sql; do
+  [ -r "$_f" ] || {
+    echo "오류: kit 파일 $_f 을(를) 읽을 수 없습니다." >&2
+    echo "  다음: 파일이 지워졌거나 옮겨졌다면 kit을 다시 받으세요 (0장 0.3절)." >&2
+    exit 2; }
+done
+
 echo "== 1단계: 환경 확인"
 ./check_env.sh || exit 1
 
@@ -100,7 +111,11 @@ for q in q1 q2 q3 q4; do
     if ! out=$(run_sql "$ans"); then
       echo "FAIL $q — 실행 중 오류:"; printf '%s\n' "$out" | sed 's/^/    /'
       fail=$((fail+1)); failed+=("$q")
-      ./reset.sh >/dev/null; continue
+      ./reset.sh >/dev/null || {
+        echo "오류: q4 실행 후 world 초기화에 실패했습니다 (위 reset 메시지 참고)." >&2
+        echo "  다음: ./reset.sh 를 직접 실행해 원인을 확인하세요. 그래도 막히면 ./setup.sh 로 world를 처음 상태로 다시 세운 뒤 다시 실행하세요." >&2
+        exit 2; }
+      continue
     fi
     actual=$(run_sql entry/q4_check.sql; printf '[exit %d]' "$?")
     ./reset.sh >/dev/null || {

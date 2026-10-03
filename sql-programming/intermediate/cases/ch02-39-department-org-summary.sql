@@ -9,8 +9,7 @@ SELECT
         WHERE EXISTS (
             SELECT 1
             FROM staff AS m
-            WHERE m.staff_id = s.manager_id
-                AND m.department <> s.department
+            WHERE m.staff_id = s.manager_id AND m.department <> s.department
         )
     ) AS "상사가 다른 부서인 사람"
 FROM staff AS s

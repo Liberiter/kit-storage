@@ -1,0 +1,20 @@
+ 번호 |    옛목록    | 옮긴책수 
+------+--------------+----------
+    1 | 42,8,27      |        3
+    2 | 142,60,150   |        3
+    3 | 242,42       |        2
+    4 | 97,284,144   |        3
+    5 | 2,16,420     |        2
+    6 | 42,97,150,60 |        4
+(6 rows)
+
+ 번호 |      큐레이션      
+------+--------------------
+    1 | 가을밤에 읽는 소설
+    3 | 그림자와 빛
+    6 | 올해의 추천
+(3 rows)
+
+ERROR:  insert or update on table "curation_books" violates foreign key constraint "curation_books_book_id_fkey"
+DETAIL:  Key (book_id)=(420) is not present in table "books".
+[exit 3]

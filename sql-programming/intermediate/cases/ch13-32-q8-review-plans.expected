@@ -1,0 +1,52 @@
+                                        QUERY PLAN                                        
+------------------------------------------------------------------------------------------
+ Limit
+   InitPlan 1
+     ->  Aggregate
+           ->  Finalize GroupAggregate
+                 Group Key: page_views_1.book_id
+                 ->  Gather Merge
+                       Workers Planned: 2
+                       ->  Partial GroupAggregate
+                             Group Key: page_views_1.book_id
+                             ->  Sort
+                                   Sort Key: page_views_1.book_id
+                                   ->  Parallel Seq Scan on page_views page_views_1
+                                         Filter: ((viewed_at)::date = '2026-08-15'::date)
+   ->  Sort
+         Sort Key: daily_views.views DESC
+         ->  Subquery Scan on daily_views
+               ->  GroupAggregate
+                     Group Key: page_views.book_id
+                     ->  Gather Merge
+                           Workers Planned: 2
+                           ->  Sort
+                                 Sort Key: page_views.book_id, page_views.customer_id
+                                 ->  Parallel Seq Scan on page_views
+                                       Filter: ((viewed_at)::date = '2026-08-15'::date)
+(24 rows)
+
+ 도서번호 | 조회수 | 로그인조회수 | 로그인방문자 | 조회 비중(%) 
+----------+--------+--------------+--------------+--------------
+       12 |     52 |           13 |           12 |          2.0
+       49 |     28 |            9 |            9 |          1.1
+      271 |     26 |           15 |           13 |          1.0
+      308 |     25 |           12 |           12 |          1.0
+       86 |     24 |            8 |            8 |          0.9
+(5 rows)
+
+                                                                                      QUERY PLAN                                                                                      
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit
+   ->  Sort
+         Sort Key: (count(*)) DESC, book_id
+         ->  WindowAgg
+               Window: w1 AS ()
+               ->  GroupAggregate
+                     Group Key: book_id
+                     ->  Sort
+                           Sort Key: book_id, customer_id
+                           ->  Index Scan using page_views_viewed_at_idx on page_views
+                                 Index Cond: ((viewed_at >= '2026-08-14 15:00:00+00'::timestamp with time zone) AND (viewed_at < '2026-08-15 15:00:00+00'::timestamp with time zone))
+(11 rows)
+[exit 0]

@@ -1,8 +1,5 @@
 -- 3장 3.3 «따라 하기» 1단계: 분류마다 비싼 책 세 권을 LATERAL 로 뽑는다
-SELECT
-    categories.name AS 분류,
-    top_books.title AS 제목,
-    top_books.price AS 가격
+SELECT categories.name AS 분류, top_books.title AS 제목, top_books.price AS 가격
 FROM categories
 CROSS JOIN LATERAL (
     SELECT books.title, books.price

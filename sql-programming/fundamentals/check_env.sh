@@ -133,11 +133,16 @@ if [ "$session_now" != "$KIT_SESSION_EXPECTED" ]; then
          "./setup.sh 를 다시 실행하세요 — 설정을 다시 적용하면서 예제 데이터도 처음 상태로 넣습니다(데이터베이스를 지우지 않습니다). 그래도 같으면 psql 쪽 환경 변수 PGTZ·PGDATESTYLE·PGOPTIONS 나 ALTER ROLE … SET 으로 둔 역할 설정이 데이터베이스 설정을 덮고 있는지 확인하세요"
   else
     fail "world 세션 설정 불일치 — 데이터베이스 $DB 의 시간대·메시지 언어·날짜 표기·로케일·실수 표시 자릿수가 교재 본문과 다릅니다 (오류 메시지의 언어, 날짜 입력 해석, to_char 의 통화 기호·요일 이름, 실수 값의 자릿수가 달라집니다)" \
-         "./setup.sh 를 다시 실행하세요 — 설정을 다시 적용하면서 예제 데이터도 처음 상태로 넣습니다(컨테이너도 데이터베이스도 지우지 않습니다)"
+         "./setup.sh 를 다시 실행하세요 — 설정을 다시 적용하면서 예제 데이터도 처음 상태로 넣습니다(컨테이너도 데이터베이스도 지우지 않습니다). 그래도 같으면 ALTER ROLE … SET 으로 둔 역할 설정이 데이터베이스 설정을 덮고 있는지 확인하세요"
   fi
 fi
 
 # world 속성 (4) — 데이터 (world_check.sql의 W1~W13).
+# 입력 리디렉션(`< world_check.sql`)은 «셸이» 파일을 읽는 자리다 — 파일이 없으면 psql 이 돌기도 전에
+# 셸이 실패하고, 그 실패가 아래 갈래에서 「world 속성 검증 실패 … ./reset.sh」로 읽혀 원인과 다른 처방이
+# 나온다(world 는 멀쩡하다). 그래서 읽기 전에 먼저 확인한다 (reset.sh 의 같은 가드와 같은 문구).
+[ -r world_check.sql ] || fail "kit 파일 world_check.sql 을(를) 읽을 수 없습니다" \
+                              "파일이 지워졌거나 옮겨졌다면 kit을 다시 받으세요 (0장 0.3절)"
 if ! out=$(kit_psql -d "$DB" -X -q -v ON_ERROR_STOP=1 < world_check.sql 2>&1); then
   echo "$out" >&2
   echo "  (위 메시지의 W로 시작하는 번호는 world_check.sql의 검사 번호입니다 — world_check.sql에서 그 번호의 주석을 찾으면 무엇을 보는 검사인지 알 수 있습니다.)" >&2

@@ -5,7 +5,6 @@ WHERE books.stock = 0
     AND EXISTS (
         SELECT 1
         FROM reviews
-        WHERE reviews.book_id = books.book_id
-            AND reviews.rating = 5
+        WHERE reviews.book_id = books.book_id AND reviews.rating = 5
     )
 ORDER BY books.book_id;

@@ -6,9 +6,6 @@ SELECT
 FROM books
 GROUP BY category
 UNION ALL
-SELECT
-    '전체',
-    count(*),
-    count(*) FILTER (WHERE price >= 20000)
+SELECT '전체', count(*), count(*) FILTER (WHERE price >= 20000)
 FROM books
 ORDER BY 권수 DESC, 분야;

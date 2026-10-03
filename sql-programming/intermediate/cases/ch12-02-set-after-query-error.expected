@@ -1,0 +1,7 @@
+ stock 
+-------
+     5
+(1 row)
+
+ERROR:  SET TRANSACTION ISOLATION LEVEL must be called before any query
+[exit 3]

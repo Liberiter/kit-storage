@@ -13,8 +13,6 @@ FROM books
 WHERE EXISTS (
     SELECT 1 FROM order_items WHERE order_items.book_id = books.book_id
 )
-    AND NOT EXISTS (
-        SELECT 1 FROM reviews WHERE reviews.book_id = books.book_id
-    )
+    AND NOT EXISTS (SELECT 1 FROM reviews WHERE reviews.book_id = books.book_id)
 ORDER BY books.book_id
 LIMIT 5;

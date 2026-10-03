@@ -1,0 +1,3 @@
+ERROR:  insert or update on table "talk_bookings" violates foreign key constraint "talk_bookings_event_id_fkey"
+DETAIL:  Key (event_id)=(9) is not present in table "talk_events".
+[exit 3]

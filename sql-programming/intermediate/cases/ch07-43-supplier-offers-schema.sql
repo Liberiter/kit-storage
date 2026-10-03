@@ -29,6 +29,5 @@ SELECT
     suppliers.name AS 공급사,
     supplier_offers.supplier_price AS 공급가
 FROM supplier_offers
-INNER JOIN suppliers
-    ON supplier_offers.supplier_code = suppliers.supplier_code
+INNER JOIN suppliers ON supplier_offers.supplier_code = suppliers.supplier_code
 ORDER BY supplier_offers.supplier_price;

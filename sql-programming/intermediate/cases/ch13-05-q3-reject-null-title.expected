@@ -1,0 +1,3 @@
+ERROR:  null value in column "title" of relation "talk_events" violates not-null constraint
+DETAIL:  Failing row contains (4, null, 60, 2026-11-14, 10, 0).
+[exit 3]

@@ -1,0 +1,9 @@
+ book_id | stock 
+---------+-------
+       6 |     0
+(1 row)
+
+ book_id | stock 
+---------+-------
+(0 rows)
+[exit 0]

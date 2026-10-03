@@ -1,0 +1,3 @@
+ERROR:  new row for relation "talk_events" violates check constraint "talk_events_capacity_check"
+DETAIL:  Failing row contains (4, 정원이 없는 행사, 60, 2026-11-14, 0, 0).
+[exit 3]

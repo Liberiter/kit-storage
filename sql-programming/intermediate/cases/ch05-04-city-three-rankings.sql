@@ -1,8 +1,6 @@
 -- 5장 5.1 «따라 하기» 3단계: 세 순위 함수를 한 표에 놓고 견준다
 WITH city_customers AS (
-    SELECT city AS 도시, count(*) AS 고객수
-    FROM customers
-    GROUP BY city
+    SELECT city AS 도시, count(*) AS 고객수 FROM customers GROUP BY city
 )
 SELECT
     도시,

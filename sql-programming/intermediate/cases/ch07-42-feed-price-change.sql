@@ -7,8 +7,7 @@ WITH first_feed AS (
 second_feed AS (
     SELECT DISTINCT book_id, supplier_price
     FROM supplier_feed
-    WHERE feed_date = '2026-09-01'
-        AND supplier_price > 0
+    WHERE feed_date = '2026-09-01' AND supplier_price > 0
 )
 SELECT
     count(*) AS 두날짜모두온책,

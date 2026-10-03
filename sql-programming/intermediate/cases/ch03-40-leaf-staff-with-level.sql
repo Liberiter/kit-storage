@@ -10,7 +10,5 @@ WITH RECURSIVE org AS (
 )
 SELECT org.단계, org.staff_id AS 직원번호, org.name AS 이름
 FROM org
-WHERE NOT EXISTS (
-    SELECT 1 FROM staff WHERE staff.manager_id = org.staff_id
-)
+WHERE NOT EXISTS (SELECT 1 FROM staff WHERE staff.manager_id = org.staff_id)
 ORDER BY org.단계, org.staff_id;

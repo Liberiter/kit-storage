@@ -10,8 +10,7 @@ WITH RECURSIVE category_path AS (
         categories.parent_id,
         category_path.단계 + 1
     FROM categories
-    INNER JOIN category_path
-        ON categories.category_id = category_path.parent_id
+    INNER JOIN category_path ON categories.category_id = category_path.parent_id
 )
 SELECT 단계, name AS 분류
 FROM category_path

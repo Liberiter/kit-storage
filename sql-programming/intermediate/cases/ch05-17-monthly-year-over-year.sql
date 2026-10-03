@@ -5,15 +5,11 @@ WITH monthly_sales AS (
         sum(order_items.unit_price * order_items.quantity) AS 매출
     FROM orders
     INNER JOIN order_items ON orders.order_id = order_items.order_id
-    WHERE orders.order_date >= '2025-01-01'
-        AND orders.status <> '취소'
+    WHERE orders.order_date >= '2025-01-01' AND orders.status <> '취소'
     GROUP BY to_char(orders.order_date, 'YYYY-MM')
 ),
 with_last_year AS (
-    SELECT
-        주문월,
-        매출,
-        lag(매출, 12) OVER (ORDER BY 주문월) AS 작년매출
+    SELECT 주문월, 매출, lag(매출, 12) OVER (ORDER BY 주문월) AS 작년매출
     FROM monthly_sales
 )
 SELECT 주문월, 매출, 작년매출, 매출 - 작년매출 AS 증감

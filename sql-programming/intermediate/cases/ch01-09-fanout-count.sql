@@ -7,5 +7,4 @@ WHERE orders.order_date BETWEEN '2026-01-01' AND '2026-06-30'
 
 SELECT count(*) AS 주문수
 FROM orders
-WHERE order_date BETWEEN '2026-01-01' AND '2026-06-30'
-    AND status <> '취소';
+WHERE order_date BETWEEN '2026-01-01' AND '2026-06-30' AND status <> '취소';

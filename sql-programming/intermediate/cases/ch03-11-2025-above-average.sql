@@ -9,9 +9,7 @@ WITH monthly_items AS (
         AND orders.status <> '취소'
 ),
 monthly_sales AS (
-    SELECT 주문월, sum(금액) AS 매출
-    FROM monthly_items
-    GROUP BY 주문월
+    SELECT 주문월, sum(금액) AS 매출 FROM monthly_items GROUP BY 주문월
 )
 SELECT 주문월, 매출
 FROM monthly_sales

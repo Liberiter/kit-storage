@@ -1,0 +1,28 @@
+                                                         QUERY PLAN                                                          
+-----------------------------------------------------------------------------------------------------------------------------
+ Finalize Aggregate
+   ->  Gather
+         Workers Planned: 2
+         ->  Partial Aggregate
+               ->  Parallel Seq Scan on page_views
+                     Filter: ((book_id = 12) AND (((viewed_at AT TIME ZONE 'Asia/Seoul'::text))::date = '2026-08-31'::date))
+(6 rows)
+
+                                                                          QUERY PLAN                                                                          
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Aggregate
+   ->  Index Scan using page_views_viewed_at_idx on page_views
+         Index Cond: ((viewed_at >= '2026-08-30 15:00:00+00'::timestamp with time zone) AND (viewed_at < '2026-08-31 15:00:00+00'::timestamp with time zone))
+         Filter: (book_id = 12)
+(4 rows)
+
+ 어제조회수 
+------------
+         46
+(1 row)
+
+ book_id | stock 
+---------+-------
+      12 |    13
+(1 row)
+[exit 0]

@@ -5,6 +5,5 @@ SELECT
     price AS 가격,
     round(avg(price) OVER ()) AS 평균가
 FROM books
-WHERE stock = 0
-    AND category IN ('에세이', '요리')
+WHERE stock = 0 AND category IN ('에세이', '요리')
 ORDER BY category, price DESC, book_id;

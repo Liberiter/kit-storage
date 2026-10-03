@@ -105,7 +105,8 @@ if [ "$KIT_MODE" = native ]; then
   # 한글 ORDER BY의 차례가 본문의 표와 달라진다.
   # libc의 'C.UTF-8'은 macOS 등에 없어 이식성이 없으므로 PostgreSQL 18의
   # builtin 제공자를 쓴다. 로케일을 바꿔 만들 때는 TEMPLATE template0이 필요하다.
-  # LC_CTYPE·LC_COLLATE 'C' 는 libc 쪽 문자 분류를 컨테이너와 맞추기 위한 것이다 —
+  # LC_CTYPE·LC_COLLATE 'C' 는 libc 쪽 문자 분류를 서버 기본 로케일이 아니라 C 계열로 못 박기 위한
+  # 것이다(값은 컨테이너의 C.UTF-8 과 다르다) —
   # record 출력의 인용 판정(isspace)이 여기에 걸린다 (kit_psql.sh 「libc 문자 분류」).
   if [ "$(kit_psql -d "$admin_db" -tAc "SELECT 1 FROM pg_database WHERE datname='$DB'")" != "1" ]; then
     if kit_psql -d "$admin_db" -q -c "CREATE DATABASE \"$DB\" TEMPLATE template0 ENCODING 'UTF8' LOCALE_PROVIDER builtin BUILTIN_LOCALE 'C.UTF-8' LC_COLLATE 'C' LC_CTYPE 'C'" >/dev/null 2>&1; then
@@ -145,7 +146,10 @@ if [ "$KIT_MODE" = native ]; then
     echo "세션 설정 고정: timezone=UTC, lc_messages=C, DateStyle='ISO, MDY', lc_monetary/lc_numeric/lc_time=C, extra_float_digits=1 (데이터베이스 $DB 의 기본값으로 — 여러분의 psql 세션에도 적용됩니다)"
   else
     echo "오류: 데이터베이스 $DB 의 세션 설정(timezone·lc_messages·DateStyle·lc_monetary·lc_numeric·lc_time·extra_float_digits)을 고정하지 못했습니다 (권한 문제일 수 있습니다)." >&2
-    echo "  다음: 슈퍼유저(예: postgres)로 아래 명령들을 실행한 뒤 이 스크립트를 다시 실행하세요." >&2
+    # 이 설정(특히 lc_messages)은 슈퍼유저만 바꿀 수 있고, 이 스크립트는 실행할 때마다 다시 적용한다 —
+    # 그래서 아래 명령을 슈퍼유저로 따로 실행해 두어도 같은 역할로 다시 돌리면 같은 자리에서 또 멈춘다.
+    # 안내는 «슈퍼유저로 이 스크립트를 다시 실행»이고, 아래 명령은 무엇을 하려던 것인지 보이는 참고다.
+    echo "  다음: 슈퍼유저로 접속하도록 PGUSER 를 바꿔 이 스크립트를 다시 실행하세요 (예: PGUSER=postgres KIT_MODE=native ./setup.sh). 아래 명령들은 이 스크립트가 하려던 설정입니다." >&2
     echo "        ALTER DATABASE \"$DB\" SET timezone TO 'UTC';" >&2
     echo "        ALTER DATABASE \"$DB\" SET lc_messages TO 'C';" >&2
     echo "        ALTER DATABASE \"$DB\" SET DateStyle TO 'ISO, MDY';" >&2

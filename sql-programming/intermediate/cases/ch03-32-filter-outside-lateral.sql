@@ -24,8 +24,7 @@ FROM categories
 CROSS JOIN LATERAL (
     SELECT books.title, books.price, books.stock
     FROM books
-    WHERE books.category = categories.name
-        AND books.stock >= 10
+    WHERE books.category = categories.name AND books.stock >= 10
     ORDER BY books.price DESC, books.book_id
     LIMIT 3
 ) AS top_books

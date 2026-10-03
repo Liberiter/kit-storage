@@ -3,9 +3,7 @@ WITH unsold AS (
     SELECT books.book_id, books.title, books.category, books.stock
     FROM books
     WHERE NOT EXISTS (
-        SELECT 1
-        FROM order_items
-        WHERE order_items.book_id = books.book_id
+        SELECT 1 FROM order_items WHERE order_items.book_id = books.book_id
     )
 )
 SELECT
@@ -15,9 +13,7 @@ SELECT
     top_stock.stock AS 재고
 FROM categories
 CROSS JOIN LATERAL (
-    SELECT count(*) AS 권수
-    FROM unsold
-    WHERE unsold.category = categories.name
+    SELECT count(*) AS 권수 FROM unsold WHERE unsold.category = categories.name
 ) AS unsold_count
 LEFT JOIN LATERAL (
     SELECT unsold.title, unsold.stock

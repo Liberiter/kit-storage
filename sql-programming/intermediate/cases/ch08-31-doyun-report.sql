@@ -10,9 +10,7 @@ WITH ordered AS (
     GROUP BY orders.customer_id
 ),
 reviewed AS (
-    SELECT customer_id, count(*) AS 리뷰수
-    FROM reviews
-    GROUP BY customer_id
+    SELECT customer_id, count(*) AS 리뷰수 FROM reviews GROUP BY customer_id
 )
 SELECT
     customers.customer_id AS 고객번호,

@@ -1,0 +1,7 @@
+            QUERY PLAN             
+-----------------------------------
+ Update on page_views
+   ->  Seq Scan on page_views
+         Filter: (customer_id = 7)
+(3 rows)
+[exit 0]

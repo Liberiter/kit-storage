@@ -92,11 +92,14 @@ case "$KIT_MODE" in
     exit 2 ;;
 esac
 
-# 비대화형 호출은 언제나 -X(= --no-psqlrc)다. 대안 경로에서 여러분의 ~/.psqlrc 에 `\timing on`·
+# 판정에 쓰는 비대화형 호출은 언제나 -X(= --no-psqlrc)다. 대안 경로에서 여러분의 ~/.psqlrc 에 `\timing on`·
 # `\x auto`·`SET …` 같은 줄이 있으면, -X 없는 호출은 그 출력(「Timing is on.」「SET」 등)이 질의
 # 결과에 섞여 버전 확인 같은 판정을 거짓 원인으로 깨뜨린다. 그래서 kit 스크립트는 psqlrc 를
 # 읽지 않는다 — 바꿔 말해 kit 의 점검은 ~/.psqlrc 의 영향을 **보지 못한다**(check_env.sh 가 그
-# 점을 따로 안내한다). 대화형 실행(kit_psql_tty)은 여러분 세션과 같은 조건이어야 하므로 예외다.
+# 점을 따로 안내한다). -X 없이 psqlrc 를 읽는 호출은 하나다 — psqlrc 가 여러분 세션을 바꾸는지 재는
+# kit_psqlrc_warn 의 프로브(대안 경로, 아래 「~/.psqlrc」)로, 바로 psqlrc 를 읽게 하는 것이 목적이다.
+# 대화형 실행 kit_psql_tty 는 -X 를 스스로 붙이지 않지만, 지금 유일한 호출(concurrency.sh 두 터미널
+# 모드)이 -X 를 준다.
 #
 # 대안 경로의 psql 은 **클라이언트 로케일을 고정해** 부른다 (kit_psql_native). psql 자신이
 # 내는 문구 — 결과표 끝의 행 수(`(5 rows)`), 접속 실패의 `psql: error:`, `\d` 표의 제목·열
@@ -228,7 +231,8 @@ kit_connect_check() { # $1=레이블, $2=종료 코드 (기본 1)
 # 택한 방식은 **거절**이다. 다른 러너가 돌고 있으면 기다리지 않고 원인·다음 행동을
 # 내고 종료 코드 2로 끝낸다(조용히 기다리다 겹치는 것보다 낫다). reset.sh도 러너가
 # 도는 동안에는 거절한다 — 러너 자신이 부르는 reset.sh만 통과시킨다(KIT_LOCK_HELD).
-# world를 바꾸는 entry_check.sh·concurrency.sh도 같은 잠금을 잡는다.
+# world를 바꾸는 entry_check.sh와 concurrency.sh의 자동 재현 모드도 같은 잠금을 잡는다(두 터미널 모드
+# --terminal 은 잡지 않는다 — 여러분이 두 세션의 차례를 손으로 맞추는 실습이라서다).
 #
 # 잠금은 **대상 world 단위**다 — 접속 방법이 아니라 서버(호스트:포트)와 DB 이름으로
 # 식별한다. 기본 경로는 localhost:$KIT_PORT, 대안 경로는 PGHOST:PGPORT이므로 호스트
@@ -350,7 +354,7 @@ kit_sort_probe() { # $1=데이터베이스 이름 → stdout: 그 DB의 실제 �
 #   여러분의 대화형 psql 세션에도 적용된다(스크립트에 PGTZ 를 주는 것으로는 세션이 갈린다).
 #   다만 psql 쪽 환경 변수 PGTZ·PGDATESTYLE·PGOPTIONS 와 ALTER ROLE … SET 은 데이터베이스 설정을
 #   이기고 kit 의 프로브에도 그대로 걸리므로, check_env.sh 가 불일치를 보면 그것들을 안내한다.
-#   ~/.psqlrc 의 SET 은 다르다 — kit 호출은 전부 -X 라 psqlrc 를 읽지 않으므로 프로브에 걸리지
+#   ~/.psqlrc 의 SET 은 다르다 — kit 의 판정 호출은 전부 -X 라 psqlrc 를 읽지 않으므로 프로브에 걸리지
 #   않고 여러분의 대화형 세션에만 작용한다. check_env.sh 는 대안 경로에서 psqlrc 를 읽는 세션의
 #   실제 값을 따로 재어(아래 「~/.psqlrc」) 다르면 「알림」을 낸다(판정은 바꾸지 않는다).
 #   판정은 접속한 세션의 실제 설정값으로 한다 (kit_session_probe).
@@ -393,7 +397,8 @@ kit_client_probe() { # $1=데이터베이스 이름 → stdout: 결과표의 비
 # — libc 제공자면 LC_CTYPE 가 그 역할까지 하고, builtin 제공자면 BUILTIN_LOCALE 가 한다.
 # **LC_CTYPE 에만 매인 것**으로 지금까지 확인된 것은 행 전체를 한 값으로 찍는 출력
 # (`ROW(…)::text`, `SELECT t FROM 테이블 t`)의 인용 판정(libc isspace())과 \l 이 내는 Ctype 열의
-# 값이다. 배열(`ARRAY[…]::text`)과 jsonb 출력은 갈리지 않는다(아래 실측).
+# 값이다. 배열(`ARRAY[…]::text`)과 jsonb 출력은 갈리지 않는다(2026-09-19 macOS 실측 — `ARRAY['고신','윤주원']::text`·
+# jsonb 출력·`string_to_array`의 결과가 LC_CTYPE 을 갈아 만든 데이터베이스들에서 같았다. 기록은 HARNESS.md 부분 수정 5).
 #
 # 그래서 두 경로는 LC_CTYPE «값»이 갈리는데도 앞 셋의 거동이 같다 — 기본 경로의 bookstore_ops 는
 # 컨테이너의 createdb 가 template1 을 물려받아 **libc 제공자에 로케일 C.UTF-8** 이고, 대안 경로는
@@ -419,11 +424,13 @@ kit_client_probe() { # $1=데이터베이스 이름 → stdout: 결과표의 비
 #
 # **이 코스의 «출력»에서 이 축에 걸리는 자리는 지금까지 0건이다.** 근거는 world 의 문자가
 # 무엇인가가 아니라 — 한글이 바로 그 반례다 — **이 코스가 그 자리들을 아직 쓰지 않는다**는
-# 것이다. 2026-09-19 기준으로 cases 185건과 지금까지 쓰인 본문 전수에서:
-#   - 정규식(~ · ~* · SIMILAR TO · [[: )과 대소문자를 무시하는 비교(ILIKE) — 0건.
-#   - 대소문자 변환(upper( · lower() — 0건.
+# 것이다. 2026-10-03 기준으로 cases 519건과 0~13장 본문 전수에서:
+#   - 정규식(~ · ~* · SIMILAR TO · [[: )과 대소문자를 무시하는 비교(ILIKE) — 7장이 싣는 book_meta 의
+#     CHECK (isbn13 ~ '^979-11-[0-9]{5}-…') 하나뿐이다(schema.sql 의 제약을 \d 출력으로 보인다). ASCII
+#     숫자·하이픈만 대조하므로 제공자·로케일과 무관하다.
+#   - 대소문자 변환(upper( · lower() — 0건 (11장의 UPPER(LAST_NAME) 은 영어 원문 인용이다).
 #   - 행 전체를 한 값으로 찍는 질의(ROW( · SELECT t FROM 테이블 t)와 \l — 0건.
-# 장이 늘면 이 수는 달라질 수 있다 — 그때 이 자리를 다시 센다.
+# 코스가 완결된 시점(13장까지)의 셈이다 — 케이스나 본문이 더해지면 이 자리를 다시 센다.
 #
 # 그래서 대안 경로의 CREATE DATABASE 는 **새로 만들 때** LC_CTYPE 'C' LC_COLLATE 'C' 로 못 박는다
 # — 서버 기본 로케일을 물려받아 C 계열 밖으로 나가는 것을 막는 것이지 두 경로의 «값»을 같게
@@ -444,7 +451,7 @@ kit_ctype_ok() { # $1=datctype 값 → 0 이면 기대 범위
 
 # ## ~/.psqlrc — kit 점검 밖에 있는 축의 안내 (대안 경로)
 #
-# kit 의 psql 호출은 전부 -X 라 psqlrc 를 읽지 않는다. 그래서 psqlrc 의 `SET timezone …`·
+# kit 의 판정 호출은 전부 -X 라 psqlrc 를 읽지 않는다. 그래서 psqlrc 의 `SET timezone …`·
 # `SET DateStyle …`·`SET lc_* …`·`SET extra_float_digits …` 는 kit 의 세션 설정 판정을 통과시키면서 여러분의 대화형
 # 세션만 본문과 다르게 만든다(예: timestamptz 가 +09 로 표시).
 #

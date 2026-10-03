@@ -1,0 +1,3 @@
+ERROR:  new row for relation "talk_events" violates check constraint "talk_events_fee_check"
+DETAIL:  Failing row contains (4, 참가비를 돌려주는 행사, 60, 2026-11-14, 10, -5000).
+[exit 3]

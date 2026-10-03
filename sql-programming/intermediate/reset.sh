@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # world를 초기 상태로 복원한다 (챕터 상태 연속성 수단).
-# 모든 챕터는 초기 상태에서 시작한다 — world를 바꾸는 실습(6·7·8·10·11·12장, 마지막 평가 장)의
+# 모든 챕터는 초기 상태에서 시작한다 — world를 바꾸는 실습(6·7·8·10·11·12장, 9장의 두 실습, 마지막 평가 장)의
 # 전후, 그리고 검증 러너의 변경형 케이스 전후에 실행한다.
 # 두 경로 모두에서 동작한다: KIT_MODE=docker / KIT_MODE=native.
 # KIT_MODE를 지정하지 않으면 setup.sh가 구축에 쓴 경로를 따른다 (kit_psql.sh 「구축 경로 기억」).
@@ -50,10 +50,10 @@ run_step() { # $1=단계 이름, 나머지=kit_psql 인자. 표준 입력은 그
     [ -z "$out" ] || printf '%s\n' "$out" | sed 's/^/  /' >&2
     if [ "$KIT_MODE" = native ]; then
       fail "world 초기화 실패 ($step) — 데이터베이스 $DB" \
-           "먼저 다른 ./verify.sh·./reset.sh 나 열어 둔 psql 세션이 같은 데이터베이스를 쓰고 있지 않은지 확인하세요(겹치면 락이 엉켜 실패합니다 — 끝나길 기다린 뒤 다시). 아니라면 ./check_env.sh 로 접속과 world 상태를 확인하고, 그래도 막히면 dropdb $DB 로 지운 뒤 ./setup.sh 를 실행하면 정렬 규칙을 고정해 다시 만들고 world를 적재합니다"
+           "먼저 다른 ./verify.sh·./reset.sh 나 열어 둔 psql 세션이 같은 데이터베이스를 쓰고 있지 않은지 확인하세요(겹치면 락이 엉켜 실패합니다 — 끝나길 기다린 뒤 다시. 트랜잭션을 연 채인 psql 세션이나 ./concurrency.sh --terminal 의 두 터미널 세션이면 그 세션에서 ROLLBACK; 또는 \q 한 뒤 다시). 아니라면 ./check_env.sh 로 접속과 world 상태를 확인하고, 그래도 막히면 dropdb $DB 로 지운 뒤 ./setup.sh 를 실행하면 정렬 규칙을 고정해 다시 만들고 world를 적재합니다"
     else
       fail "world 초기화 실패 ($step) — 컨테이너 $KIT_CONTAINER, 데이터베이스 $DB" \
-           "먼저 다른 ./verify.sh·./reset.sh 나 열어 둔 psql 세션이 같은 데이터베이스를 쓰고 있지 않은지 확인하세요(겹치면 락이 엉켜 실패합니다 — 끝나길 기다린 뒤 다시). 아니라면 ./check_env.sh 로 접속과 world 상태를 확인하고, 그래도 막히면 docker rm -f $KIT_CONTAINER 로 컨테이너를 지우고 ./setup.sh 를 실행하세요"
+           "먼저 다른 ./verify.sh·./reset.sh 나 열어 둔 psql 세션이 같은 데이터베이스를 쓰고 있지 않은지 확인하세요(겹치면 락이 엉켜 실패합니다 — 끝나길 기다린 뒤 다시. 트랜잭션을 연 채인 psql 세션이나 ./concurrency.sh --terminal 의 두 터미널 세션이면 그 세션에서 ROLLBACK; 또는 \q 한 뒤 다시). 아니라면 ./check_env.sh 로 접속과 world 상태를 확인하고, 그래도 막히면 docker rm -f $KIT_CONTAINER 로 컨테이너를 지우고 ./setup.sh 를 실행하세요"
     fi
   fi
 }
@@ -70,8 +70,15 @@ for _f in schema.sql seed_ref.sql seed.sql seed_ops.sql legacy.sql antipatterns.
                        "파일이 지워졌거나 옮겨졌다면 kit을 다시 받으세요 (0장 0.3절)"
 done
 
+# 첫 단계에만 잠금 대기 시한을 둔다. 여러분이 다른 psql 세션에서 트랜잭션을 연 채(BEGIN 뒤 world 의
+# 테이블을 읽거나 고친 채) 되돌리면, DROP SCHEMA 가 그 트랜잭션이 끝날 때까지 기다려 이 스크립트가
+# 아무 말 없이 멈춘 것처럼 보인다(12장 두 터미널 실습에서 흔한 자리). 시한(5초)이 지나면 서버가 이
+# 문장을 «잠금 시한 초과»로 취소한다. 아래 -c 의 문장들은 한 트랜잭션으로 가므로 취소되면 DROP 전체가
+# 없던 일이 되어 world 는 그대로이고, run_step 이 원인과 「다음:」을 낸다. 지운 뒤의 적재 단계는 방금
+# 만든 객체만 건드리므로 남의 잠금을 기다릴 일이 없어 시한을 두지 않는다.
 run_step "스키마 재생성 (public·legacy·antipatterns)" "${PSQL_OPTS[@]}" \
   -c "SET client_min_messages = warning;
+      SET lock_timeout = '5s';
       DROP SCHEMA IF EXISTS antipatterns CASCADE;
       DROP SCHEMA IF EXISTS legacy CASCADE;
       DROP SCHEMA public CASCADE;

@@ -12,10 +12,6 @@ WITH category_monthly AS (
         AND books.category IN ('과학', '요리')
     GROUP BY books.category, to_char(orders.order_date, 'YYYY-MM')
 )
-SELECT
-    분야,
-    주문월,
-    매출,
-    lag(매출) OVER (ORDER BY 분야, 주문월) AS 전월매출
+SELECT 분야, 주문월, 매출, lag(매출) OVER (ORDER BY 분야, 주문월) AS 전월매출
 FROM category_monthly
 ORDER BY 분야, 주문월;

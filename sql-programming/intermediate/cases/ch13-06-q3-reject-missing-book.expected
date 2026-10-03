@@ -1,0 +1,3 @@
+ERROR:  insert or update on table "talk_events" violates foreign key constraint "talk_events_book_id_fkey"
+DETAIL:  Key (book_id)=(999) is not present in table "books".
+[exit 3]

@@ -1,8 +1,5 @@
 -- 3장 3.3 «왜 그럴까요»: LATERAL 을 빼면 바깥 열을 참조할 수 없다
-SELECT
-    categories.name AS 분류,
-    top_books.title AS 제목,
-    top_books.price AS 가격
+SELECT categories.name AS 분류, top_books.title AS 제목, top_books.price AS 가격
 FROM categories
 CROSS JOIN (
     SELECT books.title, books.price

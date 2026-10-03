@@ -2,8 +2,7 @@
 SELECT
     title AS 제목,
     price AS 가격,
-    (SELECT round(avg(price)) FROM books WHERE category = '과학')
-        AS "분야 평균"
+    (SELECT round(avg(price)) FROM books WHERE category = '과학') AS "분야 평균"
 FROM books
 WHERE category = '과학'
 ORDER BY price DESC, book_id

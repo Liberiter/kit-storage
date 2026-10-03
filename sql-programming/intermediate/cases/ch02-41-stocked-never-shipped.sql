@@ -2,9 +2,7 @@
 SELECT count(*) AS 권수
 FROM books
 WHERE EXISTS (
-    SELECT 1
-    FROM stock_movements
-    WHERE stock_movements.book_id = books.book_id
+    SELECT 1 FROM stock_movements WHERE stock_movements.book_id = books.book_id
 )
     AND NOT EXISTS (
         SELECT 1
@@ -16,9 +14,7 @@ WHERE EXISTS (
 SELECT books.book_id AS 도서번호, books.title AS 제목, books.stock AS 재고
 FROM books
 WHERE EXISTS (
-    SELECT 1
-    FROM stock_movements
-    WHERE stock_movements.book_id = books.book_id
+    SELECT 1 FROM stock_movements WHERE stock_movements.book_id = books.book_id
 )
     AND NOT EXISTS (
         SELECT 1

@@ -1,9 +1,7 @@
 -- 11장 «복습 exercise» 3 해설 (8장): 질문마다 따로 센 뒤 잇는다 — 계획에서 집계가 조인 아래로 내려가고 어림은 320줄, 앞 세 권의 수
 EXPLAIN
 WITH view_counts AS (
-    SELECT book_id, count(*) AS view_count
-    FROM page_views
-    GROUP BY book_id
+    SELECT book_id, count(*) AS view_count FROM page_views GROUP BY book_id
 ),
 sold_units AS (
     SELECT book_id, sum(quantity) AS units_sold
@@ -19,9 +17,7 @@ LEFT JOIN view_counts ON books.book_id = view_counts.book_id
 LEFT JOIN sold_units ON books.book_id = sold_units.book_id;
 
 WITH view_counts AS (
-    SELECT book_id, count(*) AS view_count
-    FROM page_views
-    GROUP BY book_id
+    SELECT book_id, count(*) AS view_count FROM page_views GROUP BY book_id
 ),
 sold_units AS (
     SELECT book_id, sum(quantity) AS units_sold

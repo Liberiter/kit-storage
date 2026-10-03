@@ -7,9 +7,7 @@ LEFT JOIN order_items ON books.book_id = order_items.book_id
 LEFT JOIN reviews ON books.book_id = reviews.book_id;
 
 WITH sold AS (
-    SELECT book_id, sum(quantity) AS 판매권수
-    FROM order_items
-    GROUP BY book_id
+    SELECT book_id, sum(quantity) AS 판매권수 FROM order_items GROUP BY book_id
 )
 SELECT sum(sold.판매권수) AS 판매권수합계
 FROM books

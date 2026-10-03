@@ -17,7 +17,6 @@ SELECT
     상위분류,
     분야,
     매출,
-    round(100.0 * 매출 / sum(매출) OVER (PARTITION BY 상위분류), 1)
-        AS "비중(%)"
+    round(100.0 * 매출 / sum(매출) OVER (PARTITION BY 상위분류), 1) AS "비중(%)"
 FROM category_revenue
 ORDER BY 상위분류, 매출 DESC;

@@ -1,4 +1,4 @@
 ERROR:  window functions are not allowed in WHERE
-LINE 4:     AND price > avg(price) OVER ()
-                        ^
+LINE 3: WHERE category = '과학' AND price > avg(price) OVER ()
+                                            ^
 [exit 3]

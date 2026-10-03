@@ -4,11 +4,7 @@ WITH RECURSIVE org AS (
     FROM staff
     WHERE manager_id IS NULL
     UNION ALL
-    SELECT
-        staff.staff_id,
-        staff.name,
-        staff.department,
-        org.단계 + 1
+    SELECT staff.staff_id, staff.name, staff.department, org.단계 + 1
     FROM staff
     INNER JOIN org ON staff.manager_id = org.staff_id
 )

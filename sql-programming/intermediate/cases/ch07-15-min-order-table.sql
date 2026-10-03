@@ -12,5 +12,4 @@ VALUES
 
 SELECT book_id, min_quantity FROM book_min_orders ORDER BY book_id;
 
-INSERT INTO book_min_orders (book_id, min_quantity)
-VALUES (3, 0);
+INSERT INTO book_min_orders (book_id, min_quantity) VALUES (3, 0);

@@ -1,0 +1,15 @@
+ transaction_isolation 
+-----------------------
+ read committed
+(1 row)
+
+ transaction_isolation 
+-----------------------
+ repeatable read
+(1 row)
+
+ transaction_isolation 
+-----------------------
+ read committed
+(1 row)
+[exit 0]

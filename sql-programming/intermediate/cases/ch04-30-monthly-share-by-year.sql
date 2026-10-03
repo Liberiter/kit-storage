@@ -5,8 +5,7 @@ WITH paid_items AS (
         order_items.unit_price * order_items.quantity AS 금액
     FROM orders
     INNER JOIN order_items ON orders.order_id = order_items.order_id
-    WHERE orders.order_date >= '2025-01-01'
-        AND orders.status <> '취소'
+    WHERE orders.order_date >= '2025-01-01' AND orders.status <> '취소'
 ),
 monthly_sales AS (
     SELECT

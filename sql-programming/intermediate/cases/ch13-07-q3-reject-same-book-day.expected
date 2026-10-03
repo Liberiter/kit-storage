@@ -1,0 +1,3 @@
+ERROR:  duplicate key value violates unique constraint "talk_events_book_id_event_date_key"
+DETAIL:  Key (book_id, event_date)=(42, 2026-10-17) already exists.
+[exit 3]
