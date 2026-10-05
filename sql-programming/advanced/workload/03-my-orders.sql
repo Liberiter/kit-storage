@@ -1,0 +1,26 @@
+-- 워크로드 3 — 내 구매 내역: 회원 한 명의 최근 판매 20건 (25번).
+SELECT sale_id, sold_at, book_id, quantity, unit_price FROM sales WHERE account_id = 998 ORDER BY sold_at DESC LIMIT 20;
+SELECT sale_id, sold_at, book_id, quantity, unit_price FROM sales WHERE account_id = 1995 ORDER BY sold_at DESC LIMIT 20;
+SELECT sale_id, sold_at, book_id, quantity, unit_price FROM sales WHERE account_id = 2992 ORDER BY sold_at DESC LIMIT 20;
+SELECT sale_id, sold_at, book_id, quantity, unit_price FROM sales WHERE account_id = 3989 ORDER BY sold_at DESC LIMIT 20;
+SELECT sale_id, sold_at, book_id, quantity, unit_price FROM sales WHERE account_id = 4986 ORDER BY sold_at DESC LIMIT 20;
+SELECT sale_id, sold_at, book_id, quantity, unit_price FROM sales WHERE account_id = 5983 ORDER BY sold_at DESC LIMIT 20;
+SELECT sale_id, sold_at, book_id, quantity, unit_price FROM sales WHERE account_id = 6980 ORDER BY sold_at DESC LIMIT 20;
+SELECT sale_id, sold_at, book_id, quantity, unit_price FROM sales WHERE account_id = 7977 ORDER BY sold_at DESC LIMIT 20;
+SELECT sale_id, sold_at, book_id, quantity, unit_price FROM sales WHERE account_id = 8974 ORDER BY sold_at DESC LIMIT 20;
+SELECT sale_id, sold_at, book_id, quantity, unit_price FROM sales WHERE account_id = 9971 ORDER BY sold_at DESC LIMIT 20;
+SELECT sale_id, sold_at, book_id, quantity, unit_price FROM sales WHERE account_id = 10968 ORDER BY sold_at DESC LIMIT 20;
+SELECT sale_id, sold_at, book_id, quantity, unit_price FROM sales WHERE account_id = 11965 ORDER BY sold_at DESC LIMIT 20;
+SELECT sale_id, sold_at, book_id, quantity, unit_price FROM sales WHERE account_id = 12962 ORDER BY sold_at DESC LIMIT 20;
+SELECT sale_id, sold_at, book_id, quantity, unit_price FROM sales WHERE account_id = 13959 ORDER BY sold_at DESC LIMIT 20;
+SELECT sale_id, sold_at, book_id, quantity, unit_price FROM sales WHERE account_id = 14956 ORDER BY sold_at DESC LIMIT 20;
+SELECT sale_id, sold_at, book_id, quantity, unit_price FROM sales WHERE account_id = 15953 ORDER BY sold_at DESC LIMIT 20;
+SELECT sale_id, sold_at, book_id, quantity, unit_price FROM sales WHERE account_id = 16950 ORDER BY sold_at DESC LIMIT 20;
+SELECT sale_id, sold_at, book_id, quantity, unit_price FROM sales WHERE account_id = 17947 ORDER BY sold_at DESC LIMIT 20;
+SELECT sale_id, sold_at, book_id, quantity, unit_price FROM sales WHERE account_id = 18944 ORDER BY sold_at DESC LIMIT 20;
+SELECT sale_id, sold_at, book_id, quantity, unit_price FROM sales WHERE account_id = 19941 ORDER BY sold_at DESC LIMIT 20;
+SELECT sale_id, sold_at, book_id, quantity, unit_price FROM sales WHERE account_id = 20938 ORDER BY sold_at DESC LIMIT 20;
+SELECT sale_id, sold_at, book_id, quantity, unit_price FROM sales WHERE account_id = 21935 ORDER BY sold_at DESC LIMIT 20;
+SELECT sale_id, sold_at, book_id, quantity, unit_price FROM sales WHERE account_id = 22932 ORDER BY sold_at DESC LIMIT 20;
+SELECT sale_id, sold_at, book_id, quantity, unit_price FROM sales WHERE account_id = 23929 ORDER BY sold_at DESC LIMIT 20;
+SELECT sale_id, sold_at, book_id, quantity, unit_price FROM sales WHERE account_id = 24926 ORDER BY sold_at DESC LIMIT 20;

@@ -1,0 +1,22 @@
+ no |         case_name         |     result     
+----+---------------------------+----------------
+  1 | 정상 - 반납 전            | ok
+  2 | 정상 - 반납함             | ok
+  3 | 정상 - 같은 날 반납       | ok
+  4 | 없는 책                   | rejected 23503
+  5 | 없는 회원                 | rejected 23503
+  6 | 반납 예정일이 빌린 날     | rejected 23514
+  7 | 반납일이 빌린 날보다 앞   | rejected 23514
+  8 | 같은 회원 같은 책 같은 날 | rejected 23505
+  9 | 빌린 날 없음              | rejected 23502
+ 10 | 책 없음                   | rejected 23502
+ 11 | 회원 없음                 | rejected 23502
+ 12 | 반납 예정일 없음          | rejected 23502
+(12 rows)
+
+ rows_kept | distinct_loan_ids 
+-----------+-------------------
+         3 |                 3
+(1 row)
+
+[exit 0]

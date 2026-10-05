@@ -1,0 +1,9 @@
+                           QUERY PLAN                           
+----------------------------------------------------------------
+ Limit (actual rows=100000.00 loops=1)
+   ->  Sort (actual rows=1100000.00 loops=1)
+         Sort Key: account_id, sold_at
+         Sort Method: external merge  Disk: 38232kB
+         ->  Seq Scan on sales (actual rows=1500000.00 loops=1)
+(5 rows)
+[exit 0]

@@ -1,0 +1,6 @@
+     a      |    b     |        c        
+------------+----------+-----------------
+ Index Scan | Seq Scan | REPEATABLE READ
+(1 row)
+
+[exit 0]

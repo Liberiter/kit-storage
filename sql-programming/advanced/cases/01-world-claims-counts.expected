@@ -1,0 +1,20 @@
+            claim             |  value  
+------------------------------+---------
+ accounts                     |  300000
+ accounts linked to customers |     150
+ book_contents                |     320
+ books                        |     320
+ customers                    |     150
+ discussion_posts             |   30000
+ duty_roster                  |       7
+ page_views                   |  199220
+ sales                        | 1500000
+ sales disputed               |    1906
+ shipments_random             |  540037
+ shipments_sorted             |  540037
+ stores                       |      12
+ theory.club_mentors          |      26
+ theory.order_book_lines      |    1243
+ theory.talk_signups          |      58
+(16 rows)
+[exit 0]

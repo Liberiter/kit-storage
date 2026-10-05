@@ -1,0 +1,7 @@
+                                          QUERY PLAN                                          
+----------------------------------------------------------------------------------------------
+ Seq Scan on accounts  (cost=0.00..9115.00 rows=7043 width=80) (actual rows=25233.00 loops=1)
+   Filter: ((city = '서울'::text) AND (district = '강남구'::text))
+   Rows Removed by Filter: 274767
+(3 rows)
+[exit 0]

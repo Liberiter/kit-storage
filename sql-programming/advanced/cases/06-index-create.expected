@@ -1,0 +1,14 @@
+             QUERY PLAN              
+-------------------------------------
+ Gather
+   Workers Planned: 2
+   ->  Parallel Seq Scan on sales
+         Filter: (account_id = 4242)
+(4 rows)
+
+                   QUERY PLAN                   
+------------------------------------------------
+ Index Scan using sales_account_id_idx on sales
+   Index Cond: (account_id = 4242)
+(2 rows)
+[exit 0]

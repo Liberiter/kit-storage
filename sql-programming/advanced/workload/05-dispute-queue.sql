@@ -1,0 +1,21 @@
+-- 워크로드 5 — 분쟁 처리 대기열: 분쟁 중인 판매를 최근 것부터 50건 (20번).
+SELECT sale_id, sold_at, account_id, book_id FROM sales WHERE status = 'disputed' ORDER BY sold_at DESC LIMIT 50;
+SELECT sale_id, sold_at, account_id, book_id FROM sales WHERE status = 'disputed' ORDER BY sold_at DESC LIMIT 50;
+SELECT sale_id, sold_at, account_id, book_id FROM sales WHERE status = 'disputed' ORDER BY sold_at DESC LIMIT 50;
+SELECT sale_id, sold_at, account_id, book_id FROM sales WHERE status = 'disputed' ORDER BY sold_at DESC LIMIT 50;
+SELECT sale_id, sold_at, account_id, book_id FROM sales WHERE status = 'disputed' ORDER BY sold_at DESC LIMIT 50;
+SELECT sale_id, sold_at, account_id, book_id FROM sales WHERE status = 'disputed' ORDER BY sold_at DESC LIMIT 50;
+SELECT sale_id, sold_at, account_id, book_id FROM sales WHERE status = 'disputed' ORDER BY sold_at DESC LIMIT 50;
+SELECT sale_id, sold_at, account_id, book_id FROM sales WHERE status = 'disputed' ORDER BY sold_at DESC LIMIT 50;
+SELECT sale_id, sold_at, account_id, book_id FROM sales WHERE status = 'disputed' ORDER BY sold_at DESC LIMIT 50;
+SELECT sale_id, sold_at, account_id, book_id FROM sales WHERE status = 'disputed' ORDER BY sold_at DESC LIMIT 50;
+SELECT sale_id, sold_at, account_id, book_id FROM sales WHERE status = 'disputed' ORDER BY sold_at DESC LIMIT 50;
+SELECT sale_id, sold_at, account_id, book_id FROM sales WHERE status = 'disputed' ORDER BY sold_at DESC LIMIT 50;
+SELECT sale_id, sold_at, account_id, book_id FROM sales WHERE status = 'disputed' ORDER BY sold_at DESC LIMIT 50;
+SELECT sale_id, sold_at, account_id, book_id FROM sales WHERE status = 'disputed' ORDER BY sold_at DESC LIMIT 50;
+SELECT sale_id, sold_at, account_id, book_id FROM sales WHERE status = 'disputed' ORDER BY sold_at DESC LIMIT 50;
+SELECT sale_id, sold_at, account_id, book_id FROM sales WHERE status = 'disputed' ORDER BY sold_at DESC LIMIT 50;
+SELECT sale_id, sold_at, account_id, book_id FROM sales WHERE status = 'disputed' ORDER BY sold_at DESC LIMIT 50;
+SELECT sale_id, sold_at, account_id, book_id FROM sales WHERE status = 'disputed' ORDER BY sold_at DESC LIMIT 50;
+SELECT sale_id, sold_at, account_id, book_id FROM sales WHERE status = 'disputed' ORDER BY sold_at DESC LIMIT 50;
+SELECT sale_id, sold_at, account_id, book_id FROM sales WHERE status = 'disputed' ORDER BY sold_at DESC LIMIT 50;

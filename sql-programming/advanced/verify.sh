@@ -1,0 +1,141 @@
+#!/usr/bin/env bash
+# 검증 러너 — 챕터 예제·문제를 world 위에서 실행하고 기대 출력과 대조한다.
+# 이 코스를 만드는 쪽(챕터 작성·검증)이 사용한다 — 마지막 평가 장의 자동 검증도 이 러너로.
+#
+# 사용법:
+#   ./verify.sh [케이스 디렉토리]          # 실행·대조 (기본: ./cases)
+#   ./verify.sh --update [케이스 디렉토리] # 기대 출력(.expected) 재생성
+#
+#   두 경로 모두에서 동작한다 (kit_psql.sh):
+#     KIT_MODE=docker (기본)  컨테이너 안의 psql
+#     KIT_MODE=native         호스트에 설치한 psql
+#
+# 케이스 규약:
+#   <이름>.sql       실행할 질의 파일. psql 한 세션으로 실행된다.
+#   <이름>.expected  기대 출력 (psql 출력 + 마지막 줄 "[exit N]").
+#   첫 줄에 "-- runner: reset"이 있으면 실행 전에 world를 초기화한다
+#   (변경형 케이스 — DDL·DML·트랜잭션·VACUUM·통계 수집·마지막 평가 장). 실행 후에도 남은
+#   변경이 다음 케이스를 오염시키지 않도록, 변경형 케이스 뒤에는 자동으로 한 번 더
+#   초기화한다. 초기화는 world 데이터베이스를 원본에서 다시 복제하는 것이라(reset.sh) 한 번에
+#   1~3초다.
+#   오류를 기대하는 케이스는 오류 메시지와 0이 아닌 exit를 .expected에 담는다
+#   (ON_ERROR_STOP=1).
+#   전사(transcript) 케이스는 지원하지 않는다 — 러너는 케이스를 표준 입력으로 흘려 넣는
+#   비대화형 psql 한 세션으로 돌리므로 프롬프트·대화형 안내가 나오지 않는다. 두 세션이 엇갈려야
+#   나오는 출력은 ./sessions.sh 가 재현한다.
+#
+# 동시 실행 보호: 같은 world를 향한 다른 러너가 돌고 있으면 기다리지 않고
+#   종료 코드 2로 거절한다 (kit_psql.sh 「러너 동시 실행 보호」).
+# 이 스크립트는 프로세스 치환(bash 전용)을 쓰므로, 그것이 안 되는 셸에서는 케이스를
+# 한 건도 실행하지 않고 거절한다. `sh verify.sh`로 부르면 구문 오류를 내면서도 전량
+# FAIL처럼 보여, 검사가 아예 돌지 않은 것을 예제가 통째로 틀린 것으로 읽게 된다.
+# 0건 실행은 성공도 전량 실패도 아니므로 종료 코드 2(실행 오류)로 가른다.
+# `$BASH_VERSION`으로는 가를 수 없다: macOS의 `sh`는 POSIX 모드의 bash라 변수가
+# 설정되어 있는데도 프로세스 치환이 꺼져 있다.
+if ! (eval ': <(:)') 2>/dev/null; then
+  echo "오류: 이 스크립트는 프로세스 치환을 지원하는 bash가 필요합니다 — 지금 셸에서는 꺼져 있어 검사를 시작하지 않았습니다." >&2
+  echo "  다음: ./verify.sh 또는 bash verify.sh 로 실행하세요 (sh verify.sh 는 POSIX 모드라 동작하지 않습니다)." >&2
+  exit 2
+fi
+
+set -uo pipefail
+cd "$(dirname "$0")"
+# 이 줄도 «셸이» 파일을 읽는 자리다 — 없으면 셸이 먼저 실패하고 kit의 문구가 나올
+# 자리가 없다(0장 0.6). fail()·kit_psql 이 아직 없으므로 직접 낸다.
+[ -r ./kit_psql.sh ] || {
+  echo "오류: kit 파일 kit_psql.sh 을(를) 읽을 수 없습니다." >&2
+  echo "  다음: 파일이 지워졌거나 옮겨졌다면 kit을 다시 받으세요 (0장 0.3절)." >&2
+  exit 2; }
+. ./kit_psql.sh
+
+DB="$KIT_DB"
+
+MODE=run
+if [ "${1:-}" = "--update" ]; then MODE=update; shift; fi
+DIR="${1:-cases}"
+[ -d "$DIR" ] || {
+  echo "오류: 케이스 디렉토리 없음: $DIR" >&2
+  echo "  다음: kit 디렉토리에서 ./verify.sh 를 인자 없이 실행하면 ./cases 를 씁니다." >&2
+  exit 2; }
+
+shopt -s nullglob
+files=("$DIR"/*.sql)
+[ ${#files[@]} -gt 0 ] || {
+  echo "오류: $DIR 에 .sql 케이스가 없습니다" >&2
+  echo "  다음: 케이스가 든 디렉토리를 가리키는지 확인하세요 — kit 디렉토리에서 ./verify.sh 를 인자 없이 실행하면 ./cases 를 씁니다." >&2
+  exit 2; }
+
+# 변경형 케이스 전후에 부르는 되돌리기 스크립트 — 없거나 실행할 수 없으면 셸 자신의 줄이 kit 문구 위에 붙으므로
+# 케이스를 돌리기 전에 먼저 본다.
+[ -f ./reset.sh ] && [ -x ./reset.sh ] || {
+  echo "오류: kit 파일 reset.sh 을(를) 실행할 수 없습니다 (없거나 실행 권한이 없습니다)." >&2
+  echo "  다음: 파일이 지워졌다면 kit을 다시 받으세요 (0장 0.3절). 파일은 있는데 권한이 없으면 chmod +x reset.sh 뒤 다시 실행하세요." >&2
+  exit 2; }
+
+# 런타임·컨테이너(또는 psql)가 없거나 서버에 접속되지 않으면 케이스마다 FAIL 을 쏟는 대신
+# 여기서 한 번에 멈춘다 — 다른 스크립트와 같은 원인·다음 행동 문구 (kit_psql.sh
+# kit_runtime_check·kit_connect_check). 종료 코드는 **2** (실행 오류) — 1 은 「실패 케이스
+# 있음」이므로 환경 부재를 1 로 내면 케이스 실패로 읽힌다.
+kit_runtime_check "verify" 2
+kit_connect_check "verify" 2
+
+kit_lock_acquire   # 다른 러너가 돌고 있으면 여기서 2로 끝난다
+
+run_case() { # $1=sql파일 → stdout: 실행 출력 + "[exit N]"
+  local out rc
+  # 표준 출력과 오류는 psql 쪽에서 합친다 (kit_psql.sh kit_psql_merged) — 호스트에서 합치면
+  # 경고 줄과 결과표의 차례가 실행마다 갈려 같은 케이스가 통과와 실패를 오간다.
+  out=$(kit_psql_merged -d "$DB" -X -q -v ON_ERROR_STOP=1 --pset pager=off < "$1")
+  rc=$?
+  printf '%s\n[exit %d]\n' "$out" "$rc"
+}
+
+pass=0; failed=0; failed_names=()
+for sql in "${files[@]}"; do
+  name=$(basename "$sql" .sql)
+  expected="${sql%.sql}.expected"
+  is_reset=0
+  head -1 "$sql" | grep -q -- '-- runner: reset' && is_reset=1
+  if [ $is_reset = 1 ]; then
+    ./reset.sh >/dev/null || {
+      echo "오류: 케이스 $name 실행 전 world 초기화에 실패했습니다 (위 reset 메시지 참고)." >&2
+      echo "  다음: ./reset.sh 를 직접 실행해 원인을 확인하세요. 그래도 막히면 ./setup.sh 로 world를 처음 상태로 다시 세운 뒤 다시 실행하세요." >&2
+      exit 2; }
+  fi
+
+  actual=$(run_case "$sql")
+
+  if [ $is_reset = 1 ]; then
+    ./reset.sh >/dev/null || {
+      echo "오류: 케이스 $name 실행 후 world 초기화에 실패했습니다 (위 reset 메시지 참고)." >&2
+      echo "  다음: ./reset.sh 를 직접 실행해 원인을 확인하세요. 그래도 막히면 ./setup.sh 로 world를 처음 상태로 다시 세운 뒤 다시 실행하세요." >&2
+      exit 2; }
+  fi
+
+  if [ "$MODE" = update ]; then
+    printf '%s' "$actual" > "$expected"
+    echo "갱신: $name"
+    continue
+  fi
+
+  if [ ! -f "$expected" ]; then
+    echo "FAIL $name — 기대 파일 없음 ($expected). --update로 생성하세요."
+    failed=$((failed+1)); failed_names+=("$name"); continue
+  fi
+  if diff_out=$(diff -u "$expected" <(printf '%s' "$actual")); then
+    echo "PASS $name"; pass=$((pass+1))
+  else
+    echo "FAIL $name"
+    echo "$diff_out" | sed 's/^/    /'
+    failed=$((failed+1)); failed_names+=("$name")
+  fi
+done
+
+[ "$MODE" = update ] && exit 0
+echo "----"
+echo "결과: PASS $pass / FAIL $failed"
+if [ $failed -gt 0 ]; then
+  echo "실패 케이스: ${failed_names[*]}"
+  echo "  다음: 먼저 다른 ./verify.sh·./reset.sh·./entry_check.sh·./sessions.sh 가 같은 world를 쓰고 있지 않았는지 확인하세요(겹치면 결과가 흔들립니다). 아니라면 diff 의 차이를 본문·케이스와 대조하세요 — world가 의심되면 ./reset.sh 뒤 다시 실행."
+  exit 1
+fi

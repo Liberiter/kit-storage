@@ -1,0 +1,3 @@
+ERROR:  insert or update on table "sales" violates foreign key constraint "sales_account_id_fkey"
+DETAIL:  Key (account_id)=(999999) is not present in table "accounts".
+[exit 3]

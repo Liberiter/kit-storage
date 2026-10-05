@@ -1,0 +1,16 @@
+                                                                           QUERY PLAN                                                                           
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Aggregate
+   ->  Index Scan using shipments_sorted_shipped_at_idx on shipments_sorted
+         Index Cond: ((shipped_at >= '2026-02-28 15:00:00+00'::timestamp with time zone) AND (shipped_at < '2026-03-07 15:00:00+00'::timestamp with time zone))
+(3 rows)
+
+                                                                              QUERY PLAN                                                                              
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Aggregate
+   ->  Bitmap Heap Scan on shipments_random
+         Recheck Cond: ((shipped_at >= '2026-02-28 15:00:00+00'::timestamp with time zone) AND (shipped_at < '2026-03-07 15:00:00+00'::timestamp with time zone))
+         ->  Bitmap Index Scan on shipments_random_shipped_at_idx
+               Index Cond: ((shipped_at >= '2026-02-28 15:00:00+00'::timestamp with time zone) AND (shipped_at < '2026-03-07 15:00:00+00'::timestamp with time zone))
+(5 rows)
+[exit 0]

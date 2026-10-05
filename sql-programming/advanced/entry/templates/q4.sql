@@ -1,0 +1,18 @@
+-- 입장 점검 문항 4 — 실행 계획의 스캔 유형과 격리 수준 고르기
+--
+-- 답은 SELECT 한 문장으로 적습니다 — 아래 꼴의 따옴표 안을 고르신 답으로 바꾸세요.
+--   SELECT '…' AS a, '…' AS b, '…' AS c;
+--
+-- (a)·(b) world 를 되돌린 직후(./reset.sh)의 상태에서 아래 질의의 실행 계획을 EXPLAIN 으로 직접 보고,
+--     그 테이블을 읽는 노드의 이름을 다음 넷 가운데 하나로 적으세요 (글자 그대로):
+--       'Seq Scan'  'Index Scan'  'Index Only Scan'  'Bitmap Heap Scan'
+--     (a)  SELECT * FROM accounts WHERE email = 'yejun.hong1@readmail.kr';
+--     (b)  SELECT count(*) FROM books WHERE price > 30000;
+--
+-- (c) 두 세션이 같은 책의 재고를 읽은 뒤 각자 「읽은 값 − 1」을 써서, 한쪽의 변경이 사라지는 일(갱신 손실)이
+--     생길 수 있습니다. PostgreSQL 에서 나중에 쓰는 쪽을 오류로 막아 다시 시도하게 하려면, 두 트랜잭션에
+--     적어도 어느 격리 수준이 필요합니까? 다음 셋 가운데 하나로 적으세요 (글자 그대로):
+--       'READ COMMITTED'  'REPEATABLE READ'  'SERIALIZABLE'
+--
+-- 아래에 SQL 을 적고 ./entry_check.sh 를 실행하세요.
+

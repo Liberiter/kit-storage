@@ -1,0 +1,20 @@
+-- 입장 점검 문항 3 — 결함 있는 질의 교정
+--
+-- 동료가 「과학 분야 책마다 리뷰 수와 주문된 수량의 합」을 내려고 아래 질의를 썼습니다. 결과가 이상합니다
+-- — 리뷰도 주문도 있는 책의 숫자가 부풀어 있고, 리뷰나 주문이 하나도 없는 책은 아예 빠져 있습니다.
+--
+--   SELECT b.book_id, b.title, count(r.review_id) AS review_count, sum(oi.quantity) AS ordered_qty
+--     FROM books b
+--     JOIN reviews r      ON r.book_id = b.book_id
+--     JOIN order_items oi ON oi.book_id = b.book_id
+--    WHERE b.category = '과학'
+--    GROUP BY b.book_id, b.title
+--    ORDER BY b.book_id;
+--
+-- 과학 분야의 모든 책이 한 줄씩 나오고, 리뷰 수(review_count)와 주문 항목의 수량 합(ordered_qty)이 맞게
+-- 나오도록 고친 질의를 적으세요. 리뷰나 주문이 없는 책은 0 으로 보여 주세요(비어 있으면 안 됩니다).
+--   열 이름: book_id, title, review_count, ordered_qty (이 차례로)
+--   정렬: book_id 오름차순
+--
+-- 아래에 SQL 을 적고 ./entry_check.sh 를 실행하세요.
+
