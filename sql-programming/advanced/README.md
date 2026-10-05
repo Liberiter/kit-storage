@@ -56,9 +56,9 @@ discussion_posts (30,000, 댓글이 댓글을 다는 깊은 계층)   duty_roste
 데이터는 kit 파일로 **만들어 냅니다** — 행마다 해시로 난수를 만들어, 누가 언제 구축해도 같은 데이터가
 같은 차례로 들어갑니다. 행이 디스크의 몇 번째 페이지 몇 번째 자리에 놓이는지까지 같습니다. 앞 코스의
 world를 만드는 파일(`schema.sql`·`seed_ref.sql`·`seed.sql`·`generate_seed.py`·`seed_ops.sql`·
-`legacy.sql`·`antipatterns.sql`)은 앞 코스 kit의 것을 **그대로** 가져왔습니다 — 그 주석에 적힌 장 번호와
-「reset.sh가 적재한다」 같은 스크립트 이야기는 앞 코스 kit의 것입니다. 이 코스에서는 `./setup.sh`가 그
-파일들과 `scale_schema.sql`·`seed_scale.sql`·`theory.sql`로 world를 만듭니다.
+`legacy.sql`·`antipatterns.sql`)은 앞 코스 kit에서 이어받았고, 만들어 내는 데이터도 앞 코스와
+같습니다. 이 코스에서는 `./setup.sh`가 그 파일들과 `scale_schema.sql`·`seed_scale.sql`·`theory.sql`로
+world를 만듭니다.
 
 ## 사용법
 

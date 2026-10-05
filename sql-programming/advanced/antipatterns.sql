@@ -1,4 +1,5 @@
--- antipatterns.sql — 안티패턴을 일부러 심은 스키마 조각 (스키마 antipatterns, 8장).
+-- antipatterns.sql — 안티패턴을 일부러 심은 스키마 조각 (스키마 antipatterns — intermediate 8장의
+-- 진단 실습 재료).
 -- 책숲이 다른 서점을 인수하며 받아 온 시스템이라는 설정이다. 진단·교정 대상이며 본
 -- world(public)와 분리되어 있다 — 마음껏 고치고 지워도 되고, ./reset.sh 가 다시 만든다.
 --

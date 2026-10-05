@@ -1,6 +1,7 @@
--- world: 온라인 서점 "책숲"의 운영 데이터 — 이 코스의 모든 챕터가 공유하는 world.
+-- world: 온라인 서점 "책숲"의 운영 데이터 — 앞 코스들(fundamentals·intermediate)에서 이어 온 부분.
+-- 이 코스의 world 는 이 위에 대규모 테이블(scale_schema.sql·seed_scale.sql)과 스키마 theory(theory.sql)를 더한다.
 --
--- 핵심 다섯 테이블(customers·books·orders·order_items·reviews)은 앞 코스(fundamentals)의
+-- 핵심 다섯 테이블(customers·books·orders·order_items·reviews)은 fundamentals 코스의
 -- 책숲과 열·타입·제약·데이터가 같다. 달라진 것은 하나 — books.category 가 분류 트리
 -- (categories.name)를 가리키는 외래키를 얻었다. 그 위에 운영 테이블 일곱을 더했다:
 --   categories      분류 트리 (자기 참조 — 재귀 질의 대상)
@@ -11,12 +12,13 @@
 --   stock_movements 재고 입출고 원장 (시계열·누적 합 대상; 합계 = books.stock)
 --   page_views      도서 페이지 조회 로그 (약 20만 행 — 실행 계획·시간대·JSONB 대상)
 --
--- 적재 차례(reset.sh): schema.sql → seed_ref.sql(분류·직원) → seed.sql(핵심 다섯 테이블,
--- 생성기 generate_seed.py) → seed_ops.sql(운영 테이블 — 적재 시 결정적으로 생성) →
--- legacy.sql(스키마 legacy) → antipatterns.sql(스키마 antipatterns).
+-- 적재 차례(setup.sh 가 world 원본을 만들 때): schema.sql → seed_ref.sql(분류·직원) →
+-- seed.sql(핵심 다섯 테이블, 생성기 generate_seed.py) → seed_ops.sql(운영 테이블 — 적재 시
+-- 결정적으로 생성) → legacy.sql(스키마 legacy) → antipatterns.sql(스키마 antipatterns) →
+-- scale_schema.sql → seed_scale.sql → theory.sql. reset.sh 는 다시 적재하지 않고 그 원본을 복제한다.
 --
--- page_views 와 stock_movements 에는 기본 키 말고 인덱스를 두지 않았다. 인덱스를
--- 만들기 전후의 실행 계획을 비교하는 것이 11장의 내용이다.
+-- page_views 와 stock_movements 에는 기본 키 말고 인덱스를 두지 않았다 — intermediate 11장이
+-- 인덱스를 만들기 전후의 실행 계획을 비교한 재료다.
 
 -- ---------- 분류 트리 (books 보다 먼저 — books.category 가 참조한다) ----------
 CREATE TABLE categories (

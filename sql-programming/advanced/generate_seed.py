@@ -166,8 +166,8 @@ rows = [f"({t[0]}, {t[1]}, {t[2]}, {t[3]})" for t in items]
 out.append(",\n".join(rows) + ";")
 
 # ---------- reviews (약 520건; 리뷰 없는 책 확보) ----------
-# 1차: 구매 인증 리뷰 (order_id 연결 — 주문에 실제 담긴 책만, world 정합)
-# 2차: 일반 리뷰 (order_id NULL) — NULL 허용 FK 분포 확보 (7장 요구)
+# 첫째 묶음: 구매 인증 리뷰 (order_id 연결 — 주문에 실제 담긴 책만, world 정합)
+# 둘째 묶음: 일반 리뷰 (order_id NULL) — NULL 허용 FK 분포 확보
 never_reviewed = set(b[0] for b in books if b[0] % 19 == 3)  # 리뷰 없는 책(17권)
 ocust_by_id = {o[0]: o[1] for o in orders}
 ostatus_by_id = {o[0]: o[3] for o in orders}
@@ -220,7 +220,7 @@ out.append("INSERT INTO reviews (review_id, book_id, customer_id, order_id, rati
 rows = [f"({r[0]}, {r[1]}, {r[2]}, {r[3]}, {r[4]}, {r[5]}, {d(r[6])})" for r in reviews]
 out.append(",\n".join(rows) + ";")
 
-# identity 시퀀스 보정 (이후 INSERT가 자동 번호를 이어가도록 — 11장)
+# identity 시퀀스 보정 (이후 INSERT가 자동 번호를 이어가도록)
 out.append("SELECT setval(pg_get_serial_sequence('customers', 'customer_id'), (SELECT max(customer_id) FROM customers));")
 out.append("SELECT setval(pg_get_serial_sequence('books', 'book_id'), (SELECT max(book_id) FROM books));")
 out.append("SELECT setval(pg_get_serial_sequence('orders', 'order_id'), (SELECT max(order_id) FROM orders));")
