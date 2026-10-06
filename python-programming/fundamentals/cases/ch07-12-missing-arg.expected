@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "work/missing_arg.py", line 5, in <module>
+    show_range("바람재", -1.5)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^
+TypeError: show_range() missing 1 required positional argument: 'high'
+[exit 1]

@@ -1,0 +1,14 @@
+F841 Local variable `rainy` is assigned to but never used
+ --> work/rainy_average.py:2:5
+  |
+1 | def rainy_average(amounts):
+2 |     rainy = [amount for amount in amounts if amount > 0]
+  |     ^^^^^
+3 |     return round(sum(amounts) / len(amounts), 2)
+  |
+help: Remove assignment to unused variable `rainy`
+
+Found 1 error.
+No fixes available (1 hidden fix can be enabled with the `--unsafe-fixes` option).
+1.8
+[exit 0]

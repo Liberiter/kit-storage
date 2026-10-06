@@ -1,0 +1,2 @@
+.venv/bin/python: can't open file 'work/frist.py': [Errno 2] No such file or directory
+[exit 2]

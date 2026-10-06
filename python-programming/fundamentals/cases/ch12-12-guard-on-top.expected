@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "work/guard_top.py", line 2, in <module>
+    main()
+    ^^^^
+NameError: name 'main' is not defined. Did you mean: 'min'?
+[exit 1]

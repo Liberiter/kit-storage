@@ -1,0 +1,5 @@
+  File "work/ex4.py", line 3
+    if low <= 0
+               ^
+SyntaxError: expected ':'
+[exit 1]

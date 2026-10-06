@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "work/count_narrow.py", line 25, in <module>
+    counts[name] = counts[name] + 1
+                   ~~~~~~^^^^^^
+KeyError: '바람재'
+[exit 1]

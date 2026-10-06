@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "work/name_report.py", line 25, in <module>
+    print(station_name(code))
+          ~~~~~~~~~~~~^^^^^^
+  File "work/name_report.py", line 12, in station_name
+    return names[code]
+           ~~~~~^^^^^^
+KeyError: ' bj '
+[exit 1]

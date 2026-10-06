@@ -1,0 +1,5 @@
+  File "work/fix_me.py", line 1
+    print("바람재 관측망')
+          ^
+SyntaxError: unterminated string literal (detected at line 1)
+[exit 1]

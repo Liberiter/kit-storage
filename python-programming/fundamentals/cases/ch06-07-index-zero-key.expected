@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "work/first_item.py", line 2, in <module>
+    print(names[0])
+          ~~~~~^^^
+KeyError: 0
+[exit 1]

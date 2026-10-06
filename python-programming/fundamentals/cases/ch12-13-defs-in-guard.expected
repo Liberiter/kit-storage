@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "work/snow_days.py", line 4, in <module>
+    print("바람재 11월 1~10일 눈 온 날:", sky_steps.count_snow(bj_sky))
+                                          ^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'sky_steps' has no attribute 'count_snow'
+[exit 1]

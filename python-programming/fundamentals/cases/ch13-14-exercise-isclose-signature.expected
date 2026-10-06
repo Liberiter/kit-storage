@@ -1,0 +1,8 @@
+True
+True
+Traceback (most recent call last):
+  File "work/ex2.py", line 5, in <module>
+    print(math.isclose(0.1 + 0.2, 0.3, 1e-09))
+          ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: isclose() takes exactly 2 positional arguments (3 given)
+[exit 1]

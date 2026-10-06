@@ -1,0 +1,7 @@
+BJ 바람재
+Traceback (most recent call last):
+  File "work/find_name.py", line 10, in <module>
+    print(code, names[code])
+                ~~~~~^^^^^^
+KeyError: 'PT'
+[exit 1]

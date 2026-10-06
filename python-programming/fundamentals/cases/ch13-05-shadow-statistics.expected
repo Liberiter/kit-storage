@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "work/stats_low.py", line 4, in <module>
+    print("중앙값:", statistics.median(bj_low))
+                     ^^^^^^^^^^^^^^^^^
+AttributeError: module 'statistics' has no attribute 'median' (consider renaming 'work/statistics.py' since it has the same name as the standard library module named 'statistics' and prevents importing that standard library module)
+[exit 1]

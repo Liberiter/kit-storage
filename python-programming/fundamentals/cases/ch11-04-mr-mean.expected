@@ -1,0 +1,7 @@
+비 온 날: 0
+Traceback (most recent call last):
+  File "work/mr_mean.py", line 4, in <module>
+    print("평균:", sum(rainy) / len(rainy))
+                   ~~~~~~~~~~~^~~~~~~~~~~~
+ZeroDivisionError: division by zero
+[exit 1]

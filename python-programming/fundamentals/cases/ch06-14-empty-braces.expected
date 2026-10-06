@@ -1,0 +1,7 @@
+<class 'dict'>
+Traceback (most recent call last):
+  File "work/empty_kinds.py", line 3, in <module>
+    kinds.add("눈")
+    ^^^^^^^^^
+AttributeError: 'dict' object has no attribute 'add'
+[exit 1]

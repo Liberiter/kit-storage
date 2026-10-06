@@ -1,0 +1,6 @@
+최저기온(도): Traceback (most recent call last):
+  File "work/low_int.py", line 1, in <module>
+    low = int(input("최저기온(도): "))
+          ~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: invalid literal for int() with base 10: '-1.5'
+[exit 1]

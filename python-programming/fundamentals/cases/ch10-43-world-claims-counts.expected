@@ -1,0 +1,7 @@
+ 주장                                           | 실측값 
+------------------------------------------------+--------
+ pyproject.toml [tool.ruff] line-length         |      88
+ pyproject.toml [tool.ruff.format] 설정 항목 수 |       0
+ broken/untidy_report.py 11번째 줄 글자 수      |      75
+ broken/untidy_report.py 11번째 줄 너비         |     120
+[exit 0]

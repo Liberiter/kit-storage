@@ -1,0 +1,5 @@
+  File "work/ex4.py", line 1
+    import rain-steps
+               ^
+SyntaxError: invalid syntax
+[exit 1]

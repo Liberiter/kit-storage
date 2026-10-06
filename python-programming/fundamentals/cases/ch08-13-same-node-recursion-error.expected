@@ -1,0 +1,16 @@
+Traceback (most recent call last):
+  File "work/same_node.py", line 16, in <module>
+    print(count_stations(mountain))
+          ~~~~~~~~~~~~~~^^^^^^^^^^
+  File "work/same_node.py", line 4, in count_stations
+    total = total + count_stations(node)
+                    ~~~~~~~~~~~~~~^^^^^^
+  File "work/same_node.py", line 4, in count_stations
+    total = total + count_stations(node)
+                    ~~~~~~~~~~~~~~^^^^^^
+  File "work/same_node.py", line 4, in count_stations
+    total = total + count_stations(node)
+                    ~~~~~~~~~~~~~~^^^^^^
+  [Previous line repeated 996 more times]
+RecursionError: maximum recursion depth exceeded
+[exit 1]

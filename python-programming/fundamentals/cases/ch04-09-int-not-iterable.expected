@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "work/days_int.py", line 1, in <module>
+    for day in 30:
+               ^^
+TypeError: 'int' object is not iterable
+[exit 1]

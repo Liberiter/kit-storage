@@ -1,0 +1,25 @@
+F841 Local variable `unused` is assigned to but never used
+ --> broken/untidy_report.py:5:5
+  |
+3 |     added=0.0
+4 |     days = 0
+5 |     unused = "여기 있지만 아무도 쓰지 않습니다"
+  |     ^^^^^^
+6 |     for value in rains :
+7 |         added=added+value
+  |
+help: Remove assignment to unused variable `unused`
+
+E501 Line too long (120 > 88)
+  --> broken/untidy_report.py:11:57
+   |
+ 9 |     mean = added/days
+10 |     print( "관측소", station, "합계", round(added,1), "평균", round(mean,2) )
+11 |     print("이 줄은 여든여덟 칸을 넘기도록 일부러 길게 적어 둔 안내 문장입니다. 포매터가 문자열을 잘라 주지는 않습니다.")
+   |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+12 | summary("바람재",[0.1,0.2,0.3])
+   |
+
+Found 2 errors.
+No fixes available (1 hidden fix can be enabled with the `--unsafe-fixes` option).
+[exit 1]

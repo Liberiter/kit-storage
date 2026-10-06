@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "work/ex3.py", line 9, in <module>
+    print("비 온 날수:", len(rain_steps.pick_rainy(rows)))
+                             ~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "work/rain_steps.py", line 6, in pick_rainy
+    return [cells for cells in rows if float(cells[4]) > 0]
+                                             ~~~~~^^^
+IndexError: list index out of range
+[exit 1]

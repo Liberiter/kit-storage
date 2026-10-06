@@ -1,0 +1,5 @@
+  File "work/fix_me.py", line 2
+    print("관측소", 6, "곳"
+         ^
+SyntaxError: '(' was never closed
+[exit 1]

@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "work/call_first.py", line 1, in <module>
+    print_header()
+    ^^^^^^^^^^^^
+NameError: name 'print_header' is not defined
+[exit 1]

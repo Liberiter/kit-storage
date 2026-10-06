@@ -1,0 +1,7 @@
+바람재 고도: 612 m
+Traceback (most recent call last):
+  File "work/concat_error.py", line 2, in <module>
+    print("바람재 고도: " + 612 + "m")
+          ~~~~~~~~~~~~~~~~^~~~~
+TypeError: can only concatenate str (not "int") to str
+[exit 1]

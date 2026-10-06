@@ -1,0 +1,6 @@
+고도(m): Traceback (most recent call last):
+  File "work/input_minus.py", line 2, in <module>
+    print(612 - elevation)
+          ~~~~^~~~~~~~~~~
+TypeError: unsupported operand type(s) for -: 'int' and 'str'
+[exit 1]

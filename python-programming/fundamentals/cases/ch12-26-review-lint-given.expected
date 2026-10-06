@@ -1,0 +1,30 @@
+F401 [*] `freezing_steps` imported but unused
+ --> work/review2.py:1:8
+  |
+1 | import freezing_steps
+  |        ^^^^^^^^^^^^^^
+2 |
+3 | bj_records = [
+  |
+help: Remove unused import: `freezing_steps`
+  |
+  - import freezing_steps
+1 |
+  |
+
+E402 Module level import not at top of file
+  --> work/review2.py:8:1
+   |
+ 6 |     "BJ|2025-11-08|-1.4|7.2|0.1|눈",
+ 7 | ]
+ 8 | import rain_steps
+   | ^^^^^^^^^^^^^^^^^
+ 9 |
+10 | highs = []
+   |
+help: Move module level imports to top of file
+
+Found 2 errors.
+[*] 1 fixable with the `--fix` option.
+최고기온: [9.3, 10.4, 7.2]
+[exit 0]

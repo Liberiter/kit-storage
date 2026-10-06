@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "work/high_list.py", line 12, in <module>
+    print(high_stations(["BJ", "SD", "PT", "GS"]))
+          ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "work/high_list.py", line 9, in high_stations
+    return [code for code in codes if elevation_of(code) >= 300]
+                                      ~~~~~~~~~~~~^^^^^^
+  File "work/high_list.py", line 5, in elevation_of
+    return elevations[code]
+           ~~~~~~~~~~^^^^^^
+KeyError: 'PT'
+[exit 1]

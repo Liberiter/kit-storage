@@ -1,0 +1,4 @@
+바람재 8일 + 9일: ==로는 False, close_enough()로는 True
+바람재 4일 + 5일: ==로는 True, close_enough()로는 True
+솔등 4일 + 5일: ==로는 True, close_enough()로는 True
+[exit 0]

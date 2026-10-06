@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "work/sd_report.py", line 15, in <module>
+    rows = read_rows(sd_records)
+           ^^^^^^^^^
+NameError: name 'read_rows' is not defined
+[exit 1]

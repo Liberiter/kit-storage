@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "work/day3.py", line 12, in <module>
+    amounts = notebook.day_amounts(lines)
+  File "work/notebook.py", line 2, in day_amounts
+    return [float(line.split("|")[2]) for line in lines]
+            ~~~~~^^^^^^^^^^^^^^^^^^^^
+ValueError: could not convert string to float: ' 결측'
+[exit 1]

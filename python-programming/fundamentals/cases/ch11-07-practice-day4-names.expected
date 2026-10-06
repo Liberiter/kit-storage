@@ -1,0 +1,12 @@
+BJ 바람재
+SD 솔등
+NM 너미
+HG 하곡
+MR 물레
+GS 갈숲
+Traceback (most recent call last):
+  File "work/day4_names.py", line 11, in <module>
+    print(code, names[code])
+                ~~~~~^^^^^^
+KeyError: 'PT'
+[exit 1]

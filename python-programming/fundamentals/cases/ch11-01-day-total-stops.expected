@@ -1,0 +1,7 @@
+BJ 9.4
+SD 8.8
+Traceback (most recent call last):
+  File "work/day_total.py", line 14, in <module>
+    amount = float(parts[2].strip())
+ValueError: could not convert string to float: '결측'
+[exit 1]

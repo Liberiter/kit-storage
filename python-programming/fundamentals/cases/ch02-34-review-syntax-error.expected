@@ -1,0 +1,5 @@
+  File "work/review2.py", line 3
+    print(f"{name}({elevation}m))
+          ^
+SyntaxError: unterminated f-string literal (detected at line 3)
+[exit 1]

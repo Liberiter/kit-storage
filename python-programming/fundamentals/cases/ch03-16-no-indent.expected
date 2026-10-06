@@ -1,0 +1,5 @@
+  File "work/no_indent.py", line 3
+    print("영하 알림: 길이 얼 수 있습니다.")
+    ^^^^^
+IndentationError: expected an indented block after 'if' statement on line 2
+[exit 1]

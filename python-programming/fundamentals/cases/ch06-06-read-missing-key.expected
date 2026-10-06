@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "work/no_check.py", line 6, in <module>
+    totals[code] = totals[code] + float(parts[4])
+                   ~~~~~~^^^^^^
+KeyError: 'BJ'
+[exit 1]

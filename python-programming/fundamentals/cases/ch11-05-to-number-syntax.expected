@@ -1,0 +1,5 @@
+  File "work/to_number_broken.py", line 4
+    print("끝"
+         ^
+SyntaxError: '(' was never closed
+[exit 1]

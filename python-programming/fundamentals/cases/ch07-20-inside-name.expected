@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "work/inside_name.py", line 7, in <module>
+    print(result)
+          ^^^^^^
+NameError: name 'result' is not defined
+[exit 1]

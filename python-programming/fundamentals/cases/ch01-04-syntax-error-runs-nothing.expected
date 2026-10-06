@@ -1,0 +1,5 @@
+  File "work/first_broken.py", line 3
+    print("오늘도 안전하게 관측하세요."
+         ^
+SyntaxError: '(' was never closed
+[exit 1]

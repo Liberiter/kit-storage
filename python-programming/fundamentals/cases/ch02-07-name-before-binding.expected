@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "work/too_early.py", line 1, in <module>
+    print("고도:", elevation, "m")
+                   ^^^^^^^^^
+NameError: name 'elevation' is not defined
+[exit 1]

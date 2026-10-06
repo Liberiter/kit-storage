@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "work/day10.py", line 2, in <module>
+    print(f"11월 10일 강수량: {bj_rain[10]}mm")
+                               ~~~~~~~^^^^
+IndexError: list index out of range
+[exit 1]

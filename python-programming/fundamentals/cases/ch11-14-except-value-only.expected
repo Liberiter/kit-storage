@@ -1,0 +1,12 @@
+바람재 9.4
+솔등 8.8
+너미 결측
+하곡 7.2
+물레 0.0
+갈숲 8.1
+Traceback (most recent call last):
+  File "work/day3_print.py", line 22, in <module>
+    print(names[code], float(parts[2].strip()))
+          ~~~~~^^^^^^
+KeyError: 'PT'
+[exit 1]

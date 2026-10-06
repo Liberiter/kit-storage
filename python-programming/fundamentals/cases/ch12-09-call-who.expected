@@ -1,0 +1,4 @@
+who_am_i.py 의 __name__: who_am_i
+call_who.py 의 __name__: __main__
+call_who.py 가 본 who_am_i.__name__: who_am_i
+[exit 0]

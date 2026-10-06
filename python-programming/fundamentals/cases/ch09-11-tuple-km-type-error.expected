@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "work/tuple_km.py", line 7, in <module>
+    print_km(bj)
+    ~~~~~~~~^^^^
+  File "work/tuple_km.py", line 2, in print_km
+    station[2] = station[2] / 1000
+    ~~~~~~~^^^
+TypeError: 'tuple' object does not support item assignment
+[exit 1]

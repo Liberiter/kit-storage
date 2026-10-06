@@ -1,0 +1,15 @@
+Traceback (most recent call last):
+  File "work/review2.py", line 30, in <module>
+    print("바람재 관측망:", count_stations(tree))
+                            ~~~~~~~~~~~~~~^^^^^^
+  File "work/review2.py", line 4, in count_stations
+    total = total + count_stations(child)
+                    ~~~~~~~~~~~~~~^^^^^^^
+  File "work/review2.py", line 4, in count_stations
+    total = total + count_stations(child)
+                    ~~~~~~~~~~~~~~^^^^^^^
+  File "work/review2.py", line 3, in count_stations
+    for child in node["children"]:
+                 ~~~~^^^^^^^^^^^^
+KeyError: 'children'
+[exit 1]

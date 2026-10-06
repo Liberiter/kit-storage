@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "work/ex3.py", line 7, in <module>
+    gap = daily_range(parts[2], parts[3])
+  File "work/ex3.py", line 2, in daily_range
+    return high - low
+           ~~~~~^~~~~
+TypeError: unsupported operand type(s) for -: 'str' and 'str'
+[exit 1]

@@ -1,0 +1,5 @@
+  File "work/single_eq.py", line 2
+    if sky = "눈":
+       ^^^^^^^^^
+SyntaxError: invalid syntax. Maybe you meant '==' or ':=' instead of '='?
+[exit 1]

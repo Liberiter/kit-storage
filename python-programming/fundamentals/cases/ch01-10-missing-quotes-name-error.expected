@@ -1,0 +1,8 @@
+바람재 관측망 고도 안내
+
+Traceback (most recent call last):
+  File "work/board_typo.py", line 3, in <module>
+    print(바람재, 612, "m")
+          ^^^^^^
+NameError: name '바람재' is not defined
+[exit 1]

@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "work/day4_lines.py", line 36, in <module>
+    print(line_text(name, amount))
+          ~~~~~~~~~^^^^^^^^^^^^^^
+  File "work/day4_lines.py", line 9, in line_text
+    return name + " " + amount + "mm"
+           ~~~~~~~~~~~^~~~~~~~
+TypeError: can only concatenate str (not "float") to str
+[exit 1]

@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "work/review3.py", line 13, in <module>
+    day = datetime.date.fromisoformat(lines[0].split("|")[1])
+ValueError: Invalid isoformat string: ' 2025-11-04 '
+[exit 1]

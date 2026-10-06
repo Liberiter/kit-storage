@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "work/list_key.py", line 1, in <module>
+    rain_by_day = {["BJ", "2025-11-04"]: 13.6, ["SD", "2025-11-04"]: 8.5}
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: cannot use 'list' as a dict key (unhashable type: 'list')
+[exit 1]

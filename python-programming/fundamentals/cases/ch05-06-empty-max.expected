@@ -1,0 +1,7 @@
+비나 눈이 온 날: 0일, 합계: 0mm
+Traceback (most recent call last):
+  File "work/dry_week.py", line 7, in <module>
+    print(f"가장 많이 온 양: {max(wet)}mm")
+                              ~~~^^^^^
+ValueError: max() iterable argument is empty
+[exit 1]

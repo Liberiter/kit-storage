@@ -1,0 +1,5 @@
+  File "work/curly_quotes.py", line 1
+    print(“바람재”, 612, "m")
+          ^
+SyntaxError: invalid character '“' (U+201C)
+[exit 1]

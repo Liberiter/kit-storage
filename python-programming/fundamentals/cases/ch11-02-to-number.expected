@@ -1,0 +1,8 @@
+9.4
+8.8
+Traceback (most recent call last):
+  File "work/to_number.py", line 3, in <module>
+    print(float(text))
+          ~~~~~^^^^^^
+ValueError: could not convert string to float: '결측'
+[exit 1]

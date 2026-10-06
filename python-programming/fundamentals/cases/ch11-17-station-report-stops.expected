@@ -1,0 +1,15 @@
+BJ: 결측 0일, 비 온 날 평균 6.45mm
+SD: 결측 1일, 비 온 날 평균 6.35mm
+NM: 결측 1일, 비 온 날 평균 3.10mm
+HG: 결측 0일, 비 온 날 평균 5.00mm
+Traceback (most recent call last):
+  File "work/station_report.py", line 34, in <module>
+    report(notes)
+    ~~~~~~^^^^^^^
+  File "work/station_report.py", line 30, in report
+    mean = rainy_mean(amounts)
+  File "work/station_report.py", line 24, in rainy_mean
+    return sum(rainy) / len(rainy)
+           ~~~~~~~~~~~^~~~~~~~~~~~
+ZeroDivisionError: division by zero
+[exit 1]

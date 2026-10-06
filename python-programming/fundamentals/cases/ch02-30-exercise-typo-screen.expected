@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "work/ex3.py", line 3, in <module>
+    print(f"{name} 관측소는 하곡보다 {Elevation - 93}m 높습니다.")
+                                      ^^^^^^^^^
+NameError: name 'Elevation' is not defined. Did you mean: 'elevation'?
+[exit 1]
