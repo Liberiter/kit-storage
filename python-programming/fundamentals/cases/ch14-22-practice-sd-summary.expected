@@ -1,0 +1,8 @@
+out/sd_summary.json 에 썼습니다.
+{
+  "station": "SD",
+  "name": "솔등",
+  "rainy_days": 7,
+  "rain_total": 59.4
+}
+[exit 0]

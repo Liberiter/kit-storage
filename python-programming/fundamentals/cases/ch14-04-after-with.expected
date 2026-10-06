@@ -1,0 +1,7 @@
+블록 안에서 읽은 줄: 180
+Traceback (most recent call last):
+  File "work/after_with.py", line 4, in <module>
+    for line in records_file:
+                ^^^^^^^^^^^^
+ValueError: I/O operation on closed file.
+[exit 1]

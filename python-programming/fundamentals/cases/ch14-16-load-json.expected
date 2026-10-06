@@ -1,0 +1,5 @@
+<class 'dict'>
+2025-11
+<class 'list'>
+{'date': '2025-11-04', 'tmin': 1.3, 'tmax': 9.3, 'rain': 13.6, 'sky': '비'}
+[exit 0]

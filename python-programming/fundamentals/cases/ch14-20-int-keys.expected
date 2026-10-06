@@ -1,0 +1,7 @@
+{"44": 0.0, "45": 17.7, "46": 0.3}
+Traceback (most recent call last):
+  File "work/week_keys.py", line 7, in <module>
+    print(restored[45])
+          ~~~~~~~~^^^^
+KeyError: 45
+[exit 1]

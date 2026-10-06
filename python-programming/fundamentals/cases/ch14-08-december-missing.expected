@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "work/december_totals.py", line 2, in <module>
+    with open("data/readings_" + month + ".txt", encoding="utf-8") as records_file:
+         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'data/readings_2025-12.txt'
+[exit 1]

@@ -1,0 +1,13 @@
+out/rain_totals.json 에 썼습니다.
+{
+  "month": "2025-11",
+  "rain_total": {
+    "BJ": 67.1,
+    "GS": 48.6,
+    "HG": 58.5,
+    "MR": 61.0,
+    "NM": 56.2,
+    "SD": 59.4
+  }
+}
+[exit 0]

@@ -1,0 +1,10 @@
+out/bj.txt
+data/readings.json
+True
+False
+Traceback (most recent call last):
+  File "work/ex2.py", line 9, in <module>
+    print("out" / "bj.txt")
+          ~~~~~~^~~~~~~~~~
+TypeError: unsupported operand type(s) for /: 'str' and 'str'
+[exit 1]
