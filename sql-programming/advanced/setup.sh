@@ -133,7 +133,7 @@ template_build() {
            "데이터베이스를 만들 수 있는 슈퍼유저로 접속하도록 PGUSER 를 바꿔 이 스크립트를 다시 실행하세요 (예: PGUSER=postgres KIT_MODE=native ./setup.sh). 권한 문제가 아니라면 서버가 PostgreSQL 18인지 확인하세요"
     else
       fail "world 원본 데이터베이스 $TEMPLATE 를 만들지 못했습니다 (컨테이너 $CONTAINER)" \
-           "docker logs $CONTAINER 로 서버 메시지를 확인하고, 막히면 docker rm -f $CONTAINER 뒤 ./setup.sh 를 다시 실행하세요"
+           "docker logs $CONTAINER 로 서버 메시지를 확인하고, 막히면 docker rm -fv $CONTAINER 뒤 ./setup.sh 를 다시 실행하세요"
     fi
   fi
 
@@ -175,7 +175,7 @@ EOF_EXT
       fail "world 원본에 관찰 도구 확장(pg_stat_statements·pageinspect·pg_buffercache·pgstattuple·pg_visibility)을 만들지 못했습니다" \
            "PostgreSQL 18 의 확장 모음(contrib)이 함께 설치되어 있는지 확인한 뒤 ./setup.sh 를 다시 실행하세요 — Homebrew·Postgres.app 은 기본으로 들어 있고, Linux·WSL2 의 PGDG 패키지 postgresql-18 에도 들어 있습니다"
     else
-      fail "world 원본에 관찰 도구 확장을 만들지 못했습니다 (컨테이너 $CONTAINER)" "docker rm -f $CONTAINER 뒤 ./setup.sh 를 다시 실행하세요"
+      fail "world 원본에 관찰 도구 확장을 만들지 못했습니다 (컨테이너 $CONTAINER)" "docker rm -fv $CONTAINER 뒤 ./setup.sh 를 다시 실행하세요"
     fi
   fi
   # 뒷정리·얼림·통계 수집. 되돌린 직후의 world 가 «정착 상태»여야 한다 — 적재 직후에는 가시성 맵이
@@ -287,7 +287,7 @@ if docker ps -a --format '{{.Names}}' | grep -qx "$CONTAINER"; then
     echo "기존 컨테이너 시작: $CONTAINER"
     docker start "$CONTAINER" >/dev/null \
       || fail "컨테이너 $CONTAINER 를 시작하지 못했습니다 (위 docker 메시지 참고 — 포트 $PORT 를 다른 프로그램이 쓰고 있을 수 있습니다)" \
-              "포트를 쓰는 프로그램을 멈추거나, docker rm -f $CONTAINER 뒤 다른 포트로 KIT_PORT=<포트> ./setup.sh 를 실행하세요 (그 뒤의 명령에도 같은 KIT_PORT 를 붙입니다)"
+              "포트를 쓰는 프로그램을 멈추거나, docker rm -fv $CONTAINER 뒤 다른 포트로 KIT_PORT=<포트> ./setup.sh 를 실행하세요 (그 뒤의 명령에도 같은 KIT_PORT 를 붙입니다)"
   else
     echo "컨테이너 실행 중: $CONTAINER"
   fi
@@ -307,7 +307,7 @@ else
     -c shared_preload_libraries=pg_stat_statements \
     -c shared_buffers=128MB >/dev/null \
     || fail "컨테이너 $CONTAINER 를 만들지 못했습니다 (위 docker 메시지 참고 — 포트 $PORT 를 다른 프로그램이 쓰고 있거나, 이미지 $IMAGE 를 내려받지 못했을 수 있습니다)" \
-            "docker rm -f $CONTAINER 로 반쯤 만들어진 컨테이너를 지운 뒤, 포트가 문제면 다른 포트로 KIT_PORT=<포트> ./setup.sh 를, 내려받기가 문제면 인터넷 연결을 확인하고 ./setup.sh 를 다시 실행하세요 (다른 포트를 썼으면 그 뒤의 명령에도 같은 KIT_PORT 를 붙입니다)"
+            "docker rm -fv $CONTAINER 로 반쯤 만들어진 컨테이너를 지운 뒤, 포트가 문제면 다른 포트로 KIT_PORT=<포트> ./setup.sh 를, 내려받기가 문제면 인터넷 연결을 확인하고 ./setup.sh 를 다시 실행하세요 (다른 포트를 썼으면 그 뒤의 명령에도 같은 KIT_PORT 를 붙입니다)"
 fi
 
 # 공식 이미지는 첫 기동 때 초기화용 임시 서버를 한 번 띄웠다 내리고 본 서버를 띄운다.
@@ -326,7 +326,7 @@ done
 echo
 [ "${ready:-0}" = 1 ] || {
   echo "오류: 60초 내에 서버가 준비되지 않았습니다 (컨테이너 $CONTAINER)." >&2
-  echo "  다음: 첫 실행이거나 컴퓨터가 느리면 잠시 뒤 ./setup.sh 를 한 번 더 실행하세요. 반복되면 docker logs $CONTAINER 로 서버가 남긴 메시지를 확인하고, 그래도 막히면 docker rm -f $CONTAINER 뒤 ./setup.sh 를 다시 실행하세요." >&2
+  echo "  다음: 첫 실행이거나 컴퓨터가 느리면 잠시 뒤 ./setup.sh 를 한 번 더 실행하세요. 반복되면 docker logs $CONTAINER 로 서버가 남긴 메시지를 확인하고, 그래도 막히면 docker rm -fv $CONTAINER 뒤 ./setup.sh 를 다시 실행하세요." >&2
   exit 1; }
 
 # 메이저 버전 확인 (이 코스의 기준: PostgreSQL 18)
@@ -334,13 +334,13 @@ ver=$(kit_psql -d "$ADMIN" -tAc "SHOW server_version;")
 case "$ver" in
   18.*) echo "PostgreSQL $ver 확인 (이 코스의 기준: 메이저 18)" ;;
   *) fail "서버 버전 $ver — 이 코스가 쓰는 메이저 18이 아닙니다." \
-          "docker rm -f $CONTAINER 로 컨테이너를 지운 뒤 ./setup.sh 를 실행하면 postgres:18 이미지로 다시 만듭니다." ;;
+          "docker rm -fv $CONTAINER 로 컨테이너를 지운 뒤 ./setup.sh 를 실행하면 postgres:18 이미지로 다시 만듭니다." ;;
 esac
 
 # 컨테이너가 이 kit 이 정한 서버 설정으로 떠 있는가 (다른 방법으로 만든 같은 이름의 컨테이너일 수 있다).
 kit_preload_ok "$ADMIN" \
   || fail "컨테이너 $CONTAINER 의 서버에 pg_stat_statements 가 올라와 있지 않습니다 — 이 kit 이 만든 컨테이너가 아닙니다." \
-          "docker rm -f $CONTAINER 로 컨테이너를 지운 뒤 ./setup.sh 를 실행하면 이 코스의 설정으로 다시 만듭니다."
+          "docker rm -fv $CONTAINER 로 컨테이너를 지운 뒤 ./setup.sh 를 실행하면 이 코스의 설정으로 다시 만듭니다."
 
 refuse_if_busy
 template_build

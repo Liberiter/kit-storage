@@ -267,19 +267,24 @@ kit의 스크립트는 실패하면 원인 한 줄과 **다음에 할 일** 한 
 | 컨테이너 미실행 (기본 경로) | `./setup.sh` (컴퓨터를 껐다 켠 뒤 흔한 상태 — `setup.sh`가 기존 컨테이너를 다시 시작합니다) |
 | `psql` 명령 없음 (대안 경로) | 0장 0.7절대로 PostgreSQL 18 설치. PATH에 없으면 `KIT_PSQL=/설치경로/psql` |
 | psql 접속 불가 | `./setup.sh` — world 데이터베이스가 없으면 다시 만듭니다. 대안 경로는 먼저 서버 기동(macOS Homebrew `brew services start postgresql@18`, Linux·WSL2 `sudo systemctl start postgresql`)과 접속 정보를 확인합니다 |
-| 서버 버전이 18.x가 아님 | 기본 경로: `docker rm -f ll-sql-advanced` 후 `./setup.sh`(postgres:18로 재생성) / 대안 경로: 18 설치 후 `PGPORT` 등으로 접속을 그쪽으로 |
+| 서버 버전이 18.x가 아님 | 기본 경로: `docker rm -fv ll-sql-advanced` 후 `./setup.sh`(postgres:18로 재생성) / 대안 경로: 18 설치 후 `PGPORT` 등으로 접속을 그쪽으로 |
 | 슈퍼유저가 아님 (대안 경로) | `PGUSER=postgres KIT_MODE=native ./setup.sh`처럼 슈퍼유저로 접속해 다시 실행합니다 |
-| `pg_stat_statements`가 서버에 올라와 있지 않음 | 대안 경로: 위 「대안 경로에서 `pg_stat_statements`를 올리는 법」 / 기본 경로: 이 kit이 만든 컨테이너가 아닙니다 — `docker rm -f ll-sql-advanced` 후 `./setup.sh` |
-| psql 문구 언어 불일치 | 기본 경로: `docker rm -f ll-sql-advanced` 후 `./setup.sh` / 대안 경로: `KIT_PSQL`이 PostgreSQL 18이 설치한 psql 실행 파일을 가리키게 합니다 |
-| world 정렬 규칙 불일치 | world 원본이 다른 로케일로 만들어졌습니다. 기본 경로: `docker rm -f ll-sql-advanced` 후 `./setup.sh` / 대안 경로: `dropdb bookstore_scale_template` 후 `./setup.sh` |
+| `pg_stat_statements`가 서버에 올라와 있지 않음 | 대안 경로: 위 「대안 경로에서 `pg_stat_statements`를 올리는 법」 / 기본 경로: 이 kit이 만든 컨테이너가 아닙니다 — `docker rm -fv ll-sql-advanced` 후 `./setup.sh` |
+| psql 문구 언어 불일치 | 기본 경로: `docker rm -fv ll-sql-advanced` 후 `./setup.sh` / 대안 경로: `KIT_PSQL`이 PostgreSQL 18이 설치한 psql 실행 파일을 가리키게 합니다 |
+| world 정렬 규칙 불일치 | world 원본이 다른 로케일로 만들어졌습니다. 기본 경로: `docker rm -fv ll-sql-advanced` 후 `./setup.sh` / 대안 경로: `dropdb bookstore_scale_template` 후 `./setup.sh` |
 | world 세션 설정 불일치 | `./reset.sh` — world를 다시 만들면서 설정을 다시 겁니다. 그래도 같으면 psql 쪽 환경 변수 `PGTZ`·`PGDATESTYLE`·`PGOPTIONS`나 `ALTER ROLE … SET`으로 둔 역할 설정이 데이터베이스 설정을 덮고 있는지 확인하세요 |
 | world 원본이 없음 | `./setup.sh` — 원본을 다시 만듭니다 |
-| world 속성 검증 실패 | `./reset.sh` 후 재시도. 그래도 실패하면 `./setup.sh` (원본이 지금 kit 파일과 다르면 원본부터 다시 만듭니다). 그래도 같으면 기본 경로는 `docker rm -f ll-sql-advanced`, 대안 경로는 `dropdb bookstore_scale_template` 뒤 `./setup.sh` |
+| world 속성 검증 실패 | `./reset.sh` 후 재시도. 그래도 실패하면 `./setup.sh` (원본이 지금 kit 파일과 다르면 원본부터 다시 만듭니다). 그래도 같으면 기본 경로는 `docker rm -fv ll-sql-advanced`, 대안 경로는 `dropdb bookstore_scale_template` 뒤 `./setup.sh` |
 | 「알림: … 문자 분류(LC_CTYPE)가 …」 (실패는 아님) | 그대로 두셔도 됩니다. world 원본이 이 kit이 아닌 방법으로 만들어졌을 때만 나옵니다. 맞추려면 위 「world 정렬 규칙 불일치」와 같은 방법으로 원본을 다시 만듭니다 |
 | 「알림: 서버의 공유 버퍼 크기(shared_buffers)가 …」 (대안 경로, 실패는 아님) | 그대로 두셔도 됩니다 — 실행 계획의 `Buffers` 줄(공유 버퍼에서 찾은 `hit`과 밖에서 읽어 온 `read`의 수)과 일부 계획이 교재와 다르게 나올 수 있습니다. 맞추려면 서버 설정의 `shared_buffers`를 `128MB`로 두고 서버를 다시 시작합니다 |
 | 「알림: psqlrc 가 여러분의 psql 세션 설정을 바꿉니다」 (대안 경로, 실패는 아님) | psqlrc는 점검의 판정에 들어가지 않지만, 여러분이 직접 여는 psql 세션은 psqlrc의 `SET …` 줄 때문에 본문과 다르게 보일 수 있습니다. 알림이 그 세션의 실제 값과 psql이 읽는 파일의 해당 줄을 보여 줍니다. 코스를 진행하는 동안 그 줄을 지우거나 `--` 주석으로 바꾸세요(임시로는 `psql -X`). `\timing`·`\x auto`·`\pset` 같은 표시 설정은 두어도 kit 점검에 영향이 없습니다 |
 | kit 파일을 읽을 수 없음 | 파일이 지워졌거나 옮겨졌습니다 — kit을 다시 받으세요 (0장 0.3절) |
 | 「kit 파일 … 을(를) 실행할 수 없습니다 (없거나 실행 권한이 없습니다)」 | 다른 스크립트가 부르는 kit 스크립트(`reset.sh`·`check_env.sh`)가 없거나 실행 권한이 없습니다. 파일이 지워졌다면 kit을 다시 받으세요 (0장 0.3절). 파일은 있는데 권한만 없으면 `chmod +x <파일>`(예: `chmod +x reset.sh`) 뒤 다시 실행하시면 됩니다 |
+
+표의 `docker rm -fv`에서 `-v`는 컨테이너와 함께 **그 컨테이너가 쓰던 데이터 볼륨**(world가 들어 있는 저장 공간)까지
+지웁니다. `-v` 없이 `docker rm -f`로만 지우면 볼륨이 남아 world가 쓰던 디스크(2GB 안팎)를 돌려받지 못하고, 다시
+만들 때마다 새 볼륨이 생기므로 남은 볼륨이 쌓입니다. `./setup.sh`가 world를 처음부터 다시 만드므로 볼륨을 지워도
+잃는 것이 없습니다.
 
 world 속성 검증 실패에는 `world_check.sql`의 예외 메시지가 그대로 따라 나옵니다. `W`로 시작하는 번호는
 `world_check.sql`의 검사 번호입니다 — 그 파일에서 같은 번호의 주석(`-- W1. …`)을 찾으면 무엇을 보는

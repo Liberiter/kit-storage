@@ -56,7 +56,7 @@ case "$ver" in
            "이 코스가 쓰는 메이저는 18입니다. 0장 0.7절대로 PostgreSQL 18을 설치해 접속 정보를 그쪽으로 돌리세요 (여러 버전을 함께 쓴다면 PGPORT로 18 쪽 포트를 지정)"
     else
       fail "서버 버전 $ver (기대: 18.x)" \
-           "이 코스가 쓰는 메이저는 18입니다. docker rm -f $KIT_CONTAINER 로 컨테이너를 지운 뒤 ./setup.sh 를 실행하면 postgres:18 이미지로 다시 만듭니다"
+           "이 코스가 쓰는 메이저는 18입니다. docker rm -fv $KIT_CONTAINER 로 컨테이너를 지운 뒤 ./setup.sh 를 실행하면 postgres:18 이미지로 다시 만듭니다"
     fi
     ;;
 esac
@@ -73,7 +73,7 @@ if [ "$client_now" != "$KIT_CLIENT_EXPECTED" ]; then
          "kit 은 psql 을 LC_ALL=C.UTF-8 로 불러 영어 문구를 받도록 고정합니다. 그런데도 이렇게 나오면 KIT_PSQL 이 가리키는 것이 스스로 언어를 정하는 감싼 스크립트일 수 있습니다 — PostgreSQL 18 이 설치한 psql 실행 파일을 KIT_PSQL=/설치경로/psql 로 가리킨 뒤 다시 실행하세요"
   else
     fail "psql 문구 언어 불일치 — 컨테이너 $KIT_CONTAINER 안의 psql 이 교재 본문과 다른 언어로 결과를 냅니다" \
-         "docker rm -f $KIT_CONTAINER 로 컨테이너를 지운 뒤 ./setup.sh 를 실행하세요 — kit 이 정한 로케일(LANG=C.UTF-8)로 컨테이너를 다시 만들고 world를 다시 만듭니다"
+         "docker rm -fv $KIT_CONTAINER 로 컨테이너를 지운 뒤 ./setup.sh 를 실행하세요 — kit 이 정한 로케일(LANG=C.UTF-8)로 컨테이너를 다시 만들고 world를 다시 만듭니다"
   fi
 fi
 
@@ -88,7 +88,7 @@ if [ "$sort_now" != "$KIT_SORT_EXPECTED" ]; then
          "world 원본이 다른 로케일로 만들어졌습니다. dropdb $KIT_TEMPLATE_DB 로 원본을 지운 뒤 ./setup.sh 를 실행하세요 — 정렬 규칙(C.UTF-8, builtin 제공자)을 고정해 원본과 world 를 다시 만듭니다"
   else
     fail "world 정렬 규칙 불일치 — 데이터베이스 $DB 의 ORDER BY 차례가 교재 본문과 다릅니다" \
-         "world 원본이 다른 로케일로 만들어졌습니다. docker rm -f $KIT_CONTAINER 로 컨테이너를 지운 뒤 ./setup.sh 를 실행하세요 — 정렬 규칙을 고정해 원본과 world 를 다시 만듭니다"
+         "world 원본이 다른 로케일로 만들어졌습니다. docker rm -fv $KIT_CONTAINER 로 컨테이너를 지운 뒤 ./setup.sh 를 실행하세요 — 정렬 규칙을 고정해 원본과 world 를 다시 만듭니다"
   fi
 fi
 
@@ -97,7 +97,7 @@ ctype_now=$(kit_ctype_probe "$DB" 2>/dev/null || true)
 if ! kit_ctype_ok "$ctype_now"; then
   echo "알림: 데이터베이스 $DB 의 문자 분류(LC_CTYPE)가 '${ctype_now:-(확인 실패)}' 입니다 — ./setup.sh 가 새로 만드는 원본은 $KIT_CTYPE_EXPECTED_TEXT 입니다." >&2
   echo "        이 설정은 값을 글자 단위로 어떻게 읽을지를 정합니다. 행 전체를 한 값으로 찍는 출력(ROW(…)::text 같은 것)과 \\l 이 내는 Ctype 열이 교재와 다르게 보일 수 있지만, 환경 확인은 이 항목으로 막지 않습니다." >&2
-  echo "        맞추고 싶으시면 원본을 지운 뒤(대안 경로: dropdb $KIT_TEMPLATE_DB / 기본 경로: docker rm -f $KIT_CONTAINER) ./setup.sh 를 다시 실행하세요." >&2
+  echo "        맞추고 싶으시면 원본을 지운 뒤(대안 경로: dropdb $KIT_TEMPLATE_DB / 기본 경로: docker rm -fv $KIT_CONTAINER) ./setup.sh 를 다시 실행하세요." >&2
 fi
 
 # kit 점검 밖의 축 — 대안 경로에서 psqlrc 가 여러분의 psql 세션 설정을 바꾸면 알림만 낸다
@@ -127,7 +127,7 @@ if ! kit_preload_ok "$DB"; then
          "KIT_MODE=native ./setup.sh 를 실행하세요 — 서버 설정에 무엇을 더하고 서버를 어떻게 다시 시작하는지 안내합니다"
   else
     fail "pg_stat_statements 가 컨테이너 $KIT_CONTAINER 의 서버에 올라와 있지 않습니다 — 이 kit 이 만든 컨테이너가 아닙니다" \
-         "docker rm -f $KIT_CONTAINER 로 컨테이너를 지운 뒤 ./setup.sh 를 실행하면 이 코스의 설정으로 다시 만듭니다"
+         "docker rm -fv $KIT_CONTAINER 로 컨테이너를 지운 뒤 ./setup.sh 를 실행하면 이 코스의 설정으로 다시 만듭니다"
   fi
 fi
 
